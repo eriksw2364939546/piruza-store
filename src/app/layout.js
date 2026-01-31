@@ -1,14 +1,14 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { PT_Serif } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header/Header";
+import ToastProvider from "@/components/ToastProvider/ToastProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const ptSerif = PT_Serif({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-pt-serif",
+  display: "swap",
 });
 
 export const metadata = {
@@ -18,9 +18,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="ru">
+      <body className={ptSerif.variable}>
+        <Header />
         {children}
+        <ToastProvider />
       </body>
     </html>
   );

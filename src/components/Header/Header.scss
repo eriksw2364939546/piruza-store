@@ -1,0 +1,617 @@
+header {
+    padding: 15px 0;
+    background: var(--header-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-bottom: 5px solid #8b6f63;
+    z-index: 1000;
+
+    .header-items {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+    }
+
+    .header-logo {
+        display: none;
+        z-index: 1002;
+
+        img {
+            transition: all 0.3s ease;
+        }
+    }
+
+    // Бургер-меню (скрыто на десктопе)
+    .burger-menu {
+        display: none;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1002;
+        transition: all 0.3s ease;
+
+        span {
+            width: 100%;
+            height: 3px;
+            background-color: #333;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        &.active {
+            span:nth-child(1) {
+                transform: translateY(10.5px) rotate(45deg);
+            }
+
+            span:nth-child(2) {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            span:nth-child(3) {
+                transform: translateY(-10.5px) rotate(-45deg);
+            }
+        }
+
+        &:hover span {
+            background-color: #8b6f63;
+        }
+    }
+
+    // Кнопка заказа для мобильных (скрыта на десктопе)
+    .header-mobile-order {
+        display: none;
+        z-index: 1002;
+    }
+
+    .header-logo__wrapper {
+        position: relative;
+
+        .header-logo__dekstop {
+            position: absolute;
+            top: -35px;
+            transition: all 0.3s ease;
+        }
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        gap: 40px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .header-nav__items {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+            transition: all 0.3s ease;
+        }
+
+        a {
+            font-size: 25px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: -5px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background-color: #8b6f63;
+                transition: width 0.3s ease;
+            }
+
+            &:hover {
+                color: #8b6f63;
+
+                &::after {
+                    width: 100%;
+                }
+            }
+        }
+
+        .header-btn {
+            transition: all 0.3s ease;
+        }
+    }
+
+    // Оверлей для мобильного меню
+    .menu-overlay {
+        display: none;
+    }
+}
+
+// ========================================
+// АДАПТИВНОСТЬ
+// ========================================
+
+// Очень большие экраны (Large Desktop)
+@media (max-width: 1400px) {
+    header {
+        nav {
+            gap: 30px;
+
+            .header-nav__items {
+                gap: 30px;
+            }
+
+            a {
+                font-size: 23px;
+            }
+        }
+    }
+}
+
+// Большие экраны (Desktop)
+@media (max-width: 1200px) {
+    header {
+        nav {
+            gap: 20px;
+
+            .header-nav__items {
+                gap: 20px;
+            }
+
+            a {
+                font-size: 21px;
+            }
+        }
+
+        .header-logo__wrapper {
+            .header-logo__dekstop {
+                img {
+                    width: 100px !important;
+                    height: 75px !important;
+                }
+            }
+        }
+    }
+}
+
+// ГЛАВНЫЙ БРЕЙКПОИНТ - Мобильное меню
+@media (max-width: 1140px) {
+    header {
+        padding: 12px 0;
+
+        .header-items {
+            justify-content: space-between;
+        }
+
+        // Показываем логотип слева
+        .header-logo {
+            display: block;
+
+            img {
+                width: 80px !important;
+                height: 60px !important;
+            }
+        }
+
+        // Показываем бургер-меню
+        .burger-menu {
+            display: flex;
+        }
+
+        // Показываем кнопку заказа
+        .header-mobile-order {
+            display: block;
+
+            .header-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+        }
+
+        // Скрываем центральный логотип
+        .header-logo__wrapper {
+            display: none;
+        }
+
+        // Адаптивная навигация
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: auto;
+            max-height: 0;
+            overflow: hidden;
+            background: var(--header-color);
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 0;
+            padding: 0;
+            margin-top: 92px;
+            border-bottom: 0px solid #8b6f63;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 51;
+
+            &.active {
+                max-height: 500px;
+                padding: 30px 20px;
+                border-bottom: 5px solid #8b6f63;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            }
+
+            .header-nav__items {
+                flex-direction: column;
+                gap: 20px;
+                width: 100%;
+                opacity: 0;
+                transform: translateY(-20px);
+                transition: all 0.4s ease 0.1s;
+
+                a {
+                    font-size: 20px;
+                    padding: 10px 0;
+                    width: 100%;
+                    text-align: center;
+                }
+            }
+
+            &.active .header-nav__items {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            // Скрываем десктопную кнопку заказа
+            .desktop-order-btn {
+                display: none;
+            }
+        }
+
+        // Оверлей
+        .menu-overlay {
+            display: block;
+            position: fixed;
+            top: 92px;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            animation: fadeIn 0.3s ease;
+        }
+    }
+}
+
+// Планшеты (Portrait)
+@media (max-width: 992px) {
+    header {
+        .header-logo {
+            img {
+                width: 70px !important;
+                height: 52px !important;
+            }
+        }
+
+        nav {
+            margin-top: 84px;
+
+            &.active {
+                padding: 25px 15px;
+            }
+
+            .header-nav__items {
+                a {
+                    font-size: 18px;
+                }
+            }
+        }
+
+        .menu-overlay {
+            top: 84px;
+        }
+    }
+}
+
+// Маленькие планшеты
+@media (max-width: 768px) {
+    header {
+        padding: 10px 0;
+
+        .header-logo {
+            img {
+                width: 60px !important;
+                height: 45px !important;
+            }
+        }
+
+        .burger-menu {
+            width: 28px;
+            height: 22px;
+
+            span {
+                height: 2.5px;
+            }
+
+            &.active {
+                span:nth-child(1) {
+                    transform: translateY(9.75px) rotate(45deg);
+                }
+
+                span:nth-child(3) {
+                    transform: translateY(-9.75px) rotate(-45deg);
+                }
+            }
+        }
+
+        .header-mobile-order {
+            .header-btn {
+                padding: 7px 14px;
+                font-size: 13px;
+            }
+        }
+
+        nav {
+            margin-top: 75px;
+
+            &.active {
+                max-height: 450px;
+                padding: 20px 15px;
+            }
+
+            .header-nav__items {
+                gap: 15px;
+
+                a {
+                    font-size: 17px;
+                    padding: 8px 0;
+                }
+            }
+        }
+
+        .menu-overlay {
+            top: 75px;
+        }
+    }
+}
+
+// Большие телефоны
+@media (max-width: 576px) {
+    header {
+        .header-logo {
+            img {
+                width: 55px !important;
+                height: 41px !important;
+            }
+        }
+
+        .burger-menu {
+            width: 26px;
+            height: 20px;
+
+            &.active {
+                span:nth-child(1) {
+                    transform: translateY(8.5px) rotate(45deg);
+                }
+
+                span:nth-child(3) {
+                    transform: translateY(-8.5px) rotate(-45deg);
+                }
+            }
+        }
+
+        .header-mobile-order {
+            .header-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+
+        nav {
+            margin-top: 71px;
+
+            .header-nav__items {
+                a {
+                    font-size: 16px;
+                }
+            }
+        }
+
+        .menu-overlay {
+            top: 71px;
+        }
+    }
+}
+
+// Средние телефоны
+@media (max-width: 480px) {
+    header {
+        padding: 8px 0;
+
+        .header-logo {
+            img {
+                width: 50px !important;
+                height: 37px !important;
+            }
+        }
+
+        .burger-menu {
+            width: 24px;
+            height: 18px;
+
+            span {
+                height: 2px;
+            }
+
+            &.active {
+                span:nth-child(1) {
+                    transform: translateY(8px) rotate(45deg);
+                }
+
+                span:nth-child(3) {
+                    transform: translateY(-8px) rotate(-45deg);
+                }
+            }
+        }
+
+        .header-mobile-order {
+            .header-btn {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+        }
+
+        nav {
+            margin-top: 64px;
+
+            &.active {
+                max-height: 400px;
+                padding: 15px 10px;
+            }
+
+            .header-nav__items {
+                gap: 12px;
+
+                a {
+                    font-size: 15px;
+                    padding: 6px 0;
+                }
+            }
+        }
+
+        .menu-overlay {
+            top: 64px;
+        }
+    }
+}
+
+// Маленькие телефоны
+@media (max-width: 375px) {
+    header {
+        .header-logo {
+            img {
+                width: 45px !important;
+                height: 34px !important;
+            }
+        }
+
+        .burger-menu {
+            width: 22px;
+            height: 17px;
+
+            &.active {
+                span:nth-child(1) {
+                    transform: translateY(7.5px) rotate(45deg);
+                }
+
+                span:nth-child(3) {
+                    transform: translateY(-7.5px) rotate(-45deg);
+                }
+            }
+        }
+
+        .header-mobile-order {
+            .header-btn {
+                padding: 5px 8px;
+                font-size: 10px;
+            }
+        }
+
+        nav {
+            margin-top: 60px;
+
+            .header-nav__items {
+                a {
+                    font-size: 14px;
+                }
+            }
+        }
+
+        .menu-overlay {
+            top: 60px;
+        }
+    }
+}
+
+// Очень маленькие телефоны
+@media (max-width: 320px) {
+    header {
+        padding: 6px 0;
+
+        .header-logo {
+            img {
+                width: 40px !important;
+                height: 30px !important;
+            }
+        }
+
+        .burger-menu {
+            width: 20px;
+            height: 15px;
+
+            span {
+                height: 2px;
+            }
+
+            &.active {
+                span:nth-child(1) {
+                    transform: translateY(6.5px) rotate(45deg);
+                }
+
+                span:nth-child(3) {
+                    transform: translateY(-6.5px) rotate(-45deg);
+                }
+            }
+        }
+
+        .header-mobile-order {
+            .header-btn {
+                padding: 4px 7px;
+                font-size: 9px;
+            }
+        }
+
+        nav {
+            margin-top: 56px;
+
+            &.active {
+                max-height: 350px;
+                padding: 12px 8px;
+            }
+
+            .header-nav__items {
+                gap: 10px;
+
+                a {
+                    font-size: 13px;
+                    padding: 5px 0;
+                }
+            }
+        }
+
+        .menu-overlay {
+            top: 56px;
+        }
+    }
+}
+
+// Анимация появления оверлея
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

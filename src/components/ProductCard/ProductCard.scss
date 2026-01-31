@@ -1,0 +1,201 @@
+.product-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 300px;
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+
+    &__img {
+        position: relative;
+        width: 100%;
+        height: 354px;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        // Градиент снизу
+        &::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.4));
+            pointer-events: none;
+        }
+    }
+
+    &__img-text {
+        position: absolute;
+        left: 0;
+        top: 15px;
+        background: #e63946;
+        color: white;
+        padding: 8px 20px;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        z-index: 2;
+        clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+
+        @media (max-width: 480px) {
+            font-size: 12px;
+            padding: 6px 16px;
+        }
+    }
+
+    &__content {
+        padding: 0px 20px 20px 20px;
+        box-shadow: 0 -30px 40px rgba(0, 0, 0, 0.818);
+        position: relative;
+    }
+
+    &__descr {
+        margin-bottom: 12px;
+        font-size: 16px;
+        line-height: 1.5;
+        color: white;
+        position: relative;
+        z-index: 1;
+        height: 50px;
+
+        @media (max-width: 480px) {
+            font-size: 14px;
+        }
+    }
+
+    &__price {
+        font-size: 18px;
+        font-weight: 300;
+        color: white;
+        position: relative;
+        z-index: 1;
+        height: 30px;
+
+        @media (max-width: 480px) {
+            font-size: 20px;
+        }
+    }
+}
+
+
+// Модальное окно
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 60px 15px 15px 15px;
+    }
+}
+
+.modal-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    max-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: zoomIn 0.3s ease;
+
+    @keyframes zoomIn {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        max-height: calc(100vh - 80px);
+    }
+}
+
+.modal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    max-width: 100%;
+    max-height: 100%;
+
+    @media (max-width: 768px) {
+        border-radius: 5px;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 0px;
+    right: 0;
+    background: white;
+    border: none;
+    font-size: 30px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.3s ease, transform 0.2s ease;
+    color: #333;
+    z-index: 1001;
+
+    &:hover {
+        background: #f0f0f0;
+        transform: rotate(90deg);
+    }
+
+    @media (max-width: 768px) {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 26px;
+    }
+
+    @media (max-width: 480px) {
+        width: 35px;
+        height: 35px;
+        font-size: 22px;
+    }
+}

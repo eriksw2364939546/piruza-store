@@ -1,0 +1,98 @@
+.products {
+    background: url(../../../../public/images/Hero.jpg) no-repeat center center/cover;
+
+    @media all and (max-width: 768px) {
+        padding: 80px 0;
+    }
+
+    &-content {
+        h2 {
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 32px;
+            color: #333;
+
+            @media (max-width: 768px) {
+                font-size: 28px;
+                margin-bottom: 30px;
+            }
+
+            @media (max-width: 440px) {
+                font-size: 24px;
+            }
+        }
+
+        .products-btn {
+            margin: 40px auto 0 auto;
+            display: block;
+        }
+    }
+
+    &-list {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 30px;
+
+        @media (max-width: 980px) {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .product-card__content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+        }
+
+        // Разные цвета для первой карточки
+        .product-card:nth-child(1) {
+            .product-card__img-text {
+                background: #3b82f6;
+
+            }
+
+            .product-card__content {
+                box-shadow: -5px -20px 40px 30px #3b82f6;
+                background: #3b82f6;
+            }
+        }
+
+        // Разные цвета для второй карточки
+        .product-card:nth-child(2) {
+            .product-card__img-text {
+                background: #e63946; // Красный
+            }
+
+            .product-card__content {
+                box-shadow: -5px -20px 40px 30px #e63946;
+                background: #e63946;
+            }
+        }
+
+        // Разные цвета для третьей карточки
+        .product-card:nth-child(3) {
+            .product-card__img-text {
+                background: #10b981;
+            }
+
+            .product-card__content {
+                box-shadow: -5px -20px 40px 30px #10b981;
+                background: #10b981;
+
+            }
+        }
+    }
+}
