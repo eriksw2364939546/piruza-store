@@ -63,7 +63,7 @@ const Hero = () => {
               5 saveurs naturelles issues d'une recette familiale
               <span className="hero-arrow">&rarr;</span>
             </p>
-            <a className="hero-bottom__btn btn" href="#">
+            <a className="hero-bottom__btn btn" href="#flavors">
               Choisissez une saveur
             </a>
           </div>

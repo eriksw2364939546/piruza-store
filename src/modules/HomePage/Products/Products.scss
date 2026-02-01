@@ -1,5 +1,8 @@
 .products {
     background: url(../../../../public/images/Hero.jpg) no-repeat center center/cover;
+    background-attachment: fixed; // Для параллакс эффекта если нужно
+
+
 
     @media all and (max-width: 768px) {
         padding: 80px 0;

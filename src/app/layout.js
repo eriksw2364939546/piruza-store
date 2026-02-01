@@ -1,6 +1,7 @@
 import { PT_Serif } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
 import ToastProvider from "@/components/ToastProvider/ToastProvider";
 
 const ptSerif = PT_Serif({
@@ -22,6 +23,7 @@ export default function RootLayout({ children }) {
       <body className={ptSerif.variable}>
         <Header />
         {children}
+        <Footer />
         <ToastProvider />
       </body>
     </html>

@@ -12,7 +12,7 @@ const Products = () => {
   const handleSuccess = () => {
     // Показываем toast ТОЛЬКО после успешной отправки формы
     toast.success(
-      "Пируза уже начала готовить вашу чурчхелу ❤️\nМы позвоним вам или отправим SMS для подтверждения заказа!",
+      "Piruza a déjà commencé à préparer votre sudjouke ❤️\nNous vous appellerons ou vous enverrons un SMS pour confirmer votre commande !",
       {
         duration: 6000,
       },
@@ -47,7 +47,7 @@ const Products = () => {
   ];
 
   return (
-    <section className="products">
+    <section id="flavors" className="products">
       <div className="container">
         <div className="products-content">
           <h2>Sudjouke arménien</h2>

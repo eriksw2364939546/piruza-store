@@ -1,9 +1,24 @@
 "use client";
 import "./HowToOrder.scss";
+import { useState } from "react";
+import OrderModal from "@/components/OrderModal/OrderModal";
+import toast from "react-hot-toast";
 
 const HowToOrder = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSuccess = () => {
+    // Показываем toast ТОЛЬКО после успешной отправки формы
+    toast.success(
+      "Piruza a déjà commencé à préparer votre sudjouke ❤️\nNous vous appellerons ou vous enverrons un SMS pour confirmer votre commande !",
+      {
+        duration: 6000,
+      },
+    );
+  };
+
   return (
-    <section className="how-to__order">
+    <section id="how-to__order" className="how-to__order">
       <div className="container">
         <div className="how-to__order-content">
           <h2>Comment commander</h2>
@@ -22,8 +37,22 @@ const HowToOrder = () => {
               <p>Piruza va commencer à cuisiner.</p>
             </div>
           </div>
+
+          <button
+            className="how-to__order-btn btn open-modal"
+            onClick={() => setIsModalOpen(true)}
+          >
+            Commander
+          </button>
         </div>
       </div>
+
+      {/* Модальное окно */}
+      <OrderModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleSuccess}
+      />
     </section>
   );
 };

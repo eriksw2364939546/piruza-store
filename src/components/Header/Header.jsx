@@ -75,14 +75,14 @@ const Header = () => {
                 </a>
                 <a
                   className="header-nav__item-link"
-                  href="#"
+                  href="#about"
                   onClick={closeMenu}
                 >
                   À propos
                 </a>
                 <a
                   className="header-nav__item-link"
-                  href="#"
+                  href="#flavors"
                   onClick={closeMenu}
                 >
                   Goûts
@@ -105,7 +105,7 @@ const Header = () => {
               <div className="header-nav__items">
                 <a
                   className="header-nav__item-link"
-                  href="#"
+                  href="#how-to__order"
                   onClick={closeMenu}
                 >
                   Comment commander

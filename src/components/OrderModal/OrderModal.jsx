@@ -159,7 +159,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
       );
 
       if (!result.success) {
-        throw new Error(result.error || "Ошибка отправки");
+        throw new Error(result.error || "Erreur d'envoi");
       }
 
       // Показываем видео
@@ -177,7 +177,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
         }
       }, 5000);
     } catch (error) {
-      console.error("Ошибка отправки:", error);
+      console.error("Erreur d'envoi:", error);
       setIsSubmitting(false);
       // Можно показать toast с ошибкой
       alert("Erreur lors de l'envoi de la commande. Veuillez réessayer.");
