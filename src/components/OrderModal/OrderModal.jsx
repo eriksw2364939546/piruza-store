@@ -1,6 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import "./OrderModal.scss";
+import {
+  validateName,
+  validatePhone,
+  validateQuantity,
+  formatPhoneForDisplay, // Импортируем функцию форматирования
+} from "@/lib/validation/orderForm.fr.schema"; // Добавляем импорт
+import { sendToTelegram } from "@/app/actions/sendToTelegram";
 
 const OrderModal = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -18,11 +25,11 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
   const minQuantity = 5;
 
   const flavors = [
-    "Розовая смородина - 2,50€",
-    "Клубника - 2,50€",
-    "Абрикос - 2,50€",
-    "Грецкий орех - 2,50€",
-    "Миндаль - 2,50€",
+    "Groseille rose - 2,50€",
+    "Fraise - 2,50€",
+    "Abricot - 2,50€",
+    "Noix - 2,50€",
+    "Amande - 2,50€",
   ];
 
   // Вычисление общей стоимости
@@ -98,26 +105,31 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Введите ваше имя";
+    // Валидация имени через импортированную функцию
+    const nameError = validateName(formData.name);
+    if (nameError) {
+      newErrors.name = nameError;
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Введите телефон";
-    } else if (!/^[\d\s+()-]+$/.test(formData.phone)) {
-      newErrors.phone = "Неверный формат телефона";
+    // Валидация телефона через импортированную функцию
+    const phoneError = validatePhone(formData.phone);
+    if (phoneError) {
+      newErrors.phone = phoneError;
     }
 
     // Проверяем, что выбран хотя бы один вкус
     const hasValidFlavor = selectedFlavors.some((item) => item.flavor);
     if (!hasValidFlavor) {
-      newErrors[`flavor-0`] = "Выберите хотя бы один вкус";
+      newErrors[`flavor-0`] = "Veuillez choisir au moins un goût";
     }
 
-    // Проверяем каждый выбранный вкус
+    // Проверяем каждый выбранный вкус через импортированную функцию
     selectedFlavors.forEach((item, index) => {
-      if (item.flavor && item.quantity < minQuantity) {
-        newErrors[`quantity-${index}`] = `Минимум ${minQuantity} штук`;
+      if (item.flavor) {
+        const quantityError = validateQuantity(item.quantity, minQuantity);
+        if (quantityError) {
+          newErrors[`quantity-${index}`] = quantityError;
+        }
       }
     });
 
@@ -136,8 +148,21 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
       // Фильтруем только заполненные вкусы
       const validFlavors = selectedFlavors.filter((item) => item.flavor);
 
-      await sendToTelegram(formData, validFlavors, totalPrice);
+      // Форматируем телефон для отправки в телеграм
+      const formattedPhone = formatPhoneForDisplay(formData.phone);
 
+      // Отправляем в Telegram через Server Action
+      const result = await sendToTelegram(
+        { ...formData, phone: formattedPhone }, // Используем отформатированный номер
+        validFlavors,
+        totalPrice,
+      );
+
+      if (!result.success) {
+        throw new Error(result.error || "Ошибка отправки");
+      }
+
+      // Показываем видео
       setShowVideo(true);
 
       setTimeout(() => {
@@ -154,16 +179,9 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
     } catch (error) {
       console.error("Ошибка отправки:", error);
       setIsSubmitting(false);
+      // Можно показать toast с ошибкой
+      alert("Erreur lors de l'envoi de la commande. Veuillez réessayer.");
     }
-  };
-
-  const sendToTelegram = async (data, flavors, total) => {
-    console.log("Отправка в Telegram:", {
-      ...data,
-      flavors,
-      totalPrice: total,
-    });
-    return new Promise((resolve) => setTimeout(resolve, 500));
   };
 
   const handleClose = () => {
@@ -189,11 +207,11 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
               ✕
             </button>
 
-            <h2>Оформление заказа</h2>
+            <h2>Passer une commande</h2>
 
             <form onSubmit={handleSubmit} className="order-form">
               <div className="form-group">
-                <label htmlFor="name">Имя *</label>
+                <label htmlFor="name">Nom *</label>
                 <input
                   type="text"
                   id="name"
@@ -201,7 +219,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
                   value={formData.name}
                   onChange={handleChange}
                   className={errors.name ? "error" : ""}
-                  placeholder="Введите ваше имя"
+                  placeholder="Entrez votre nom"
                 />
                 {errors.name && (
                   <span className="error-message">{errors.name}</span>
@@ -209,7 +227,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="phone">Телефон *</label>
+                <label htmlFor="phone">Téléphone *</label>
                 <input
                   type="tel"
                   id="phone"
@@ -226,9 +244,9 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
 
               <div className="flavors-section">
                 <label className="section-label">
-                  Выбор вкусов *{" "}
+                  Choix des goûts *{" "}
                   <span className="min-info">
-                    (мин. {minQuantity} шт. каждого)
+                    (min. {minQuantity} pcs chacun)
                   </span>
                 </label>
 
@@ -243,7 +261,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
                           }
                           className={errors[`flavor-${index}`] ? "error" : ""}
                         >
-                          <option value="">Выберите вкус</option>
+                          <option value="">Choisir un goût</option>
                           {getAvailableFlavors(index).map((flavor) => (
                             <option key={flavor} value={flavor}>
                               {flavor}
@@ -310,13 +328,13 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
                     onClick={addFlavor}
                     className="add-flavor-btn"
                   >
-                    + Добавить ещё вкус
+                    + Ajouter un autre goût
                   </button>
                 )}
               </div>
 
               <div className="total-price">
-                <span>Общая стоимость:</span>
+                <span>Coût total:</span>
                 <strong>{totalPrice}€</strong>
               </div>
 
@@ -325,11 +343,12 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
                 className="btn submit-btn"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Отправка..." : "Отправить заказ"}
+                {isSubmitting ? "Envoi..." : "Envoyer la commande"}
               </button>
 
               <p className="privacy-notice">
-                При отправке формы вы автоматически соглашаетесь на сбор данных
+                En envoyant ce formulaire, vous acceptez automatiquement la
+                collecte de données
               </p>
             </form>
           </>
@@ -338,7 +357,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
             <video autoPlay muted playsInline className="order-video">
               <source src="/video/Piruza-work.mp4" type="video/mp4" />
             </video>
-            <p className="video-text">Пируза готовит ваш заказ...</p>
+            <p className="video-text">Piruza prépare votre commande...</p>
           </div>
         )}
       </div>
