@@ -3,6 +3,7 @@
   --foreground: #171717;
 
   --header-color: rgba(247, 235, 229, 1);
+  --footer-color: rgba(235, 237, 238, 1);
   --btn-border-color: rgba(78, 157, 211, 1);
   --color-black: black;
 }

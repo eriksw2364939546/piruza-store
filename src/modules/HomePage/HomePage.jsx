@@ -7,12 +7,12 @@ import HowToOrder from "./HowToOrder/HowToOrder";
 
 const HomePage = () => {
   return (
-    <>
+    <main>
       <Hero />
       <Piruza />
       <Products />
       <HowToOrder />
-    </>
+    </main>
   );
 };
 

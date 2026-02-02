@@ -28,8 +28,8 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
     "Groseille rose - 2,50€",
     "Fraise - 2,50€",
     "Abricot - 2,50€",
-    "Noix - 2,50€",
-    "Amande - 2,50€",
+    "Cerises - 2,50€",
+    "Raisin - 2,50€",
   ];
 
   // Вычисление общей стоимости
