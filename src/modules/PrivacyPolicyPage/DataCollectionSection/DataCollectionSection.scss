@@ -1,0 +1,60 @@
+// app/privacy-policy/sections/DataCollectionSection.scss
+.data-collection-section {
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+
+    &__title {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    &__content {
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+    }
+
+    &__list {
+        list-style-type: none;
+        padding-left: 0;
+        margin: 20px 0;
+
+        li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.6;
+
+            &::before {
+                content: "•";
+                color: #e74c3c;
+                font-size: 1.5rem;
+                position: absolute;
+                left: 0;
+                top: -2px;
+            }
+
+            strong {
+                color: #2c3e50;
+            }
+        }
+    }
+
+    &__note {
+        background-color: #fff9e6;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #f1c40f;
+        margin-top: 25px !important;
+
+        strong {
+            color: #d35400;
+        }
+    }
+}

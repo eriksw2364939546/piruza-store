@@ -5,14 +5,15 @@ import {
   validateName,
   validatePhone,
   validateQuantity,
-  formatPhoneForDisplay, // Импортируем функцию форматирования
-} from "@/lib/validation/orderForm.fr.schema"; // Добавляем импорт
+  formatPhoneForDisplay,
+} from "@/lib/validation/orderForm.fr.schema";
 import { sendToTelegram } from "@/app/actions/sendToTelegram";
 
 const OrderModal = ({ isOpen, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    metroStation: "",
   });
   const [selectedFlavors, setSelectedFlavors] = useState([
     { flavor: "", quantity: 5 },
@@ -30,6 +31,42 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
     "Abricot - 2,50€",
     "Cerises - 2,50€",
     "Raisin - 2,50€",
+  ];
+
+  // Список станций метро Марселя
+  const metroStations = [
+    // Ligne M1 – La Rose ↔ La Fourragère
+    "La Rose",
+    "Frais Vallon",
+    "Malpassé",
+    "Saint-Just",
+    "Chartreux",
+    "Cinq-Avenues - Longchamp",
+    "Réformés - Canebière",
+    "Colbert",
+    "Vieux-Port",
+    "Estrangin",
+    "Baille",
+    "La Timone",
+    "La Blancarde",
+    "Louis Armand",
+    "Saint-Barnabé",
+    "La Fourragère",
+
+    "Saint-Charles",
+    "Castellane",
+
+    "Gèze",
+    "Bougainville",
+    "National",
+    "Désirée Clary",
+    "Joliette",
+    "Jules Guesde",
+    "Noailles",
+    "Notre-Dame-du-Mont",
+    "Périer",
+    "Rond-point du Prado",
+    "Sainte-Marguerite Dromel",
   ];
 
   // Вычисление общей стоимости
@@ -105,16 +142,21 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Валидация имени через импортированную функцию
+    // Валидация имени
     const nameError = validateName(formData.name);
     if (nameError) {
       newErrors.name = nameError;
     }
 
-    // Валидация телефона через импортированную функцию
+    // Валидация телефона
     const phoneError = validatePhone(formData.phone);
     if (phoneError) {
       newErrors.phone = phoneError;
+    }
+
+    // Валидация станции метро
+    if (!formData.metroStation.trim()) {
+      newErrors.metroStation = "Veuillez choisir une station de métro";
     }
 
     // Проверяем, что выбран хотя бы один вкус
@@ -123,7 +165,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
       newErrors[`flavor-0`] = "Veuillez choisir au moins un goût";
     }
 
-    // Проверяем каждый выбранный вкус через импортированную функцию
+    // Проверяем каждый выбранный вкус
     selectedFlavors.forEach((item, index) => {
       if (item.flavor) {
         const quantityError = validateQuantity(item.quantity, minQuantity);
@@ -146,17 +188,38 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
 
     try {
       // Фильтруем только заполненные вкусы
-      const validFlavors = selectedFlavors.filter((item) => item.flavor);
+      const validFlavors = selectedFlavors
+        .filter((item) => item.flavor && item.quantity >= minQuantity)
+        .map((item) => ({
+          flavor: item.flavor,
+          quantity: item.quantity,
+        }));
+
+      // Проверяем, что есть хотя бы один вкус
+      if (validFlavors.length === 0) {
+        throw new Error("No valid flavors selected");
+      }
 
       // Форматируем телефон для отправки в телеграм
       const formattedPhone = formatPhoneForDisplay(formData.phone);
 
-      // Отправляем в Telegram через Server Action
-      const result = await sendToTelegram(
-        { ...formData, phone: formattedPhone }, // Используем отформатированный номер
+      // Создаем объект данных для отправки
+      const orderData = {
+        name: formData.name.trim(),
+        phone: formattedPhone.trim(),
+        metroStation: formData.metroStation || "Не указано",
+      };
+
+      console.log("Order data:", {
+        orderData,
         validFlavors,
         totalPrice,
-      );
+      });
+
+      // Отправляем в Telegram через Server Action
+      const result = await sendToTelegram(orderData, validFlavors, totalPrice);
+
+      console.log("Telegram result:", result);
 
       if (!result.success) {
         throw new Error(result.error || "Erreur d'envoi");
@@ -168,7 +231,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
       setTimeout(() => {
         onClose();
         setShowVideo(false);
-        setFormData({ name: "", phone: "" });
+        setFormData({ name: "", phone: "", metroStation: "" });
         setSelectedFlavors([{ flavor: "", quantity: minQuantity }]);
         setIsSubmitting(false);
 
@@ -177,16 +240,17 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
         }
       }, 5000);
     } catch (error) {
-      console.error("Erreur d'envoi:", error);
+      console.error("Complete error in handleSubmit:", error);
       setIsSubmitting(false);
-      // Можно показать toast с ошибкой
-      alert("Erreur lors de l'envoi de la commande. Veuillez réessayer.");
+      alert(
+        `Erreur lors de l'envoi de la commande: ${error.message}. Veuillez réessayer.`,
+      );
     }
   };
 
   const handleClose = () => {
     if (!showVideo) {
-      setFormData({ name: "", phone: "" });
+      setFormData({ name: "", phone: "", metroStation: "" });
       setSelectedFlavors([{ flavor: "", quantity: minQuantity }]);
       setErrors({});
       onClose();
@@ -240,6 +304,33 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
                 {errors.phone && (
                   <span className="error-message">{errors.phone}</span>
                 )}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="metroStation">
+                  Station de métro à Marseille *
+                </label>
+                <select
+                  id="metroStation"
+                  name="metroStation"
+                  value={formData.metroStation}
+                  onChange={handleChange}
+                  className={errors.metroStation ? "error" : ""}
+                >
+                  <option value="">Sélectionnez une station</option>
+                  <option disabled>────────────</option>
+                  {metroStations.map((station, index) => (
+                    <option key={index} value={station}>
+                      {station}
+                    </option>
+                  ))}
+                </select>
+                {errors.metroStation && (
+                  <span className="error-message">{errors.metroStation}</span>
+                )}
+                <div className="metro-hint">
+                  <small>Pour la remise en main propre</small>
+                </div>
               </div>
 
               <div className="flavors-section">
@@ -348,7 +439,8 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
 
               <p className="privacy-notice">
                 En envoyant ce formulaire, vous acceptez automatiquement la
-                collecte de données
+                collecte de données et indiquez où vous souhaitez récupérer
+                votre commande.
               </p>
             </form>
           </>

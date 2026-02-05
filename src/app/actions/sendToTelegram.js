@@ -3,29 +3,55 @@
 export async function sendToTelegram(formData, flavors, totalPrice) {
     const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN;
     const TG_CHAT_ID = process.env.TG_CHAT_ID;
+
+    if (!TG_BOT_TOKEN || !TG_CHAT_ID) {
+        console.error("Telegram credentials missing");
+        return {
+            success: false,
+            error: "Telegram configuration error"
+        };
+    }
+
     const TG_URL = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
 
-    // Формируем сообщение
-    const flavorsList = flavors
-        .map(
-            (item) =>
-                `   • ${item.flavor.split(" - ")[0]} - ${item.quantity} шт. (${(item.quantity * 2.5).toFixed(2)}€)`
-        )
-        .join("\n");
+    try {
+        // Формируем сообщение с учетом станции метро
+        const flavorsList = flavors
+            .map(
+                (item) =>
+                    `   • ${item.flavor.split(" - ")[0]} - ${item.quantity} шт. (${(item.quantity * 2.5).toFixed(2)}€)`
+            )
+            .join("\n");
 
-    const message = `
+        const message = `
 🆕 <b>Новый заказ!</b>
 
-👤 <b>Имя:</b> ${formData.name}
-📞 <b>Телефон:</b> ${formData.phone}
+👤 <b>Имя:</b> ${formData.name || 'Не указано'}
+📞 <b>Телефон:</b> ${formData.phone || 'Не указано'}
+📍 <b>Станция метро:</b> ${formData.metroStation || 'Не указано'}
 
 🍇 <b>Заказ:</b>
-${flavorsList}
+${flavorsList || 'Нет товаров'}
 
-💰 <b>Общая сумма:</b> ${totalPrice}€
-  `.trim();
+💰 <b>Общая сумма:</b> ${totalPrice || 0}€
 
-    try {
+⏰ <b>Время заказа:</b> ${new Date().toLocaleString("fr-FR", {
+            timeZone: "Europe/Paris",
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        })}
+        `.trim();
+
+        console.log("Sending to Telegram:", {
+            hasToken: !!TG_BOT_TOKEN,
+            hasChatId: !!TG_CHAT_ID,
+            name: formData.name,
+            station: formData.metroStation
+        });
+
         const response = await fetch(TG_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -36,14 +62,31 @@ ${flavorsList}
             }),
         });
 
+        const responseData = await response.json();
+
         if (!response.ok) {
-            throw new Error("Failed to send message to Telegram");
+            console.error("Telegram API Error Response:", responseData);
+            throw new Error(`Telegram API error: ${response.status} - ${JSON.stringify(responseData)}`);
         }
 
-        const result = await response.json();
-        return { success: true, data: result };
+        console.log("Telegram success:", responseData);
+
+        return {
+            success: true,
+            data: responseData,
+            message: "Order sent successfully"
+        };
     } catch (error) {
-        console.error("Telegram Error:", error);
-        return { success: false, error: error.message };
+        console.error("Telegram Catch Error:", {
+            error: error.message,
+            stack: error.stack,
+            station: formData?.metroStation,
+            name: formData?.name,
+            time: new Date().toISOString()
+        });
+        return {
+            success: false,
+            error: error.message || "Failed to send message to Telegram"
+        };
     }
 }
