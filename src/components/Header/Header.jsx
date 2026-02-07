@@ -26,7 +26,7 @@ const Header = () => {
 
   const handleSuccess = () => {
     toast.success(
-      "Piruza a déjà commencé à préparer votre churchkhela ❤️\nNous vous appellerons ou vous enverrons un SMS pour confirmer votre commande !",
+      "Piruza a déjà commencé à préparer votre sudjouke ❤️\nNous vous appellerons ou vous enverrons un SMS pour confirmer votre commande !",
       {
         duration: 6000,
       },

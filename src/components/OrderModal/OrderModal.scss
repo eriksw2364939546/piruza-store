@@ -437,7 +437,7 @@
                 gap: 5px;
 
                 &::before {
-                    content: "💰";
+                    content: "💶";
                     font-size: 16px;
                 }
             }
@@ -497,7 +497,7 @@
 
         strong {
             color: #e63946;
-            font-size: 24px;
+            font-size: 18px;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
@@ -524,14 +524,7 @@
         position: relative;
         overflow: hidden;
 
-        &::before {
-            content: "🚀";
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-        }
+
 
         &:hover:not(:disabled) {
             background: linear-gradient(135deg, #d32f3c 0%, #c62828 100%);

@@ -207,7 +207,7 @@ const OrderModal = ({ isOpen, onClose, onSuccess }) => {
       const orderData = {
         name: formData.name.trim(),
         phone: formattedPhone.trim(),
-        metroStation: formData.metroStation || "Не указано",
+        metroStation: formData.metroStation || "Non spécifié",
       };
 
       console.log("Order data:", {
