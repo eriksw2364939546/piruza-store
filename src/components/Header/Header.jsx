@@ -6,10 +6,12 @@ import Image from "next/image";
 import { useState } from "react";
 import OrderModal from "@/components/OrderModal/OrderModal";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation"; // Добавляем для навигации
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter(); // Для перехода на страницу логина
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -31,6 +33,11 @@ const Header = () => {
         duration: 6000,
       },
     );
+  };
+
+  const handleLoginClick = () => {
+    router.push("/login"); // Переход на страницу входа
+    closeMenu(); // Закрываем меню если оно открыто
   };
 
   return (
@@ -110,6 +117,31 @@ const Header = () => {
                 >
                   Comment commander
                 </a>
+
+                {/* Кнопка входа */}
+                <button className="header-login-btn" onClick={handleLoginClick}>
+                  <svg
+                    className="header-login-btn__icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H15"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M10 17L15 12M15 12L10 7M15 12H3"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span>Se connecter</span>
+                </button>
+
                 <button
                   className="header-btn btn desktop-order-btn"
                   onClick={openModal}
