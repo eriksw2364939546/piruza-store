@@ -1,0 +1,334 @@
+// ═══════════════════════════════════════════════════════
+// ProfilePage styles
+// ═══════════════════════════════════════════════════════
+
+.profile-page {
+    max-width: 560px;
+
+    &__head {
+        margin-bottom: 24px;
+    }
+
+    &__title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+}
+
+// ── Карточка ─────────────────────────────────────────
+
+.profile-card {
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    overflow: hidden;
+
+    // ── Шапка с аватаром ──
+    &__hero {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 28px 28px 24px;
+        border-bottom: 1px solid #f5f5f5;
+        flex-wrap: wrap;
+    }
+
+    &__avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: #f0ede8;
+        color: #a86a3d;
+        font-weight: 700;
+        font-size: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    &__hero-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 6px;
+    }
+
+    // ── Поля ──
+    &__fields {
+        padding: 8px 0;
+    }
+
+    &__field {
+        display: flex;
+        align-items: center;
+        padding: 16px 28px;
+        border-bottom: 1px solid #f8f8f8;
+        gap: 16px;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+
+    &__field-label {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #999;
+        min-width: 130px;
+        flex-shrink: 0;
+
+        svg {
+            color: #bbb;
+        }
+    }
+
+    &__field-value {
+        font-size: 14px;
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        &--muted {
+            color: #666;
+        }
+    }
+
+    &__change-pw {
+        background: none;
+        border: none;
+        font-size: 13px;
+        color: #a86a3d;
+        cursor: pointer;
+        padding: 0;
+        font-family: var(--font-pt-serif);
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 0.7;
+        }
+    }
+}
+
+// ── Бейдж роли ───────────────────────────────────────
+
+.profile-role {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+
+    &--owner {
+        background: #f0ede8;
+        color: #a86a3d;
+    }
+
+    &--admin {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    &--manager {
+        background: #d1fae5;
+        color: #065f46;
+    }
+}
+
+// ── Кнопки ───────────────────────────────────────────
+
+.profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: var(--font-pt-serif);
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &--primary {
+        background: #1a1a1a;
+        color: #fff;
+
+        &:hover:not(:disabled) {
+            background: #333;
+        }
+    }
+
+    &--ghost {
+        background: transparent;
+        color: #666;
+        border: 1px solid #e5e7eb;
+
+        &:hover:not(:disabled) {
+            background: #f9fafb;
+            color: #333;
+        }
+    }
+}
+
+// ── Модалка ──────────────────────────────────────────
+
+.profile-modal {
+
+    &__overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+
+    &__box {
+        background: #fff;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 420px;
+        padding: 32px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    &__title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #999;
+        cursor: pointer;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #333;
+        }
+    }
+
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+
+            svg {
+                color: #bbb;
+            }
+        }
+
+        input {
+            padding: 10px 13px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: var(--font-pt-serif);
+            outline: none;
+            transition: border-color 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+            background: #fff;
+            color: #333;
+
+            &:focus {
+                border-color: #a86a3d;
+            }
+
+            &::placeholder {
+                color: #bbb;
+            }
+        }
+    }
+
+    &__password-wrap {
+        position: relative;
+
+        input {
+            padding-right: 44px;
+        }
+    }
+
+    &__toggle-pw {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px;
+        line-height: 1;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &__hint {
+        font-size: 12px;
+        color: #bbb;
+        margin-top: -4px;
+    }
+
+    &__error {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 4px;
+    }
+}

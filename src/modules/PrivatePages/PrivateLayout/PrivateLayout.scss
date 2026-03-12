@@ -1,0 +1,240 @@
+.private-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    background: #f5f5f5;
+
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+
+    // ───── SIDEBAR ─────
+    &__sidebar {
+        align-self: start; // не растягивается по высоте грида
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        background: #1a1a1a;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        padding: 32px 0;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #2e2e2e;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            display: none;
+        }
+    }
+
+    &__logo {
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        padding: 0 24px 32px;
+        border-bottom: 1px solid #2e2e2e;
+        letter-spacing: 0.5px;
+
+        span {
+            color: #a86a3d;
+        }
+    }
+
+    &__role-badge {
+        margin: 20px 24px 8px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+
+        &--owner {
+            background: #a86a3d;
+            color: #fff;
+        }
+
+        &--admin {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        &--manager {
+            background: #059669;
+            color: #fff;
+        }
+    }
+
+    &__nav {
+        flex: 1;
+        padding: 16px 0;
+    }
+
+    &__nav-section {
+        margin-bottom: 8px;
+    }
+
+    &__nav-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #666;
+        padding: 12px 24px 6px;
+    }
+
+    &__nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 24px;
+        font-size: 14px;
+        color: #aaa;
+        text-decoration: none;
+        transition: background 0.15s, color 0.15s;
+        border-left: 3px solid transparent;
+
+        &:hover {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        &--active {
+            background: #2a2a2a;
+            color: #fff;
+            border-left-color: #a86a3d;
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+    }
+
+    &__logout {
+        margin: 16px;
+        padding: 11px 16px;
+        background: transparent;
+        border: 1px solid #2e2e2e;
+        border-radius: 8px;
+        color: #888;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: calc(100% - 32px);
+        font-family: var(--font-pt-serif);
+
+        &:hover {
+            background: #2e2e2e;
+            color: #fff;
+            border-color: #444;
+        }
+    }
+
+    // ───── MAIN — скролл здесь ─────
+    &__main {
+        height: 100vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+
+        scrollbar-width: thin;
+        scrollbar-color: #ddd transparent;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            height: 100vh;
+        }
+    }
+
+    // ───── ТОПБАР — sticky внутри __main ─────
+    &__topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+        border-bottom: 1px solid #ebebeb;
+        padding: 0 32px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0; // не сжимается
+
+        @media (max-width: 768px) {
+            padding: 0 16px;
+        }
+    }
+
+    &__topbar-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    &__topbar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #666;
+
+        strong {
+            color: #1a1a1a;
+        }
+    }
+
+    &__avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+    // ───── CONTENT — контент страницы ─────
+    &__content {
+        padding: 32px;
+        flex: 1;
+
+        @media (max-width: 768px) {
+            padding: 16px;
+        }
+    }
+}

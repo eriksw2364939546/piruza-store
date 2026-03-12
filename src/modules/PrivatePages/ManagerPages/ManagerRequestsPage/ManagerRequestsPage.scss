@@ -1,0 +1,396 @@
+// ═══════════════════════════════════════════════════════
+// ManagerRequestsPage styles
+// ═══════════════════════════════════════════════════════
+
+@use '../../dashboard.shared';
+
+.mreq-page {
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        gap: 16px;
+    }
+
+    &__title {
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    &__subtitle {
+        font-size: 13px;
+        color: #999;
+        margin: 0;
+    }
+
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+
+        svg {
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        p {
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+
+        &-hint {
+            font-size: 13px !important;
+            opacity: 0.7;
+            margin-bottom: 20px !important;
+        }
+    }
+}
+
+// ── Статистика ──
+.mreq-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.mreq-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 24px;
+    border-radius: 10px;
+    min-width: 110px;
+
+    &__num {
+        font-size: 26px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    &__label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 4px;
+    }
+
+    &--pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    &--approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    &--rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+}
+
+// ── Фильтры ──
+.mreq-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.mreq-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+
+    &:hover {
+        border-color: #1a1a1a;
+        color: #1a1a1a;
+    }
+
+    &--active {
+        background: #1a1a1a;
+        border-color: #1a1a1a;
+        color: #fff;
+
+        .mreq-filter__count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+    }
+
+    &__count {
+        background: #f3f4f6;
+        color: #666;
+        border-radius: 20px;
+        padding: 1px 7px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+}
+
+// ── Список ──
+.mreq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+// ── Карточка заявки ──
+.mreq-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow 0.15s;
+
+    &:hover {
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    &--pending {
+        border-left: 3px solid #ffc107;
+    }
+
+    &--approved {
+        border-left: 3px solid #28a745;
+    }
+
+    &--rejected {
+        border-left: 3px solid #dc3545;
+    }
+
+    &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    &__name {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 2px;
+    }
+
+    &__type {
+        font-size: 13px;
+        color: #999;
+    }
+
+    &__legal {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #666;
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+
+        svg {
+            flex-shrink: 0;
+            color: #999;
+        }
+    }
+
+    &__reason {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 13px;
+        color: #721c24;
+        background: #f8d7da;
+        padding: 8px 12px;
+        border-radius: 8px;
+
+        svg {
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+    }
+
+    &__approved-hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #155724;
+        background: #d4edda;
+        padding: 8px 12px;
+        border-radius: 8px;
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+
+    &__date {
+        font-size: 12px;
+        color: #bbb;
+        margin-top: 2px;
+    }
+}
+
+// ── Бейдж статуса ──
+.mreq-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    &--pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    &--approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    &--rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+}
+
+// ── Модалка ──
+.mreq-modal {
+    &__overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 16px;
+    }
+
+    &__box {
+        background: #fff;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 480px;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 28px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    &__title {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+        color: #999;
+        padding: 4px 8px;
+        line-height: 1;
+
+        &:hover {
+            color: #333;
+        }
+    }
+
+    &__hint {
+        font-size: 13px;
+        color: #999;
+        margin: 0 0 20px;
+        line-height: 1.5;
+    }
+
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    &__error {
+        background: #f8d7da;
+        color: #721c24;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    &__field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fff;
+            color: #333;
+            outline: none;
+            font-family: inherit;
+            box-sizing: border-box;
+
+            &:focus {
+                border-color: #1a1a1a;
+            }
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 4px;
+    }
+}
