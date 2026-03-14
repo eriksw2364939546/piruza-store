@@ -5,7 +5,14 @@
 // Owner: все продавцы + CRUD + управление статусами
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState } from "react";
+import {
+  useState,
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+} from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   createSellerAction,
@@ -456,71 +463,99 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
 };
 
 // ─── Фильтры ───
-const Filters = ({ filters, onChange, cities, categories }) => (
-  <div className="sellers-page__filters">
-    <input
-      className="sellers-filter__input"
-      type="text"
-      placeholder="Поиск по названию..."
-      value={filters.query}
-      onChange={(e) => onChange({ ...filters, query: e.target.value })}
-    />
-    <select
-      className="sellers-filter__select"
-      value={filters.status}
-      onChange={(e) => onChange({ ...filters, status: e.target.value })}
-    >
-      <option value="">Все статусы</option>
-      <option value="active">Активные</option>
-      <option value="draft">Черновики</option>
-      <option value="expired">Истёкшие</option>
-      <option value="inactive">Отключённые</option>
-    </select>
-    <select
-      className="sellers-filter__select"
-      value={filters.city}
-      onChange={(e) => onChange({ ...filters, city: e.target.value })}
-    >
-      <option value="">Все города</option>
-      {cities.map((city) => (
-        <option key={city._id} value={city._id}>
-          {city.name}
-        </option>
-      ))}
-    </select>
-    <select
-      className="sellers-filter__select"
-      value={filters.category}
-      onChange={(e) => onChange({ ...filters, category: e.target.value })}
-    >
-      <option value="">Все категории</option>
-      {categories.map((cat) => (
-        <option key={cat._id} value={cat._id}>
-          {cat.name}
-        </option>
-      ))}
-    </select>
-  </div>
-);
+const Filters = ({ filters, onChange, cities, categories }) => {
+  const [queryInput, setQueryInput] = useState(filters.query);
+  const timerRef = useRef(null);
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQueryInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onChange({ ...filters, query: val });
+    }, 400);
+  };
+
+  return (
+    <div className="sellers-page__filters">
+      <input
+        className="sellers-filter__input"
+        type="text"
+        placeholder="Поиск по названию..."
+        value={queryInput}
+        onChange={handleQueryChange}
+      />
+      <select
+        className="sellers-filter__select"
+        value={filters.status}
+        onChange={(e) => onChange({ ...filters, status: e.target.value })}
+      >
+        <option value="">Все статусы</option>
+        <option value="active">Активные</option>
+        <option value="draft">Черновики</option>
+        <option value="expired">Истёкшие</option>
+        <option value="inactive">Отключённые</option>
+      </select>
+      <select
+        className="sellers-filter__select"
+        value={filters.city}
+        onChange={(e) => onChange({ ...filters, city: e.target.value })}
+      >
+        <option value="">Все города</option>
+        {cities.map((city) => (
+          <option key={city._id} value={city.slug}>
+            {city.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="sellers-filter__select"
+        value={filters.category}
+        onChange={(e) => onChange({ ...filters, category: e.target.value })}
+      >
+        <option value="">Все категории</option>
+        {categories.map((cat) => (
+          <option key={cat._id} value={cat.slug}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 // ─── Главный компонент ───
-const SellersPage = ({ sellers, pagination, cities = [], categories = [] }) => {
-  const [activateSeller, setActivateSeller] = useState(null); // { seller, mode: 'activate'|'extend' }
+const SellersPage = ({
+  sellers,
+  pagination,
+  cities = [],
+  categories = [],
+  initialFilters = {},
+}) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [activateSeller, setActivateSeller] = useState(null);
   const [filters, setFilters] = useState({
-    query: "",
-    status: "",
-    city: "",
-    category: "",
+    query: initialFilters.query || "",
+    status: initialFilters.status || "",
+    city: initialFilters.city || "",
+    category: initialFilters.category || "",
   });
 
-  // Клиентская фильтрация по query (остальные фильтры через page.js / URL)
-  const filtered = filters.query
-    ? sellers.filter(
-        (s) =>
-          s.name.toLowerCase().includes(filters.query.toLowerCase()) ||
-          s.slug?.toLowerCase().includes(filters.query.toLowerCase()),
-      )
-    : sellers;
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setFilters(newFilters);
+      const params = new URLSearchParams();
+      if (newFilters.query) params.set("query", newFilters.query);
+      if (newFilters.status) params.set("status", newFilters.status);
+      if (newFilters.city) params.set("city", newFilters.city);
+      if (newFilters.category) params.set("category", newFilters.category);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+    },
+    [router, pathname],
+  );
 
   return (
     <div className="sellers-page">
@@ -543,13 +578,13 @@ const SellersPage = ({ sellers, pagination, cities = [], categories = [] }) => {
       {/* ── Фильтры ── */}
       <Filters
         filters={filters}
-        onChange={setFilters}
+        onChange={handleFilterChange}
         cities={cities}
         categories={categories}
       />
 
       {/* ── Таблица ── */}
-      {filtered.length === 0 ? (
+      {sellers.length === 0 ? (
         <div className="sellers-page__empty">Продавцов не найдено</div>
       ) : (
         <div className="sellers-page__table-wrap">
@@ -565,7 +600,7 @@ const SellersPage = ({ sellers, pagination, cities = [], categories = [] }) => {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((seller) => (
+              {sellers.map((seller) => (
                 <SellerRow
                   key={seller._id}
                   seller={seller}

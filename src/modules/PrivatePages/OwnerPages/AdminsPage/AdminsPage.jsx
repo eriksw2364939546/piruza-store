@@ -5,7 +5,8 @@
 // /admins-piruza/owner/admins
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState, useTransition } from "react";
+import { useState, useActionState, useTransition, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   ArrowLeft,
@@ -47,13 +48,14 @@ function formatDate(date) {
 // МОДАЛКА создания / редактирования
 // ════════════════════════════════════════════════════
 
-function AdminModal({ manager = null, onClose }) {
+function AdminModal({ manager = null, onClose, onSuccess }) {
   const isEdit = !!manager;
   const action = isEdit ? updateUserAction : createUserAction;
   const [state, formAction, pending] = useActionState(action, INIT);
 
   if (state.success === true) {
     toast.success(state.message);
+    if (onSuccess && state.data) onSuccess(state.data);
     onClose();
   }
 
@@ -325,7 +327,8 @@ function AdminDetail({ manager, sellers, onBack, onEdit }) {
 // СТРОКА ТАБЛИЦЫ
 // ════════════════════════════════════════════════════
 
-function AdminRow({ manager, onView, onEdit, onDelete }) {
+function AdminRow({ manager, onEdit, basePath }) {
+  const router = useRouter();
   const [deleting, startDelete] = useTransition();
 
   async function handleDelete() {
@@ -344,7 +347,7 @@ function AdminRow({ manager, onView, onEdit, onDelete }) {
   return (
     <tr
       className={`adm-row ${deleting ? "adm-row--loading" : ""}`}
-      onClick={() => onView(manager)}
+      onClick={() => router.push(`${basePath}/${manager._id}`)}
       style={{ cursor: "pointer" }}
     >
       {/* Имя */}
@@ -377,7 +380,7 @@ function AdminRow({ manager, onView, onEdit, onDelete }) {
         <div className="sellers-actions">
           <button
             className="sellers-btn sellers-btn--ghost sellers-btn--sm"
-            onClick={() => onView(manager)}
+            onClick={() => router.push(`${basePath}/${manager._id}`)}
             title="Подробнее"
           >
             👁
@@ -407,40 +410,29 @@ function AdminRow({ manager, onView, onEdit, onDelete }) {
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ════════════════════════════════════════════════════
 
-export default function AdminsPage({ admins, sellersByAdmin = {} }) {
+export default function AdminsPage({
+  admins,
+  sellersByAdmin = {},
+  initialStatus = "",
+  counts = {},
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [showCreate, setShowCreate] = useState(false);
   const [editManager, setEditManager] = useState(null);
-  const [activeManager, setActiveManager] = useState(null); // детальная
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
 
-  // При клике "назад" из детальной — сбрасываем
-  function handleBack() {
-    setActiveManager(null);
-  }
+  const basePath = "/admins-piruza/owner/admins";
 
-  // Детальная страница
-  if (activeManager) {
-    const sellers = Array.isArray(sellersByAdmin[activeManager._id])
-      ? sellersByAdmin[activeManager._id]
-      : [];
-    return (
-      <>
-        <AdminDetail
-          manager={activeManager}
-          sellers={sellers}
-          onBack={handleBack}
-          onEdit={(m) => {
-            setEditManager(m);
-          }}
-        />
-        {editManager && (
-          <AdminModal
-            manager={editManager}
-            onClose={() => setEditManager(null)}
-          />
-        )}
-      </>
-    );
-  }
+  const handleStatusChange = useCallback(
+    (status) => {
+      setStatusFilter(status);
+      const qs = status ? `?status=${status}` : "";
+      router.push(`${pathname}${qs}`);
+    },
+    [router, pathname],
+  );
 
   // Список
   return (
@@ -449,13 +441,46 @@ export default function AdminsPage({ admins, sellersByAdmin = {} }) {
       <div className="adm-page__head">
         <div>
           <h2 className="adm-page__title">Администраторы</h2>
-          <p className="adm-page__subtitle">Всего: {admins.length}</p>
+          <p className="adm-page__subtitle">
+            Всего: {counts.all ?? admins.length}
+          </p>
         </div>
         <button
           className="sellers-btn sellers-btn--primary"
           onClick={() => setShowCreate(true)}
         >
           + Добавить администратора
+        </button>
+      </div>
+
+      {/* ── Фильтры статуса ── */}
+      <div className="mgr-page__filters">
+        <button
+          className={`mgr-filter ${statusFilter === "" ? "mgr-filter--active" : ""}`}
+          onClick={() => handleStatusChange("")}
+        >
+          Все{" "}
+          <span className="mgr-filter__count">
+            {counts.all ?? admins.length}
+          </span>
+        </button>
+        <button
+          className={`mgr-filter mgr-filter--active-status ${statusFilter === "active" ? "mgr-filter--active" : ""}`}
+          onClick={() => handleStatusChange("active")}
+        >
+          Активные{" "}
+          <span className="mgr-filter__count">
+            {counts.active ?? admins.filter((a) => a.isActive).length}
+          </span>
+        </button>
+        <button
+          className={`mgr-filter mgr-filter--inactive-status ${statusFilter === "inactive" ? "mgr-filter--active" : ""}`}
+          onClick={() => handleStatusChange("inactive")}
+        >
+          Неактивные{" "}
+          <span className="mgr-filter__count">
+            {counts.inactive ?? admins.filter((a) => !a.isActive).length}
+          </span>
         </button>
       </div>
 
@@ -481,9 +506,8 @@ export default function AdminsPage({ admins, sellersByAdmin = {} }) {
                 <AdminRow
                   key={m._id}
                   manager={m}
-                  onView={setActiveManager}
                   onEdit={setEditManager}
-                  onDelete={() => {}}
+                  basePath={basePath}
                 />
               ))}
             </tbody>

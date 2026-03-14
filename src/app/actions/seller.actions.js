@@ -42,6 +42,7 @@ export async function createSellerAction(prevState, formData) {
     const email = formData.get('email')?.trim();
     const legalInfo = formData.get('legalInfo')?.trim();
     const city = formData.get('city');
+    const basePath = formData.get('basePath') || OWNER_SELLERS_PATH;
     const globalCategories = formData.getAll('globalCategories');
 
     if (!name || !businessType || !description || !address || !phone || !whatsapp || !email || !city) {
@@ -49,28 +50,27 @@ export async function createSellerAction(prevState, formData) {
     }
 
     const body = {
-        name,
-        businessType,
-        description,
-        address,
-        phone,
-        whatsapp,
-        email,
-        city,
+        name, businessType, description, address,
+        phone, whatsapp, email, city,
         globalCategories: globalCategories.length ? globalCategories : [],
     };
 
     if (legalInfo) body.legalInfo = legalInfo;
 
+    let slug;
     try {
         const token = await getTokenOrRedirect();
         const seller = await SellerService.createSeller(token, body);
-        revalidatePath(SELLERS_PATH);
-        // Возвращаем slug — клиент редиректит на /owner/sellers/[slug]
-        return { success: true, message: 'Продавец создан', slug: seller.slug };
+        slug = seller.slug;
+        revalidatePath(OWNER_SELLERS_PATH);
+        revalidatePath(ADMIN_SELLERS_PATH);
+        revalidatePath('/admins-piruza/manager/sellers');
     } catch (err) {
         return { success: false, message: err.message || 'Ошибка создания' };
     }
+
+    // redirect() ВНЕ try/catch — иначе NEXT_REDIRECT перехватывается как ошибка
+    redirect(`${basePath}/${slug}`);
 }
 
 /**

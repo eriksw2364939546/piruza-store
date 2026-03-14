@@ -5,7 +5,13 @@
 // /admins-piruza/owner/sellers/[slug]
 // ═══════════════════════════════════════════════════════
 
-import { useState, useRef, useTransition, useActionState } from "react";
+import {
+  useState,
+  useRef,
+  useTransition,
+  useActionState,
+  useEffect,
+} from "react";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -52,9 +58,15 @@ import {
   deleteProductImageAction,
 } from "@/app/actions/product.actions";
 
+import {
+  createSellerCategoryAction,
+  updateSellerCategoryAction,
+  deleteSellerCategoryAction,
+} from "@/app/actions/category.actions";
+
 import "./SellerDetailPage.scss";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000";
+import { getImageUrl } from "@/lib/utils";
 
 // ── Утилиты ──────────────────────────────────────────
 
@@ -79,12 +91,6 @@ function formatDate(date) {
     month: "2-digit",
     year: "numeric",
   });
-}
-
-function imgSrc(path) {
-  if (!path) return null;
-  if (path.startsWith("http")) return path;
-  return `${API_URL}${path}`;
 }
 
 // ── Модальное окно (переиспользуем паттерн) ──────────
@@ -128,7 +134,7 @@ function ImageUploader({ label, currentImage, onUpload, onDelete, loading }) {
     <div className="detail-image-uploader">
       <div className="detail-image-uploader__preview">
         {currentImage ? (
-          <img src={imgSrc(currentImage)} alt={label} />
+          <img src={getImageUrl(currentImage)} alt={label} />
         ) : (
           <div className="detail-image-uploader__empty">
             <ImageIcon size={28} />
@@ -235,13 +241,14 @@ function ProductModal({ seller, product, categories, onClose }) {
   const action = isEdit ? updateProductAction : createProductAction;
   const [state, formAction, pending] = useActionState(action, PRODUCT_INIT);
 
-  // Показываем toast и закрываем при успехе
-  if (state.success === true) {
-    toast.success(
-      state.message || (isEdit ? "Товар обновлён" : "Товар создан"),
-    );
-    onClose();
-  }
+  useEffect(() => {
+    if (state.success === true) {
+      toast.success(
+        state.message || (isEdit ? "Товар обновлён" : "Товар создан"),
+      );
+      onClose();
+    }
+  }, [state.success]);
 
   return (
     <Modal
@@ -338,7 +345,7 @@ function ProductModal({ seller, product, categories, onClose }) {
 
 // ── Строка товара ─────────────────────────────────────
 
-function ProductRow({ product, seller, onEdit }) {
+function ProductRow({ product, seller, basePath, onEdit }) {
   const [imgLoading, startImgTransition] = useTransition();
   const [deleting, startDeleteTransition] = useTransition();
 
@@ -378,7 +385,7 @@ function ProductRow({ product, seller, onEdit }) {
       <td className="product-row__img-cell">
         <div className="product-row__img-wrap">
           {product.image ? (
-            <img src={imgSrc(product.image)} alt={product.name} />
+            <img src={getImageUrl(product.image)} alt={product.name} />
           ) : (
             <div className="product-row__img-empty">
               <Package size={16} />
@@ -417,7 +424,12 @@ function ProductRow({ product, seller, onEdit }) {
 
       {/* Название + код */}
       <td>
-        <div className="product-row__name">{product.name}</div>
+        <Link
+          href={`${basePath}/${seller.slug}/products/${product.slug}`}
+          className="product-row__name product-row__name--link"
+        >
+          {product.name}
+        </Link>
         {product.code && (
           <div className="product-row__meta">#{product.code}</div>
         )}
@@ -469,6 +481,287 @@ function ProductRow({ product, seller, onEdit }) {
 }
 
 // ══════════════════════════════════════════════════════
+// ЛОКАЛЬНЫЕ КАТЕГОРИИ
+// ══════════════════════════════════════════════════════
+
+const CAT_INIT = { success: null, message: "" };
+
+function LocalCategoryModal({ seller, category, onClose }) {
+  const isEdit = !!category;
+  const action = isEdit
+    ? updateSellerCategoryAction
+    : createSellerCategoryAction;
+  const [state, formAction, pending] = useActionState(action, CAT_INIT);
+
+  useEffect(() => {
+    if (state.success === true) {
+      toast.success(state.message);
+      onClose();
+    }
+  }, [state.success]);
+
+  return (
+    <Modal
+      title={isEdit ? "Редактировать категорию" : "Новая категория"}
+      onClose={onClose}
+    >
+      <form action={formAction} className="sellers-modal__form">
+        <input type="hidden" name="sellerId" value={seller._id} />
+        <input type="hidden" name="sellerSlug" value={seller.slug} />
+        {isEdit && <input type="hidden" name="id" value={category._id} />}
+
+        {state.success === false && (
+          <div className="sellers-modal__error">{state.message}</div>
+        )}
+
+        <div className="sellers-modal__field">
+          <label>Название *</label>
+          <input
+            name="name"
+            type="text"
+            defaultValue={category?.name || ""}
+            placeholder="Например: Конфеты, Торты, Наборы..."
+            required
+            autoFocus
+          />
+        </div>
+
+        <div className="sellers-modal__footer">
+          <button
+            type="button"
+            className="sellers-btn sellers-btn--ghost"
+            onClick={onClose}
+          >
+            Отмена
+          </button>
+          <button
+            type="submit"
+            className="sellers-btn sellers-btn--primary"
+            disabled={pending}
+          >
+            {pending ? "Сохранение..." : isEdit ? "Сохранить" : "Создать"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+function LocalCategoriesSection({ seller, categories }) {
+  const [catModal, setCatModal] = useState(null); // null | 'create' | category
+  const [deleting, startDelete] = useTransition();
+
+  async function handleDelete(cat) {
+    if (
+      !confirm(
+        `Удалить категорию "${cat.name}"?\nВсе товары этой категории потеряют привязку.`,
+      )
+    )
+      return;
+    startDelete(async () => {
+      const res = await deleteSellerCategoryAction(
+        cat._id,
+        seller._id,
+        seller.slug,
+      );
+      res.success ? toast.success(res.message) : toast.error(res.message);
+    });
+  }
+
+  return (
+    <>
+      <section className="detail-card detail-card--full">
+        <div className="detail-card__head">
+          <h2 className="detail-card__title">
+            Локальные категории{" "}
+            <span className="detail-card__count">
+              {categories?.length || 0}
+            </span>
+          </h2>
+          <button
+            className="sellers-btn sellers-btn--primary sellers-btn--sm"
+            onClick={() => setCatModal("create")}
+          >
+            <Plus size={14} /> Добавить категорию
+          </button>
+        </div>
+
+        {categories?.length > 0 ? (
+          <div className="local-cats">
+            {categories.map((cat) => (
+              <div
+                key={cat._id}
+                className={`local-cat ${!cat.isActive ? "local-cat--inactive" : ""}`}
+              >
+                <div className="local-cat__info">
+                  <Tag size={13} />
+                  <span className="local-cat__name">{cat.name}</span>
+                  {!cat.isActive && (
+                    <span className="local-cat__badge">неактивна</span>
+                  )}
+                </div>
+                <div className="sellers-actions">
+                  <button
+                    className="sellers-btn sellers-btn--ghost sellers-btn--sm"
+                    onClick={() => setCatModal(cat)}
+                    title="Редактировать"
+                  >
+                    <Edit size={13} />
+                  </button>
+                  <button
+                    className="sellers-btn sellers-btn--danger sellers-btn--sm"
+                    onClick={() => handleDelete(cat)}
+                    disabled={deleting}
+                    title="Удалить"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="detail-page__empty">
+            <Tag size={28} />
+            <p>Локальных категорий пока нет</p>
+          </div>
+        )}
+      </section>
+
+      {catModal && (
+        <LocalCategoryModal
+          seller={seller}
+          category={catModal !== "create" ? catModal : null}
+          onClose={() => setCatModal(null)}
+        />
+      )}
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// СЕКЦИЯ ТОВАРОВ С ФИЛЬТРАЦИЕЙ ПО КАТЕГОРИЯМ
+// ══════════════════════════════════════════════════════
+
+function ProductsSection({
+  products,
+  categories,
+  seller,
+  basePath,
+  onAddProduct,
+  onEditProduct,
+}) {
+  const [activeCat, setActiveCat] = useState("all");
+
+  const filtered =
+    activeCat === "all"
+      ? products
+      : activeCat === "none"
+        ? products.filter((p) => !p.category)
+        : products.filter((p) => p.category?._id === activeCat);
+
+  // Считаем кол-во товаров по каждой категории
+  const counts = {};
+  products.forEach((p) => {
+    const key = p.category?._id || "none";
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  return (
+    <section className="detail-card detail-card--full">
+      <div className="detail-card__head">
+        <h2 className="detail-card__title">
+          Товары{" "}
+          <span className="detail-card__count">{products?.length || 0}</span>
+        </h2>
+        <button
+          className="sellers-btn sellers-btn--primary sellers-btn--sm"
+          onClick={onAddProduct}
+        >
+          <Plus size={14} /> Добавить товар
+        </button>
+      </div>
+
+      {/* Фильтры по категориям */}
+      {categories?.length > 0 && products?.length > 0 && (
+        <div className="products-filter">
+          <button
+            className={`products-filter__btn ${activeCat === "all" ? "products-filter__btn--active" : ""}`}
+            onClick={() => setActiveCat("all")}
+          >
+            Все
+            <span className="products-filter__count">{products.length}</span>
+          </button>
+
+          {categories.map(
+            (cat) =>
+              counts[cat._id] > 0 && (
+                <button
+                  key={cat._id}
+                  className={`products-filter__btn ${activeCat === cat._id ? "products-filter__btn--active" : ""}`}
+                  onClick={() => setActiveCat(cat._id)}
+                >
+                  {cat.name}
+                  <span className="products-filter__count">
+                    {counts[cat._id] || 0}
+                  </span>
+                </button>
+              ),
+          )}
+
+          {counts["none"] > 0 && (
+            <button
+              className={`products-filter__btn ${activeCat === "none" ? "products-filter__btn--active" : ""}`}
+              onClick={() => setActiveCat("none")}
+            >
+              Без категории
+              <span className="products-filter__count">{counts["none"]}</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {filtered?.length > 0 ? (
+        <div className="detail-page__table-wrap">
+          <table className="detail-page__table">
+            <thead>
+              <tr>
+                <th>Фото</th>
+                <th>Название</th>
+                <th>Категория</th>
+                <th>Цена</th>
+                <th>Наличие</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p) => (
+                <ProductRow
+                  key={p._id}
+                  product={p}
+                  seller={seller}
+                  basePath={basePath}
+                  onEdit={onEditProduct}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="detail-page__empty">
+          <Package size={32} />
+          <p>
+            {activeCat === "all"
+              ? "Товаров пока нет"
+              : "Нет товаров в этой категории"}
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ══════════════════════════════════════════════════════
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ══════════════════════════════════════════════════════
 
@@ -477,9 +770,10 @@ export default function SellerDetailPage({
   products,
   categories,
   basePath = "/admins-piruza/owner/sellers",
+  managerMode = false,
 }) {
-  const [activateModal, setActivateModal] = useState(null); // 'activate' | 'extend'
-  const [productModal, setProductModal] = useState(null); // null | 'create' | product
+  const [activateModal, setActivateModal] = useState(null);
+  const [productModal, setProductModal] = useState(null);
   const [imgLoading, startImgTransition] = useTransition();
   const [statusLoading, startStatusTransition] = useTransition();
 
@@ -571,7 +865,11 @@ export default function SellerDetailPage({
       <div className="detail-page__hero">
         <div className="detail-page__cover">
           {seller.coverImage ? (
-            <img src={imgSrc(seller.coverImage)} alt="Обложка" />
+            <img
+              src={getImageUrl(seller.coverImage)}
+              alt="Обложка"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
           ) : (
             <div className="detail-page__cover-empty">Нет обложки</div>
           )}
@@ -579,7 +877,16 @@ export default function SellerDetailPage({
         <div className="detail-page__hero-content">
           <div className="detail-page__logo">
             {seller.logo ? (
-              <img src={imgSrc(seller.logo)} alt="Лого" />
+              <img
+                src={getImageUrl(seller.logo)}
+                alt="Лого"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: 12,
+                }}
+              />
             ) : (
               <Building2 size={32} />
             )}
@@ -603,71 +910,73 @@ export default function SellerDetailPage({
       <div className="detail-page__body">
         {/* ── Колонка: инфо ── */}
         <div className="detail-page__col detail-page__col--main">
-          {/* Управление статусом */}
-          <section className="detail-card">
-            <h2 className="detail-card__title">Управление статусом</h2>
-            <div className="detail-card__status-row">
-              <StatusBadge status={seller.status} />
-              <div className="sellers-actions">
-                {canActivate && (
-                  <button
-                    className="sellers-btn sellers-btn--success sellers-btn--sm"
-                    onClick={() => setActivateModal("activate")}
-                    disabled={statusLoading}
-                  >
-                    <CheckCircle size={14} /> Активировать
-                  </button>
-                )}
-                {canExtend && (
-                  <button
-                    className="sellers-btn sellers-btn--info sellers-btn--sm"
-                    onClick={() => setActivateModal("extend")}
-                    disabled={statusLoading}
-                  >
-                    <Clock size={14} /> Продлить
-                  </button>
-                )}
-                {canDeactivate && (
-                  <button
-                    className="sellers-btn sellers-btn--warning sellers-btn--sm"
-                    onClick={handleDeactivate}
-                    disabled={statusLoading}
-                  >
-                    <XCircle size={14} /> Деактивировать
-                  </button>
-                )}
-                {canDraft && (
-                  <button
-                    className="sellers-btn sellers-btn--ghost sellers-btn--sm"
-                    onClick={handleDraft}
-                    disabled={statusLoading}
-                  >
-                    <FileText size={14} /> В черновик
-                  </button>
-                )}
+          {/* Управление статусом — только Owner/Admin */}
+          {!managerMode && (
+            <section className="detail-card">
+              <h2 className="detail-card__title">Управление статусом</h2>
+              <div className="detail-card__status-row">
+                <StatusBadge status={seller.status} />
+                <div className="sellers-actions">
+                  {canActivate && (
+                    <button
+                      className="sellers-btn sellers-btn--success sellers-btn--sm"
+                      onClick={() => setActivateModal("activate")}
+                      disabled={statusLoading}
+                    >
+                      <CheckCircle size={14} /> Активировать
+                    </button>
+                  )}
+                  {canExtend && (
+                    <button
+                      className="sellers-btn sellers-btn--info sellers-btn--sm"
+                      onClick={() => setActivateModal("extend")}
+                      disabled={statusLoading}
+                    >
+                      <Clock size={14} /> Продлить
+                    </button>
+                  )}
+                  {canDeactivate && (
+                    <button
+                      className="sellers-btn sellers-btn--warning sellers-btn--sm"
+                      onClick={handleDeactivate}
+                      disabled={statusLoading}
+                    >
+                      <XCircle size={14} /> Деактивировать
+                    </button>
+                  )}
+                  {canDraft && (
+                    <button
+                      className="sellers-btn sellers-btn--ghost sellers-btn--sm"
+                      onClick={handleDraft}
+                      disabled={statusLoading}
+                    >
+                      <FileText size={14} /> В черновик
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-            {(seller.activationStartDate || seller.activationEndDate) && (
-              <div className="detail-card__dates">
-                <span>
-                  <Calendar size={13} /> Начало:{" "}
-                  {formatDate(seller.activationStartDate)}
-                </span>
-                <span>
-                  <Calendar size={13} /> Конец:{" "}
-                  <span
-                    className={
-                      seller.status === "expired"
-                        ? "detail-card__date--expired"
-                        : ""
-                    }
-                  >
-                    {formatDate(seller.activationEndDate)}
+              {(seller.activationStartDate || seller.activationEndDate) && (
+                <div className="detail-card__dates">
+                  <span>
+                    <Calendar size={13} /> Начало:{" "}
+                    {formatDate(seller.activationStartDate)}
                   </span>
-                </span>
-              </div>
-            )}
-          </section>
+                  <span>
+                    <Calendar size={13} /> Конец:{" "}
+                    <span
+                      className={
+                        seller.status === "expired"
+                          ? "detail-card__date--expired"
+                          : ""
+                      }
+                    >
+                      {formatDate(seller.activationEndDate)}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Контактная информация */}
           <section className="detail-card">
@@ -784,72 +1093,17 @@ export default function SellerDetailPage({
       </div>
 
       {/* ── Локальные категории ── */}
-      {categories?.length > 0 && (
-        <section className="detail-card detail-card--full">
-          <h2 className="detail-card__title">Локальные категории продавца</h2>
-          <div className="detail-card__tags">
-            {categories.map((cat) => (
-              <span
-                key={cat._id}
-                className={`detail-card__tag ${!cat.isActive ? "detail-card__tag--inactive" : ""}`}
-              >
-                <Tag size={11} /> {cat.name}
-                {!cat.isActive && (
-                  <span className="detail-card__tag-badge">неактивна</span>
-                )}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
+      <LocalCategoriesSection seller={seller} categories={categories} />
 
       {/* ── Товары ── */}
-      <section className="detail-card detail-card--full">
-        <div className="detail-card__head">
-          <h2 className="detail-card__title">
-            Товары{" "}
-            <span className="detail-card__count">{products?.length || 0}</span>
-          </h2>
-          <button
-            className="sellers-btn sellers-btn--primary sellers-btn--sm"
-            onClick={() => setProductModal("create")}
-          >
-            <Plus size={14} /> Добавить товар
-          </button>
-        </div>
-
-        {products?.length > 0 ? (
-          <div className="detail-page__table-wrap">
-            <table className="detail-page__table">
-              <thead>
-                <tr>
-                  <th>Фото</th>
-                  <th>Название</th>
-                  <th>Категория</th>
-                  <th>Цена</th>
-                  <th>Наличие</th>
-                  <th>Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
-                  <ProductRow
-                    key={p._id}
-                    product={p}
-                    seller={seller}
-                    onEdit={(p) => setProductModal(p)}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="detail-page__empty">
-            <Package size={32} />
-            <p>Товаров пока нет</p>
-          </div>
-        )}
-      </section>
+      <ProductsSection
+        products={products}
+        categories={categories}
+        seller={seller}
+        basePath={basePath}
+        onAddProduct={() => setProductModal("create")}
+        onEditProduct={(p) => setProductModal(p)}
+      />
 
       {/* ── Модальные окна ── */}
       {activateModal && (

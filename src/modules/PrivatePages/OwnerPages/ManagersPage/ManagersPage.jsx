@@ -5,7 +5,9 @@
 // /admins-piruza/owner/managers
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState, useTransition } from "react";
+import { useState, useActionState, useTransition, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import {
   ArrowLeft,
@@ -47,13 +49,14 @@ function formatDate(date) {
 // МОДАЛКА создания / редактирования
 // ════════════════════════════════════════════════════
 
-function ManagerModal({ manager = null, onClose }) {
+function ManagerModal({ manager = null, onClose, onSuccess }) {
   const isEdit = !!manager;
   const action = isEdit ? updateUserAction : createUserAction;
   const [state, formAction, pending] = useActionState(action, INIT);
 
   if (state.success === true) {
     toast.success(state.message);
+    if (onSuccess && state.data) onSuccess(state.data);
     onClose();
   }
 
@@ -161,8 +164,9 @@ function ManagerModal({ manager = null, onClose }) {
 // ДЕТАЛЬНАЯ СТРАНИЦА менеджера
 // ════════════════════════════════════════════════════
 
-function ManagerDetail({ manager, sellers, onBack, onEdit }) {
+function ManagerDetail({ manager, sellers, onBack, onEdit, onToggle }) {
   const [toggling, startToggle] = useTransition();
+  const [sellerStatusFilter, setSellerStatusFilter] = useState("all");
 
   const sellersByStatus = {
     active: sellers.filter((s) => s.status === "active"),
@@ -170,6 +174,11 @@ function ManagerDetail({ manager, sellers, onBack, onEdit }) {
     expired: sellers.filter((s) => s.status === "expired"),
     inactive: sellers.filter((s) => s.status === "inactive"),
   };
+
+  const filteredSellers =
+    sellerStatusFilter === "all"
+      ? sellers
+      : sellers.filter((s) => s.status === sellerStatusFilter);
 
   async function handleToggle() {
     const action = manager.isActive ? "деактивировать" : "активировать";
@@ -185,7 +194,13 @@ function ManagerDetail({ manager, sellers, onBack, onEdit }) {
         manager.isActive,
         "manager",
       );
-      res.success ? toast.success(res.message) : toast.error(res.message);
+      if (res.success) {
+        toast.success(res.message);
+        // Обновляем activeManager в родителе — меняем isActive
+        onToggle({ ...manager, isActive: !manager.isActive });
+      } else {
+        toast.error(res.message);
+      }
     });
   }
 
@@ -255,13 +270,29 @@ function ManagerDetail({ manager, sellers, onBack, onEdit }) {
 
       {/* ── Статистика продавцов ── */}
       <div className="mgr-detail__stats">
+        {/* Кнопка "Все" */}
+        <button
+          className={`mgr-stat mgr-stat--all ${sellerStatusFilter === "all" ? "mgr-stat--selected" : ""}`}
+          onClick={() => setSellerStatusFilter("all")}
+        >
+          <span className="mgr-stat__num">{sellers.length}</span>
+          <span className="mgr-stat__label">Все</span>
+        </button>
         {Object.entries(sellersByStatus).map(([status, list]) => {
           const s = STATUS_LABELS[status];
           return (
-            <div key={status} className={`mgr-stat mgr-stat--${s.cls}`}>
+            <button
+              key={status}
+              className={`mgr-stat mgr-stat--${s.cls} ${sellerStatusFilter === status ? "mgr-stat--selected" : ""}`}
+              onClick={() =>
+                setSellerStatusFilter(
+                  sellerStatusFilter === status ? "all" : status,
+                )
+              }
+            >
               <span className="mgr-stat__num">{list.length}</span>
               <span className="mgr-stat__label">{s.label}</span>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -269,11 +300,16 @@ function ManagerDetail({ manager, sellers, onBack, onEdit }) {
       {/* ── Список продавцов ── */}
       <div className="mgr-detail__sellers">
         <h3 className="mgr-detail__section-title">
-          Продавцы ({sellers.length})
+          Продавцы ({filteredSellers.length}
+          {sellerStatusFilter !== "all" ? ` из ${sellers.length}` : ""})
         </h3>
 
         {sellers.length === 0 ? (
           <div className="mgr-detail__empty">Нет продавцов</div>
+        ) : filteredSellers.length === 0 ? (
+          <div className="mgr-detail__empty">
+            Нет продавцов с таким статусом
+          </div>
         ) : (
           <div className="mgr-detail__table-wrap">
             <table className="mgr-detail__table">
@@ -286,15 +322,20 @@ function ManagerDetail({ manager, sellers, onBack, onEdit }) {
                 </tr>
               </thead>
               <tbody>
-                {sellers.map((seller) => {
+                {filteredSellers.map((seller) => {
                   const s = STATUS_LABELS[seller.status] || STATUS_LABELS.draft;
                   return (
                     <tr key={seller._id}>
                       <td>
-                        <div className="mgr-seller__name">{seller.name}</div>
-                        <div className="mgr-seller__type">
-                          {seller.businessType}
-                        </div>
+                        <Link
+                          href={`/admins-piruza/owner/sellers/${seller.slug}`}
+                          className="mgr-seller__link"
+                        >
+                          <div className="mgr-seller__name">{seller.name}</div>
+                          <div className="mgr-seller__type">
+                            {seller.businessType}
+                          </div>
+                        </Link>
                       </td>
                       <td>{seller.city?.name || "—"}</td>
                       <td>
@@ -325,7 +366,8 @@ function ManagerDetail({ manager, sellers, onBack, onEdit }) {
 // СТРОКА ТАБЛИЦЫ
 // ════════════════════════════════════════════════════
 
-function ManagerRow({ manager, onView, onEdit, onDelete }) {
+function ManagerRow({ manager, onEdit, basePath }) {
+  const router = useRouter();
   const [deleting, startDelete] = useTransition();
 
   async function handleDelete() {
@@ -344,7 +386,7 @@ function ManagerRow({ manager, onView, onEdit, onDelete }) {
   return (
     <tr
       className={`mgr-row ${deleting ? "mgr-row--loading" : ""}`}
-      onClick={() => onView(manager)}
+      onClick={() => router.push(`${basePath}/${manager._id}`)}
       style={{ cursor: "pointer" }}
     >
       {/* Имя */}
@@ -377,7 +419,7 @@ function ManagerRow({ manager, onView, onEdit, onDelete }) {
         <div className="sellers-actions">
           <button
             className="sellers-btn sellers-btn--ghost sellers-btn--sm"
-            onClick={() => onView(manager)}
+            onClick={() => router.push(`${basePath}/${manager._id}`)}
             title="Подробнее"
           >
             👁
@@ -407,40 +449,29 @@ function ManagerRow({ manager, onView, onEdit, onDelete }) {
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ════════════════════════════════════════════════════
 
-export default function ManagersPage({ managers, sellersByManager = {} }) {
+export default function ManagersPage({
+  managers,
+  sellersByManager = {},
+  initialStatus = "",
+  counts = {},
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [showCreate, setShowCreate] = useState(false);
   const [editManager, setEditManager] = useState(null);
-  const [activeManager, setActiveManager] = useState(null); // детальная
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
 
-  // При клике "назад" из детальной — сбрасываем
-  function handleBack() {
-    setActiveManager(null);
-  }
+  const basePath = "/admins-piruza/owner/managers";
 
-  // Детальная страница
-  if (activeManager) {
-    const sellers = Array.isArray(sellersByManager[activeManager._id])
-      ? sellersByManager[activeManager._id]
-      : [];
-    return (
-      <>
-        <ManagerDetail
-          manager={activeManager}
-          sellers={sellers}
-          onBack={handleBack}
-          onEdit={(m) => {
-            setEditManager(m);
-          }}
-        />
-        {editManager && (
-          <ManagerModal
-            manager={editManager}
-            onClose={() => setEditManager(null)}
-          />
-        )}
-      </>
-    );
-  }
+  const handleStatusChange = useCallback(
+    (status) => {
+      setStatusFilter(status);
+      const qs = status ? `?status=${status}` : "";
+      router.push(`${pathname}${qs}`);
+    },
+    [router, pathname],
+  );
 
   // Список
   return (
@@ -456,6 +487,37 @@ export default function ManagersPage({ managers, sellersByManager = {} }) {
           onClick={() => setShowCreate(true)}
         >
           + Добавить менеджера
+        </button>
+      </div>
+
+      {/* ── Фильтры статуса ── */}
+      <div className="mgr-page__filters">
+        <button
+          className={`mgr-filter ${statusFilter === "" ? "mgr-filter--active" : ""}`}
+          onClick={() => handleStatusChange("")}
+        >
+          Все{" "}
+          <span className="mgr-filter__count">
+            {counts.all ?? managers.length}
+          </span>
+        </button>
+        <button
+          className={`mgr-filter mgr-filter--active-status ${statusFilter === "active" ? "mgr-filter--active" : ""}`}
+          onClick={() => handleStatusChange("active")}
+        >
+          Активные{" "}
+          <span className="mgr-filter__count">
+            {counts.active ?? managers.filter((m) => m.isActive).length}
+          </span>
+        </button>
+        <button
+          className={`mgr-filter mgr-filter--inactive-status ${statusFilter === "inactive" ? "mgr-filter--active" : ""}`}
+          onClick={() => handleStatusChange("inactive")}
+        >
+          Неактивные{" "}
+          <span className="mgr-filter__count">
+            {counts.inactive ?? managers.filter((m) => !m.isActive).length}
+          </span>
         </button>
       </div>
 
@@ -481,9 +543,8 @@ export default function ManagersPage({ managers, sellersByManager = {} }) {
                 <ManagerRow
                   key={m._id}
                   manager={m}
-                  onView={setActiveManager}
                   onEdit={setEditManager}
-                  onDelete={() => {}}
+                  basePath={basePath}
                 />
               ))}
             </tbody>

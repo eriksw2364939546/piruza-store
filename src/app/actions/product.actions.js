@@ -11,6 +11,8 @@ import ProductService from '@/services/product.service';
 // Revalidate детальной страницы продавца (где показаны товары)
 function revalidateSellerDetail(sellerSlug) {
     revalidatePath(`/admins-piruza/owner/sellers/${sellerSlug}`);
+    revalidatePath(`/admins-piruza/admin-panel/sellers/${sellerSlug}`);
+    revalidatePath(`/admins-piruza/manager/sellers/${sellerSlug}`);
 }
 
 // ════════════════════════════════════════
@@ -69,7 +71,7 @@ export async function updateProductAction(prevState, formData) {
     const id = formData.get('id');
     const sellerSlug = formData.get('sellerSlug');
     const name = formData.get('name')?.trim();
-    const categoryId = formData.get('categoryId');
+    const categoryId = formData.get('category') || formData.get('categoryId');
     const price = formData.get('price');
     const description = formData.get('description')?.trim();
     const code = formData.get('code')?.trim();
@@ -80,8 +82,8 @@ export async function updateProductAction(prevState, formData) {
     const body = {};
     if (name) body.name = name;
     if (categoryId) body.category = categoryId;
-    if (price) body.price = Number(price);
-    if (description) body.description = description;
+    if (price !== null && price !== '') body.price = Number(price);
+    if (description !== null && description !== '') body.description = description;
     if (code) body.code = code;
     if (isAvailable !== null && isAvailable !== undefined) {
         body.isAvailable = isAvailable === 'true';
@@ -89,9 +91,13 @@ export async function updateProductAction(prevState, formData) {
 
     try {
         const token = await getTokenOrRedirect();
-        await ProductService.updateProduct(token, id, body);
+        const result = await ProductService.updateProduct(token, id, body);
         revalidateSellerDetail(sellerSlug);
-        return { success: true, message: 'Товар обновлён' };
+        // Инвалидируем страницу продукта (slug мог измениться)
+        revalidatePath(`/admins-piruza/owner/sellers/${sellerSlug}/products/${result.slug}`);
+        revalidatePath(`/admins-piruza/admin-panel/sellers/${sellerSlug}/products/${result.slug}`);
+        revalidatePath(`/admins-piruza/manager/sellers/${sellerSlug}/products/${result.slug}`);
+        return { success: true, message: 'Товар обновлён', slug: result.slug };
     } catch (err) {
         return { success: false, message: err.message || 'Ошибка обновления товара' };
     }

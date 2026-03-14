@@ -2,6 +2,8 @@
 // SellerDetailPage styles
 // ═══════════════════════════════════════════════════════
 
+@use '../dashboard.shared';
+
 .detail-page {
     display: flex;
     flex-direction: column;
@@ -534,6 +536,17 @@
         font-weight: 600;
         color: #1a1a1a;
         font-size: 14px;
+
+        &--link {
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: color 0.15s;
+
+            &:hover {
+                color: #a86a3d;
+                text-decoration: underline;
+            }
+        }
     }
 
     &__meta {
@@ -555,5 +568,120 @@
 
     &__none {
         color: #bbb;
+    }
+}
+
+// ── Локальные категории ──
+.local-cats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.local-cat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    transition: background 0.15s;
+
+    &:hover {
+        background: #f9fafb;
+    }
+
+    &--inactive {
+        opacity: 0.6;
+        border-style: dashed;
+    }
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #666;
+
+        svg {
+            flex-shrink: 0;
+        }
+    }
+
+    &__name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a1a;
+    }
+
+    &__badge {
+        font-size: 11px;
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+}
+
+// ── Ссылка на название продукта ──
+.product-row__name--link {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: color 0.15s;
+
+    &:hover {
+        color: #a86a3d;
+        text-decoration: underline;
+    }
+}
+
+// ── Фильтры товаров по категориям ──
+.products-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        background: #fff;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+
+        &:hover {
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+        &--active {
+            background: #1a1a1a;
+            border-color: #1a1a1a;
+            color: #fff;
+
+            .products-filter__count {
+                background: rgba(255, 255, 255, 0.2);
+                color: #fff;
+            }
+        }
+    }
+
+    &__count {
+        background: #f3f4f6;
+        color: #666;
+        border-radius: 20px;
+        padding: 1px 6px;
+        font-size: 11px;
+        font-weight: 700;
     }
 }

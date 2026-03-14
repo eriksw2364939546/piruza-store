@@ -349,6 +349,7 @@
     padding: 12px 20px;
     border-radius: 10px;
     min-width: 80px;
+    cursor: pointer;
 
     &__num {
         font-size: 22px;
@@ -602,5 +603,76 @@
         padding: 6px 10px;
         font-size: 13px;
         border-radius: 6px;
+    }
+}
+
+// ── Фильтры статуса ──
+.mgr-page__filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.mgr-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+
+    &:hover {
+        border-color: #1a1a1a;
+        color: #1a1a1a;
+    }
+
+    &--active {
+        background: #1a1a1a;
+        border-color: #1a1a1a;
+        color: #fff;
+
+        .mgr-filter__count {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+    }
+
+    &--active-status.mgr-filter--active {
+        background: #059669;
+        border-color: #059669;
+    }
+
+    &--inactive-status.mgr-filter--active {
+        background: #dc2626;
+        border-color: #dc2626;
+    }
+
+    &__count {
+        background: #f3f4f6;
+        color: #666;
+        border-radius: 20px;
+        padding: 1px 6px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+}
+
+// ── Ссылка на продавца ──
+.mgr-seller__link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+
+    &:hover .mgr-seller__name {
+        color: #a86a3d;
+        text-decoration: underline;
     }
 }

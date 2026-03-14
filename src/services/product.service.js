@@ -25,6 +25,19 @@ class ProductService {
     }
 
     /**
+ * Товары по локальной категории
+ * GET /api/products/category/:categoryId
+ */
+    async getProductsByCategory(categoryId, page = 1, limit = 100) {
+        const token = await getTokenOrRedirect();
+        const json = await apiWithAuth(
+            `/api/products/category/${categoryId}?page=${page}&limit=${limit}`,
+            token
+        );
+        return json;
+    }
+
+    /**
      * Товар по ID (с токеном)
      * GET /api/products/:id
      */

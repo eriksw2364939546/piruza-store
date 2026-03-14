@@ -2,12 +2,10 @@
 
 // ═══════════════════════════════════════════════════════
 // ManagerRequestsPage — заявки менеджера
-// Менеджер видит ТОЛЬКО свои заявки
-// Может создавать новые
-// НЕ может одобрять/отклонять
 // ═══════════════════════════════════════════════════════
 
 import { useState, useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   FileText,
@@ -16,6 +14,7 @@ import {
   XCircle,
   Plus,
   Store,
+  ArrowRight,
 } from "lucide-react";
 import { createRequestAction } from "@/app/actions/request.actions";
 import "./ManagerRequestsPage.scss";
@@ -136,8 +135,12 @@ function CreateRequestModal({ onClose }) {
 // ── Карточка заявки ───────────────────────────────────
 
 function RequestCard({ request }) {
+  const router = useRouter();
   const s = STATUS_MAP[request.status] || STATUS_MAP.pending;
   const { Icon } = s;
+
+  // Одобрена И ещё не использована — показываем кнопку
+  const canCreate = request.status === "approved" && !request.isUsed;
 
   return (
     <div className={`mreq-card mreq-card--${s.cls}`}>
@@ -166,14 +169,39 @@ function RequestCard({ request }) {
         </div>
       )}
 
-      {request.status === "approved" && (
+      {request.status === "approved" && request.isUsed && (
         <div className="mreq-card__approved-hint">
           <CheckCircle size={13} />
-          Заявка одобрена — продавец создан в системе
+          Заявка использована — продавец создан в системе
         </div>
       )}
 
-      <div className="mreq-card__date">{formatDate(request.createdAt)}</div>
+      {canCreate && (
+        <div className="mreq-card__action">
+          <div className="mreq-card__action-hint">
+            <CheckCircle size={14} />
+            Заявка одобрена! Заполните профиль продавца.
+          </div>
+          <button
+            className="sellers-btn sellers-btn--primary mreq-card__create-btn"
+            onClick={() => router.push("/admins-piruza/manager/sellers/create")}
+          >
+            <Store size={15} />
+            Создать продавца
+            <ArrowRight size={15} />
+          </button>
+        </div>
+      )}
+
+      <div className="mreq-card__date">
+        {new Date(request.createdAt).toLocaleDateString("ru-RU", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
     </div>
   );
 }
