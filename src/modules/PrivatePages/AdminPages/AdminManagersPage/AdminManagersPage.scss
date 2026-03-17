@@ -3,6 +3,7 @@
 // ManagersPage styles
 // ═══════════════════════════════════════════════════════
 
+
 .mgr-page {
     background: transparent;
 
@@ -604,6 +605,31 @@
         padding: 6px 10px;
         font-size: 13px;
         border-radius: 6px;
+    }
+
+
+}
+
+// ── Поиск справа в шапке ──
+.mgr-page__search {
+    width: 100%;
+    max-width: 400px;
+    flex: none;
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+
+    &:focus {
+        border-color: #a86a3d;
+    }
+
+    &::placeholder {
+        color: #bbb;
     }
 }
 

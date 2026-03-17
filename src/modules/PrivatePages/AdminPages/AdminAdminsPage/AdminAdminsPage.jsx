@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { ArrowLeft, User, Mail, Calendar, Store } from "lucide-react";
 import {
@@ -346,11 +347,12 @@ function AdminDetail({ admin, sellers, onBack }) {
 }
 
 // ─── Строка таблицы администраторов ───
-function AdminRow({ admin, onView }) {
+function AdminRow({ admin, basePath }) {
+  const router = useRouter();
   return (
     <tr
       className="adm-row"
-      onClick={() => onView(admin)}
+      onClick={() => router.push(`${basePath}/${admin._id}`)}
       style={{ cursor: "pointer" }}
     >
       <td>
@@ -375,7 +377,7 @@ function AdminRow({ admin, onView }) {
       <td onClick={(e) => e.stopPropagation()}>
         <button
           className="sellers-btn sellers-btn--ghost sellers-btn--sm"
-          onClick={() => onView(admin)}
+          onClick={() => router.push(`${basePath}/${admin._id}`)}
           title="Подробнее"
         >
           👁
@@ -387,20 +389,7 @@ function AdminRow({ admin, onView }) {
 
 // ─── Главный компонент ───
 export default function AdminAdminsPage({ admins, sellersByAdmin = {} }) {
-  const [activeAdmin, setActiveAdmin] = useState(null);
-
-  if (activeAdmin) {
-    const sellers = Array.isArray(sellersByAdmin[activeAdmin._id])
-      ? sellersByAdmin[activeAdmin._id]
-      : [];
-    return (
-      <AdminDetail
-        admin={activeAdmin}
-        sellers={sellers}
-        onBack={() => setActiveAdmin(null)}
-      />
-    );
-  }
+  const basePath = "/admins-piruza/admin-panel/admins";
 
   return (
     <div className="adm-page">
@@ -430,7 +419,7 @@ export default function AdminAdminsPage({ admins, sellersByAdmin = {} }) {
             </thead>
             <tbody>
               {admins.map((a) => (
-                <AdminRow key={a._id} admin={a} onView={setActiveAdmin} />
+                <AdminRow key={a._id} admin={a} basePath={basePath} />
               ))}
             </tbody>
           </table>

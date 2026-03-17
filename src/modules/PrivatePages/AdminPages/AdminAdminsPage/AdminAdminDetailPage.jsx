@@ -1,16 +1,16 @@
 "use client";
 
 // ═══════════════════════════════════════════════════════
-// AdminManagersPage — менеджеры (только просмотр)
-// Admin видит всех менеджеров + продавцов каждого
-// Управление продавцами через /admin-panel/sellers/[slug]
+// AdminAdminDetailPage — детальная страница администратора
+// /admins-piruza/admin-panel/admins/[id]
+// Admin только просматривает — нет редактирования/деактивации
 // ═══════════════════════════════════════════════════════
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
-import { ArrowLeft, User, Mail, Calendar, Store } from "lucide-react";
+import { ArrowLeft, Mail, Calendar, Store, User } from "lucide-react";
 import {
   activateSellerAction,
   extendSellerAction,
@@ -18,13 +18,9 @@ import {
   moveToDraftAction,
   deleteSellerAction,
 } from "@/app/actions/seller.actions";
-import "./AdminManagersPage.scss";
+import "./AdminAdminsPage.scss";
 
-// Используем классы mgr-* из ManagersPage.scss через AdminManagersPage.scss
-
-const SELLERS_BASE = "/admins-piruza/admin-panel/sellers";
-
-const SELLER_STATUS = {
+const STATUS_LABELS = {
   active: { label: "Активен", cls: "active" },
   draft: { label: "Черновик", cls: "draft" },
   expired: { label: "Истёк", cls: "expired" },
@@ -40,7 +36,8 @@ function formatDate(date) {
   });
 }
 
-// ─── Модалка активации/продления ───
+// ── Модалка активации/продления ──────────────────────
+
 function ActivateModal({ seller, mode, onClose }) {
   const [months, setMonths] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -50,11 +47,11 @@ function ActivateModal({ seller, mode, onClose }) {
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
-    const result = isExtend
+    const res = isExtend
       ? await extendSellerAction(seller._id, months)
       : await activateSellerAction(seller._id, months);
-    if (!result.success) {
-      setError(result.message);
+    if (!res.success) {
+      setError(res.message);
       setLoading(false);
     } else {
       toast.success(isExtend ? "Срок продлён" : "Продавец активирован");
@@ -104,10 +101,11 @@ function ActivateModal({ seller, mode, onClose }) {
   );
 }
 
-// ─── Строка продавца в детальной ───
-function SellerRow({ seller, onActivate, onExtend }) {
+// ── Строка продавца ───────────────────────────────────
+
+function SellerRow({ seller, sellersBasePath, onActivate, onExtend }) {
   const [loading, setLoading] = useState(null);
-  const s = SELLER_STATUS[seller.status] || SELLER_STATUS.draft;
+  const s = STATUS_LABELS[seller.status] || STATUS_LABELS.draft;
 
   const handleDeactivate = async () => {
     if (!confirm(`Деактивировать "${seller.name}"?`)) return;
@@ -146,7 +144,7 @@ function SellerRow({ seller, onActivate, onExtend }) {
     <tr>
       <td>
         <Link
-          href={`${SELLERS_BASE}/${seller.slug}`}
+          href={`${sellersBasePath}/${seller.slug}`}
           className="amgr-seller__link"
         >
           <div className="amgr-seller__name">{seller.name}</div>
@@ -165,14 +163,14 @@ function SellerRow({ seller, onActivate, onExtend }) {
       <td>
         <div className="sellers-actions">
           <Link
-            href={`${SELLERS_BASE}/${seller.slug}`}
+            href={`${sellersBasePath}/${seller.slug}`}
             className="sellers-btn sellers-btn--sm sellers-btn--ghost"
             title="Просмотр"
           >
             👁
           </Link>
           <Link
-            href={`${SELLERS_BASE}/${seller.slug}/edit`}
+            href={`${sellersBasePath}/${seller.slug}/edit`}
             className="sellers-btn sellers-btn--sm sellers-btn--ghost"
             title="Редактировать"
           >
@@ -182,7 +180,6 @@ function SellerRow({ seller, onActivate, onExtend }) {
             <button
               className="sellers-btn sellers-btn--sm sellers-btn--success"
               onClick={() => onActivate(seller)}
-              title="Активировать"
             >
               🟢
             </button>
@@ -191,7 +188,6 @@ function SellerRow({ seller, onActivate, onExtend }) {
             <button
               className="sellers-btn sellers-btn--sm sellers-btn--info"
               onClick={() => onExtend(seller)}
-              title="Продлить"
             >
               ⏱️
             </button>
@@ -201,7 +197,6 @@ function SellerRow({ seller, onActivate, onExtend }) {
               className="sellers-btn sellers-btn--sm sellers-btn--warning"
               onClick={handleDeactivate}
               disabled={loading === "deactivate"}
-              title="Деактивировать"
             >
               {loading === "deactivate" ? "..." : "🔴"}
             </button>
@@ -211,7 +206,6 @@ function SellerRow({ seller, onActivate, onExtend }) {
               className="sellers-btn sellers-btn--sm sellers-btn--ghost"
               onClick={handleDraft}
               disabled={loading === "draft"}
-              title="В черновик"
             >
               {loading === "draft" ? "..." : "📝"}
             </button>
@@ -220,7 +214,6 @@ function SellerRow({ seller, onActivate, onExtend }) {
             className="sellers-btn sellers-btn--sm sellers-btn--danger"
             onClick={handleDelete}
             disabled={loading === "delete"}
-            title="Удалить"
           >
             {loading === "delete" ? "..." : "🗑️"}
           </button>
@@ -230,92 +223,111 @@ function SellerRow({ seller, onActivate, onExtend }) {
   );
 }
 
-// ─── Детальная страница менеджера ───
-function ManagerDetail({ manager, sellers, onBack }) {
+// ── Главный компонент ─────────────────────────────────
+
+export default function AdminAdminDetailPage({
+  admin,
+  sellers,
+  counts,
+  statusFilter,
+  basePath,
+  sellersBasePath,
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [activateSeller, setActivateSeller] = useState(null);
 
-  const sellersByStatus = {
-    active: sellers.filter((s) => s.status === "active"),
-    draft: sellers.filter((s) => s.status === "draft"),
-    expired: sellers.filter((s) => s.status === "expired"),
-    inactive: sellers.filter((s) => s.status === "inactive"),
-  };
-
-  const STATUS_LABELS = {
-    active: { label: "Активен", cls: "active" },
-    draft: { label: "Черновик", cls: "draft" },
-    expired: { label: "Истёк", cls: "expired" },
-    inactive: { label: "Отключён", cls: "inactive" },
-  };
+  const handleStatusFilter = useCallback(
+    (status) => {
+      const newStatus = statusFilter === status ? "" : status;
+      const qs = newStatus ? `?status=${newStatus}` : "";
+      router.push(`${pathname}${qs}`);
+    },
+    [router, pathname, statusFilter],
+  );
 
   return (
-    <div className="mgr-detail">
-      <div className="mgr-detail__nav">
-        <button className="mgr-detail__back" onClick={onBack}>
-          <ArrowLeft size={16} /> Все менеджеры
-        </button>
+    <div className="adm-detail">
+      {/* ── Навигация ── */}
+      <div className="adm-detail__nav">
+        <Link href={basePath} className="adm-detail__back">
+          <ArrowLeft size={16} /> Все администраторы
+        </Link>
       </div>
 
-      {/* Шапка */}
-      <div className="mgr-detail__head">
-        <div className="mgr-detail__avatar">
-          {manager.name?.charAt(0)?.toUpperCase() || "M"}
+      {/* ── Шапка — без кнопок управления ── */}
+      <div className="adm-detail__head">
+        <div className="adm-detail__avatar">
+          {admin.name?.charAt(0)?.toUpperCase() || "A"}
         </div>
-        <div className="mgr-detail__info">
-          <h2 className="mgr-detail__name">{manager.name}</h2>
-          <div className="mgr-detail__email">
-            <Mail size={14} /> {manager.email}
+        <div className="adm-detail__info">
+          <h2 className="adm-detail__name">{admin.name}</h2>
+          <div className="adm-detail__email">
+            <Mail size={14} /> {admin.email}
           </div>
           <span
-            className={`mgr-status mgr-status--${manager.isActive ? "active" : "inactive"}`}
+            className={`adm-status adm-status--${admin.isActive ? "active" : "inactive"}`}
           >
-            {manager.isActive ? "Активен" : "Деактивирован"}
+            {admin.isActive ? "Активен" : "Деактивирован"}
           </span>
         </div>
-        {/* ❌ Нет кнопок редактирования/деактивации — admin только смотрит */}
+        {/* ❌ Нет кнопок — admin только просматривает других админов */}
       </div>
 
-      {/* Мета информация — как у овнера */}
-      <div className="mgr-detail__meta">
-        <div className="mgr-detail__meta-item">
+      {/* ── Мета ── */}
+      <div className="adm-detail__meta">
+        <div className="adm-detail__meta-item">
           <Calendar size={14} />
-          <span>Создан: {formatDate(manager.createdAt)}</span>
+          <span>Создан: {formatDate(admin.createdAt)}</span>
         </div>
-        <div className="mgr-detail__meta-item">
+        <div className="adm-detail__meta-item">
           <Store size={14} />
-          <span>Продавцов: {sellers.length}</span>
+          <span>Продавцов: {counts.all}</span>
         </div>
-        {manager.createdBy && (
-          <div className="mgr-detail__meta-item">
+        {admin.createdBy && (
+          <div className="adm-detail__meta-item">
             <User size={14} />
-            <span>Создал: {manager.createdBy?.name || "—"}</span>
+            <span>Создал: {admin.createdBy.name}</span>
           </div>
         )}
       </div>
 
-      {/* Статистика по статусам — как у овнера */}
-      <div className="mgr-detail__stats">
-        {Object.entries(sellersByStatus).map(([status, list]) => {
-          const s = STATUS_LABELS[status];
-          return (
-            <div key={status} className={`mgr-stat mgr-stat--${s.cls}`}>
-              <span className="mgr-stat__num">{list.length}</span>
-              <span className="mgr-stat__label">{s.label}</span>
-            </div>
-          );
-        })}
+      {/* ── Статус-блоки — кликабельные, меняют URL ── */}
+      <div className="adm-detail__stats">
+        <button
+          className={`adm-stat adm-stat--all ${!statusFilter ? "adm-stat--selected" : ""}`}
+          onClick={() => router.push(pathname)}
+        >
+          <span className="adm-stat__num">{counts.all}</span>
+          <span className="adm-stat__label">Все</span>
+        </button>
+        {Object.entries(STATUS_LABELS).map(([status, s]) => (
+          <button
+            key={status}
+            className={`adm-stat adm-stat--${s.cls} ${statusFilter === status ? "adm-stat--selected" : ""}`}
+            onClick={() => handleStatusFilter(status)}
+          >
+            <span className="adm-stat__num">{counts[status] ?? 0}</span>
+            <span className="adm-stat__label">{s.label}</span>
+          </button>
+        ))}
       </div>
 
-      {/* Продавцы */}
-      <div className="mgr-detail__sellers">
-        <h3 className="mgr-detail__section-title">
-          Продавцы ({sellers.length})
+      {/* ── Список продавцов ── */}
+      <div className="adm-detail__sellers">
+        <h3 className="adm-detail__section-title">
+          Продавцы ({sellers.length}
+          {statusFilter ? ` из ${counts.all}` : ""})
         </h3>
+
         {sellers.length === 0 ? (
-          <div className="mgr-detail__empty">Нет продавцов</div>
+          <div className="adm-detail__empty">
+            {statusFilter ? "Нет продавцов с таким статусом" : "Нет продавцов"}
+          </div>
         ) : (
-          <div className="mgr-detail__table-wrap">
-            <table className="mgr-detail__table">
+          <div className="adm-detail__table-wrap">
+            <table className="adm-detail__table">
               <thead>
                 <tr>
                   <th>Продавец</th>
@@ -330,6 +342,7 @@ function ManagerDetail({ manager, sellers, onBack }) {
                   <SellerRow
                     key={seller._id}
                     seller={seller}
+                    sellersBasePath={sellersBasePath}
                     onActivate={(s) =>
                       setActivateSeller({ seller: s, mode: "activate" })
                     }
@@ -350,110 +363,6 @@ function ManagerDetail({ manager, sellers, onBack }) {
           mode={activateSeller.mode}
           onClose={() => setActivateSeller(null)}
         />
-      )}
-    </div>
-  );
-}
-
-// ─── Строка таблицы менеджеров ───
-function ManagerRow({ manager, basePath }) {
-  const router = useRouter();
-  return (
-    <tr
-      className="amgr-row"
-      onClick={() => router.push(`${basePath}/${manager._id}`)}
-      style={{ cursor: "pointer" }}
-    >
-      <td>
-        <div className="amgr-row__wrap">
-          <div className="amgr-row__avatar">
-            {manager.name?.charAt(0)?.toUpperCase() || "M"}
-          </div>
-          <div>
-            <div className="amgr-row__name">{manager.name}</div>
-            <div className="amgr-row__email">{manager.email}</div>
-          </div>
-        </div>
-      </td>
-      <td>
-        <span
-          className={`mgr-status mgr-status--${manager.isActive ? "active" : "inactive"}`}
-        >
-          {manager.isActive ? "Активен" : "Неактивен"}
-        </span>
-      </td>
-      <td>{formatDate(manager.createdAt)}</td>
-      <td onClick={(e) => e.stopPropagation()}>
-        <button
-          className="sellers-btn sellers-btn--ghost sellers-btn--sm"
-          onClick={() => router.push(`${basePath}/${manager._id}`)}
-          title="Подробнее"
-        >
-          👁
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-// ─── Главный компонент ───
-export default function AdminManagersPage({ managers, sellersByManager = {} }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const basePath = "/admins-piruza/admin-panel/managers";
-
-  const [queryInput, setQueryInput] = useState("");
-  const timerRef = useRef(null);
-
-  const handleQueryChange = (e) => {
-    const val = e.target.value;
-    setQueryInput(val);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      const qs = val ? `?query=${encodeURIComponent(val)}` : "";
-      router.push(`${pathname}${qs}`);
-    }, 400);
-  };
-
-  return (
-    <div className="amgr-page">
-      <div className="amgr-page__head">
-        <div>
-          <h2 className="amgr-page__title">Менеджеры</h2>
-          <p className="amgr-page__subtitle">Всего: {managers.length}</p>
-        </div>
-        <input
-          className="mgr-page__search"
-          type="text"
-          placeholder="Поиск по имени или email..."
-          value={queryInput}
-          onChange={handleQueryChange}
-        />
-      </div>
-
-      {managers.length === 0 ? (
-        <div className="amgr-page__empty">
-          <User size={32} />
-          <p>Менеджеров нет</p>
-        </div>
-      ) : (
-        <div className="amgr-page__table-wrap">
-          <table className="amgr-page__table">
-            <thead>
-              <tr>
-                <th>Менеджер</th>
-                <th>Статус</th>
-                <th>Создан</th>
-                <th>Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {managers.map((m) => (
-                <ManagerRow key={m._id} manager={m} basePath={basePath} />
-              ))}
-            </tbody>
-          </table>
-        </div>
       )}
     </div>
   );

@@ -5,7 +5,13 @@
 // /admins-piruza/owner/managers
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState, useTransition, useCallback } from "react";
+import {
+  useState,
+  useActionState,
+  useTransition,
+  useCallback,
+  useRef,
+} from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -453,6 +459,7 @@ export default function ManagersPage({
   managers,
   sellersByManager = {},
   initialStatus = "",
+  initialQuery = "",
   counts = {},
 }) {
   const router = useRouter();
@@ -461,17 +468,39 @@ export default function ManagersPage({
   const [showCreate, setShowCreate] = useState(false);
   const [editManager, setEditManager] = useState(null);
   const [statusFilter, setStatusFilter] = useState(initialStatus);
+  const [queryInput, setQueryInput] = useState(initialQuery);
+  const timerRef = useRef(null);
 
   const basePath = "/admins-piruza/owner/managers";
+
+  // Обновляем URL с обоими параметрами
+  const pushUrl = useCallback(
+    (status, query) => {
+      const params = new URLSearchParams();
+      if (status) params.set("status", status);
+      if (query) params.set("query", query);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+    },
+    [router, pathname],
+  );
 
   const handleStatusChange = useCallback(
     (status) => {
       setStatusFilter(status);
-      const qs = status ? `?status=${status}` : "";
-      router.push(`${pathname}${qs}`);
+      pushUrl(status, queryInput);
     },
-    [router, pathname],
+    [pushUrl, queryInput],
   );
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQueryInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      pushUrl(statusFilter, val);
+    }, 400);
+  };
 
   // Список
   return (
@@ -490,35 +519,45 @@ export default function ManagersPage({
         </button>
       </div>
 
-      {/* ── Фильтры статуса ── */}
-      <div className="mgr-page__filters">
-        <button
-          className={`mgr-filter ${statusFilter === "" ? "mgr-filter--active" : ""}`}
-          onClick={() => handleStatusChange("")}
-        >
-          Все{" "}
-          <span className="mgr-filter__count">
-            {counts.all ?? managers.length}
-          </span>
-        </button>
-        <button
-          className={`mgr-filter mgr-filter--active-status ${statusFilter === "active" ? "mgr-filter--active" : ""}`}
-          onClick={() => handleStatusChange("active")}
-        >
-          Активные{" "}
-          <span className="mgr-filter__count">
-            {counts.active ?? managers.filter((m) => m.isActive).length}
-          </span>
-        </button>
-        <button
-          className={`mgr-filter mgr-filter--inactive-status ${statusFilter === "inactive" ? "mgr-filter--active" : ""}`}
-          onClick={() => handleStatusChange("inactive")}
-        >
-          Неактивные{" "}
-          <span className="mgr-filter__count">
-            {counts.inactive ?? managers.filter((m) => !m.isActive).length}
-          </span>
-        </button>
+      {/* ── Поиск + фильтры в одной строке ── */}
+      <div className="mgr-page__toolbar">
+        <div className="mgr-page__filters">
+          <button
+            className={`mgr-filter ${statusFilter === "" ? "mgr-filter--active" : ""}`}
+            onClick={() => handleStatusChange("")}
+          >
+            Все{" "}
+            <span className="mgr-filter__count">
+              {counts.all ?? managers.length}
+            </span>
+          </button>
+          <button
+            className={`mgr-filter mgr-filter--active-status ${statusFilter === "active" ? "mgr-filter--active" : ""}`}
+            onClick={() => handleStatusChange("active")}
+          >
+            Активные{" "}
+            <span className="mgr-filter__count">
+              {counts.active ?? managers.filter((m) => m.isActive).length}
+            </span>
+          </button>
+          <button
+            className={`mgr-filter mgr-filter--inactive-status ${statusFilter === "inactive" ? "mgr-filter--active" : ""}`}
+            onClick={() => handleStatusChange("inactive")}
+          >
+            Неактивные{" "}
+            <span className="mgr-filter__count">
+              {counts.inactive ?? managers.filter((m) => !m.isActive).length}
+            </span>
+          </button>
+        </div>
+
+        <input
+          className="mgr-page__search"
+          type="text"
+          placeholder="Поиск по имени или email..."
+          value={queryInput}
+          onChange={handleQueryChange}
+        />
       </div>
 
       {/* ── Таблица ── */}

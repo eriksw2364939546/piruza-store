@@ -5,7 +5,8 @@
 // /admins-piruza/admin-panel/requests
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState, useTransition } from "react";
+import { useState, useActionState, useTransition, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   CheckCircle,
@@ -342,23 +343,34 @@ function RequestRow({ request, onView, onApprove, onReject }) {
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ══════════════════════════════════════════════════════
 
-export default function AdminRequestsPage({ requests, pagination }) {
-  const [statusFilter, setStatusFilter] = useState("");
+export default function AdminRequestsPage({
+  requests,
+  pagination,
+  initialStatus = "",
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [viewRequest, setViewRequest] = useState(null);
   const [rejectRequest, setRejectRequest] = useState(null);
 
-  // Одобрение прямо из строки (без модалки)
+  const handleStatusChange = useCallback(
+    (status) => {
+      setStatusFilter(status);
+      const qs = status ? `?status=${status}` : "";
+      router.push(`${pathname}${qs}`);
+    },
+    [router, pathname],
+  );
+
   async function handleApprove(id) {
     const res = await approveRequestAction(id);
     res.success ? toast.success(res.message) : toast.error(res.message);
   }
 
-  // Клиентская фильтрация по статусу
-  const filtered = statusFilter
-    ? requests.filter((r) => r.status === statusFilter)
-    : requests;
-
   const counts = {
+    all: pagination?.total ?? requests.length,
     pending: requests.filter((r) => r.status === "pending").length,
     approved: requests.filter((r) => r.status === "approved").length,
     rejected: requests.filter((r) => r.status === "rejected").length,
@@ -380,14 +392,14 @@ export default function AdminRequestsPage({ requests, pagination }) {
       <div className="req-page__stats">
         <button
           className={`req-stat ${statusFilter === "" ? "req-stat--active" : ""}`}
-          onClick={() => setStatusFilter("")}
+          onClick={() => handleStatusChange("")}
         >
-          <span className="req-stat__num">{requests.length}</span>
+          <span className="req-stat__num">{counts.all}</span>
           <span className="req-stat__label">Все</span>
         </button>
         <button
           className={`req-stat req-stat--pending ${statusFilter === "pending" ? "req-stat--active" : ""}`}
-          onClick={() => setStatusFilter("pending")}
+          onClick={() => handleStatusChange("pending")}
         >
           <Clock size={15} />
           <span className="req-stat__num">{counts.pending}</span>
@@ -395,7 +407,7 @@ export default function AdminRequestsPage({ requests, pagination }) {
         </button>
         <button
           className={`req-stat req-stat--approved ${statusFilter === "approved" ? "req-stat--active" : ""}`}
-          onClick={() => setStatusFilter("approved")}
+          onClick={() => handleStatusChange("approved")}
         >
           <CheckCircle size={15} />
           <span className="req-stat__num">{counts.approved}</span>
@@ -403,7 +415,7 @@ export default function AdminRequestsPage({ requests, pagination }) {
         </button>
         <button
           className={`req-stat req-stat--rejected ${statusFilter === "rejected" ? "req-stat--active" : ""}`}
-          onClick={() => setStatusFilter("rejected")}
+          onClick={() => handleStatusChange("rejected")}
         >
           <XCircle size={15} />
           <span className="req-stat__num">{counts.rejected}</span>
@@ -412,7 +424,7 @@ export default function AdminRequestsPage({ requests, pagination }) {
       </div>
 
       {/* ── Таблица ── */}
-      {filtered.length === 0 ? (
+      {requests.length === 0 ? (
         <div className="req-page__empty">
           <FileText size={32} />
           <p>Заявок не найдено</p>
@@ -431,7 +443,7 @@ export default function AdminRequestsPage({ requests, pagination }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((req) => (
+              {requests.map((req) => (
                 <RequestRow
                   key={req._id}
                   request={req}

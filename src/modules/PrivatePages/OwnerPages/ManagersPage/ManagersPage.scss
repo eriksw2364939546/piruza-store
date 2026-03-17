@@ -349,7 +349,6 @@
     padding: 12px 20px;
     border-radius: 10px;
     min-width: 80px;
-    cursor: pointer;
 
     &__num {
         font-size: 22px;
@@ -674,5 +673,91 @@
     &:hover .mgr-seller__name {
         color: #a86a3d;
         text-decoration: underline;
+    }
+}
+
+// ── Кликабельные статус-блоки ──
+.mgr-stat {
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    background: none;
+    font-family: inherit;
+
+    &:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    &--selected {
+        border-color: currentColor;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+    }
+
+    &--all {
+        background: #f3f4f6;
+        color: #374151;
+    }
+}
+
+// ── Строка поиска ──
+.mgr-page__search-row {
+    margin-bottom: 12px;
+
+    .sellers-filter__input {
+        width: 100%;
+        max-width: 420px;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s;
+        background: #fff;
+
+        &:focus {
+            border-color: #a86a3d;
+        }
+
+        &::placeholder {
+            color: #bbb;
+        }
+    }
+}
+
+// ── Toolbar: фильтры + поиск в одну строку ──
+.mgr-page__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+
+    .mgr-page__filters {
+        margin-bottom: 0;
+    }
+}
+
+.mgr-page__search {
+    width: 100%;
+    max-width: 400px;
+    flex: none;
+    padding: 6px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+
+    &:focus {
+        border-color: #a86a3d;
+    }
+
+    &::placeholder {
+        color: #bbb;
     }
 }

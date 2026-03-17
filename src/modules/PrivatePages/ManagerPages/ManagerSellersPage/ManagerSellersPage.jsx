@@ -2,22 +2,20 @@
 
 // ═══════════════════════════════════════════════════════
 // ManagerSellersPage — продавцы менеджера
-// Manager видит только СВОИХ продавцов
-// Может редактировать / создавать заявки на новых
-// НЕ может: активировать / деактивировать / удалять
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState, useEffect, useTransition } from "react";
-import Link from "next/link";
-import toast from "react-hot-toast";
 import {
-  Store,
-  Clock,
-  FileText,
-  CheckCircle,
-  XCircle,
-  Plus,
-} from "lucide-react";
+  useState,
+  useActionState,
+  useEffect,
+  useTransition,
+  useCallback,
+  useRef,
+} from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import toast from "react-hot-toast";
+import { Store, Plus } from "lucide-react";
 import { createRequestAction } from "@/app/actions/request.actions";
 import { deleteSellerAction } from "@/app/actions/seller.actions";
 import "./ManagerSellersPage.scss";
@@ -29,24 +27,6 @@ const STATUS_LABELS = {
   draft: { label: "Черновик", cls: "draft" },
   expired: { label: "Истёк", cls: "expired" },
   inactive: { label: "Отключён", cls: "inactive" },
-};
-
-const REQUEST_STATUS = {
-  pending: {
-    label: "На рассмотрении",
-    cls: "pending",
-    icon: <Clock size={12} />,
-  },
-  approved: {
-    label: "Одобрена",
-    cls: "approved",
-    icon: <CheckCircle size={12} />,
-  },
-  rejected: {
-    label: "Отклонена",
-    cls: "rejected",
-    icon: <XCircle size={12} />,
-  },
 };
 
 function formatDate(date) {
@@ -88,17 +68,14 @@ function CreateRequestModal({ onClose }) {
             ✕
           </button>
         </div>
-
         <p className="msellers-modal__hint">
           После отправки заявка поступит на рассмотрение. При одобрении вы
           сможете заполнить полный профиль продавца.
         </p>
-
         <form action={formAction} className="msellers-modal__form">
           {state.success === false && (
             <div className="msellers-modal__error">{state.message}</div>
           )}
-
           <div className="msellers-modal__field">
             <label>Название продавца *</label>
             <input
@@ -109,7 +86,6 @@ function CreateRequestModal({ onClose }) {
               autoFocus
             />
           </div>
-
           <div className="msellers-modal__field">
             <label>Тип бизнеса *</label>
             <input
@@ -119,7 +95,6 @@ function CreateRequestModal({ onClose }) {
               required
             />
           </div>
-
           <div className="msellers-modal__field">
             <label>Юридические данные *</label>
             <textarea
@@ -130,7 +105,6 @@ function CreateRequestModal({ onClose }) {
               minLength={5}
             />
           </div>
-
           <div className="msellers-modal__actions">
             <button
               type="button"
@@ -175,7 +149,7 @@ function SellerRow({ seller }) {
         <div className="msellers-row__wrap">
           {seller.logo ? (
             <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}${seller.logo}`}
+              src={`${process.env.NEXT_PUBLIC_URL}${seller.logo}`}
               alt={seller.name}
               className="msellers-row__logo"
             />
@@ -184,12 +158,15 @@ function SellerRow({ seller }) {
               {seller.name?.charAt(0)?.toUpperCase() || "S"}
             </div>
           )}
-          <div>
+          <Link
+            href={`${SELLERS_BASE}/${seller.slug}`}
+            className="msellers-row__link"
+          >
             <div className="msellers-row__name">{seller.name}</div>
             <div className="msellers-row__type">
               {seller.businessType || "—"}
             </div>
-          </div>
+          </Link>
         </div>
       </td>
       <td>{seller.city?.name || "—"}</td>
@@ -216,7 +193,6 @@ function SellerRow({ seller }) {
           >
             👁
           </Link>
-          {/* Редактирование только в статусе draft */}
           {seller.status === "draft" && (
             <Link
               href={`${SELLERS_BASE}/${seller.slug}/edit`}
@@ -226,7 +202,6 @@ function SellerRow({ seller }) {
               ✏️
             </Link>
           )}
-          {/* ❌ Нет кнопок активации/деактивации */}
           <button
             className="sellers-btn sellers-btn--sm sellers-btn--danger"
             onClick={handleDelete}
@@ -241,85 +216,71 @@ function SellerRow({ seller }) {
   );
 }
 
-// ─── Блок последних заявок ────────────────────────────
-function RequestsPreview({ requests }) {
-  if (!requests || requests.length === 0) return null;
+// ─── Главный компонент ────────────────────────────────
+export default function ManagerSellersPage({
+  sellers = [],
+  counts = {},
+  cities = [],
+  categories = [],
+  initialStatus = "",
+  initialQuery = "",
+  initialCity = "",
+  initialCategory = "",
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
 
-  return (
-    <div className="msellers-requests">
-      <h3 className="msellers-requests__title">
-        <FileText size={16} /> Мои заявки
-      </h3>
-      <div className="msellers-requests__list">
-        {requests.slice(0, 5).map((req) => {
-          const r = REQUEST_STATUS[req.status] || REQUEST_STATUS.pending;
-          return (
-            <div
-              key={req._id}
-              className={`msellers-req msellers-req--${r.cls}`}
-            >
-              <div className="msellers-req__name">{req.name}</div>
-              <div className="msellers-req__meta">
-                <span className="msellers-req__type">{req.businessType}</span>
-                <span
-                  className={`msellers-req__status msellers-req__status--${r.cls}`}
-                >
-                  {r.icon} {r.label}
-                </span>
-                {req.status === "rejected" && req.rejectionReason && (
-                  <span className="msellers-req__reason">
-                    Причина: {req.rejectionReason}
-                  </span>
-                )}
-              </div>
-              <div className="msellers-req__date">
-                {formatDate(req.createdAt)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <Link
-        href="/admins-piruza/manager/requests"
-        className="msellers-requests__all"
-      >
-        Все заявки →
-      </Link>
-    </div>
+  const [showModal, setShowModal] = useState(false);
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
+  const [queryInput, setQueryInput] = useState(initialQuery);
+  const [cityFilter, setCityFilter] = useState(initialCity);
+  const [catFilter, setCatFilter] = useState(initialCategory);
+  const timerRef = useRef(null);
+
+  const pushUrl = useCallback(
+    (status, query, city, cat) => {
+      const params = new URLSearchParams();
+      if (status) params.set("status", status);
+      if (query) params.set("query", query);
+      if (city) params.set("city", city);
+      if (cat) params.set("category", cat);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+    },
+    [router, pathname],
   );
-}
 
-// ─── Статистика ───────────────────────────────────────
-function Stats({ sellers }) {
-  const counts = {
-    active: sellers.filter((s) => s.status === "active").length,
-    draft: sellers.filter((s) => s.status === "draft").length,
-    expired: sellers.filter((s) => s.status === "expired").length,
-    inactive: sellers.filter((s) => s.status === "inactive").length,
+  const handleStatusChange = useCallback(
+    (status) => {
+      const newStatus = statusFilter === status ? "" : status;
+      setStatusFilter(newStatus);
+      pushUrl(newStatus, queryInput, cityFilter, catFilter);
+    },
+    [pushUrl, queryInput, statusFilter, cityFilter, catFilter],
+  );
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQueryInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      pushUrl(statusFilter, val, cityFilter, catFilter);
+    }, 400);
   };
 
-  return (
-    <div className="msellers-stats">
-      {Object.entries(STATUS_LABELS).map(([key, val]) => (
-        <div key={key} className={`msellers-stat msellers-stat--${val.cls}`}>
-          <span className="msellers-stat__num">{counts[key]}</span>
-          <span className="msellers-stat__label">{val.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
+  const handleCityChange = (e) => {
+    const val = e.target.value;
+    setCityFilter(val);
+    pushUrl(statusFilter, queryInput, val, catFilter);
+  };
 
-// ─── Главный компонент ────────────────────────────────
-export default function ManagerSellersPage({ sellers = [], requests = [] }) {
-  const [showModal, setShowModal] = useState(false);
-  const [search, setSearch] = useState("");
+  const handleCatChange = (e) => {
+    const val = e.target.value;
+    setCatFilter(val);
+    pushUrl(statusFilter, queryInput, cityFilter, val);
+  };
 
-  const filtered = sellers.filter(
-    (s) =>
-      s.name?.toLowerCase().includes(search.toLowerCase()) ||
-      s.city?.name?.toLowerCase().includes(search.toLowerCase()),
-  );
+  const totalCount = counts.all ?? sellers.length;
 
   return (
     <div className="msellers-page">
@@ -327,7 +288,7 @@ export default function ManagerSellersPage({ sellers = [], requests = [] }) {
       <div className="msellers-page__head">
         <div>
           <h2 className="msellers-page__title">Мои продавцы</h2>
-          <p className="msellers-page__subtitle">Всего: {sellers.length}</p>
+          <p className="msellers-page__subtitle">Всего: {totalCount}</p>
         </div>
         <button
           className="sellers-btn sellers-btn--primary"
@@ -337,27 +298,87 @@ export default function ManagerSellersPage({ sellers = [], requests = [] }) {
         </button>
       </div>
 
-      {/* ── Статистика ── */}
-      {sellers.length > 0 && <Stats sellers={sellers} />}
+      {/* ── Статус-фильтры (кликабельные, через URL) ── */}
+      {totalCount > 0 && (
+        <div className="msellers-stats">
+          <button
+            className={`msellers-stat msellers-stat--all ${!statusFilter ? "msellers-stat--selected" : ""}`}
+            onClick={() => {
+              setStatusFilter("");
+              pushUrl("", queryInput);
+            }}
+          >
+            <span className="msellers-stat__num">{totalCount}</span>
+            <span className="msellers-stat__label">Все</span>
+          </button>
+          {Object.entries(STATUS_LABELS).map(([key, val]) => (
+            <button
+              key={key}
+              className={`msellers-stat msellers-stat--${val.cls} ${statusFilter === key ? "msellers-stat--selected" : ""}`}
+              onClick={() => handleStatusChange(key)}
+            >
+              <span className="msellers-stat__num">{counts[key] ?? 0}</span>
+              <span className="msellers-stat__label">{val.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* ── Последние заявки ── */}
-      <RequestsPreview requests={requests} />
-
-      {/* ── Поиск ── */}
-      {sellers.length > 0 && (
-        <div className="msellers-page__search">
+      {/* ── Поиск + фильтры ── */}
+      {totalCount > 0 && (
+        <div className="msellers-page__filters">
           <input
             type="text"
             placeholder="Поиск по названию или городу..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={queryInput}
+            onChange={handleQueryChange}
             className="msellers-page__search-input"
           />
+          <div className="msellers-page__selects">
+            <select
+              className="msellers-page__select"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                pushUrl(e.target.value, queryInput, cityFilter, catFilter);
+              }}
+            >
+              <option value="">Все статусы</option>
+              <option value="active">Активные</option>
+              <option value="draft">Черновики</option>
+              <option value="expired">Истёкшие</option>
+              <option value="inactive">Отключённые</option>
+            </select>
+            <select
+              className="msellers-page__select"
+              value={cityFilter}
+              onChange={handleCityChange}
+            >
+              <option value="">Все города</option>
+              {cities.map((c) => (
+                <option key={c._id} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="msellers-page__select"
+              value={catFilter}
+              onChange={handleCatChange}
+            >
+              <option value="">Все категории</option>
+              {categories.map((c) => (
+                <option key={c._id} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
       {/* ── Таблица ── */}
-      {sellers.length === 0 ? (
+      {totalCount === 0 ? (
         <div className="msellers-page__empty">
           <Store size={40} />
           <p>У вас ещё нет продавцов.</p>
@@ -372,9 +393,9 @@ export default function ManagerSellersPage({ sellers = [], requests = [] }) {
             <Plus size={16} /> Создать заявку
           </button>
         </div>
-      ) : filtered.length === 0 ? (
+      ) : sellers.length === 0 ? (
         <div className="msellers-page__empty">
-          <p>Ничего не найдено по запросу «{search}»</p>
+          <p>Ничего не найдено</p>
         </div>
       ) : (
         <div className="msellers-page__table-wrap">
@@ -389,7 +410,7 @@ export default function ManagerSellersPage({ sellers = [], requests = [] }) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((seller) => (
+              {sellers.map((seller) => (
                 <SellerRow key={seller._id} seller={seller} />
               ))}
             </tbody>

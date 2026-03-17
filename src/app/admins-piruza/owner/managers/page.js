@@ -6,7 +6,8 @@ import SellerService from '@/services/seller.service';
 
 export default async function Page({ searchParams }) {
     const params = await searchParams;
-    const statusFilter = params?.status || ''; // 'active' | 'inactive' | ''
+    const statusFilter = params?.status || '';
+    const query = params?.query || '';
 
     let managers = [];
     let sellersByManager = {};
@@ -14,14 +15,18 @@ export default async function Page({ searchParams }) {
     try {
         const all = await AuthService.getAllUsers('manager');
 
-        // Фильтрация по статусу если задан
-        managers = statusFilter
-            ? all.filter(m => {
-                if (statusFilter === 'active') return m.isActive === true;
-                if (statusFilter === 'inactive') return m.isActive === false;
-                return true;
-            })
-            : all;
+        // Фильтрация по статусу и поиску по имени
+        managers = all.filter(m => {
+            const matchStatus =
+                !statusFilter ||
+                (statusFilter === 'active' && m.isActive === true) ||
+                (statusFilter === 'inactive' && m.isActive === false);
+            const matchQuery =
+                !query ||
+                m.name?.toLowerCase().includes(query.toLowerCase()) ||
+                m.email?.toLowerCase().includes(query.toLowerCase());
+            return matchStatus && matchQuery;
+        });
 
         if (all.length > 0) {
             const results = await Promise.allSettled(
@@ -49,6 +54,7 @@ export default async function Page({ searchParams }) {
             managers={managers}
             sellersByManager={sellersByManager}
             initialStatus={statusFilter}
+            initialQuery={query}
             counts={counts}
         />
     );

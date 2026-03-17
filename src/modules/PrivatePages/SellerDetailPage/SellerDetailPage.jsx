@@ -36,6 +36,7 @@ import {
   XCircle,
   Clock,
   AlertTriangle,
+  Star,
 } from "lucide-react";
 
 import {
@@ -873,6 +874,18 @@ export default function SellerDetailPage({
           ) : (
             <div className="detail-page__cover-empty">Нет обложки</div>
           )}
+          {/* ── Рейтинг ── */}
+          <div className="detail-page__rating">
+            <Star size={14} className="detail-page__rating-star" />
+            <span className="detail-page__rating-value">
+              {seller.rating?.average ? seller.rating.average.toFixed(1) : "—"}
+            </span>
+            {seller.rating?.count > 0 && (
+              <span className="detail-page__rating-count">
+                ({seller.rating.count})
+              </span>
+            )}
+          </div>
         </div>
         <div className="detail-page__hero-content">
           <div className="detail-page__logo">

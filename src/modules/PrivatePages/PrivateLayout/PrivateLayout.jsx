@@ -22,6 +22,8 @@ const NAV_CONFIG = {
         },
         { href: "/admins-piruza/owner/sellers", icon: "🏪", title: "Продавцы" },
         { href: "/admins-piruza/owner/requests", icon: "📋", title: "Заявки" },
+        { href: "/admins-piruza/owner/ratings", icon: "⭐", title: "Рейтинги" },
+        { href: "/admins-piruza/owner/clients", icon: "👤", title: "Клиенты" },
       ],
     },
     {
@@ -140,6 +142,8 @@ const PAGE_TITLES = {
   "/admins-piruza/owner/managers": "Менеджеры",
   "/admins-piruza/owner/admins": "Администраторы",
   "/admins-piruza/owner/profile": "Профиль",
+  "/admins-piruza/owner/ratings": "Рейтинги",
+  "/admins-piruza/owner/clients": "Клиенты",
   "/admins-piruza/admin-panel": "Дашборд",
   "/admins-piruza/admin-panel/sellers": "Продавцы",
   "/admins-piruza/admin-panel/requests": "Заявки",
@@ -154,10 +158,12 @@ const PAGE_TITLES = {
 
 function getPageTitle(pathname) {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  if (pathname.match(/\/ratings\/[^/]+$/)) return "Рейтинг продавца";
   if (pathname.match(/\/sellers\/[^/]+\/edit$/))
     return "Редактирование продавца";
   if (pathname.match(/\/sellers\/create$/)) return "Новый продавец";
   if (pathname.match(/\/sellers\/[^/]+$/)) return "Продавец";
+  if (pathname.match(/\/clients\/[^/]+$/)) return "Клиент";
   return "Админ панель";
 }
 

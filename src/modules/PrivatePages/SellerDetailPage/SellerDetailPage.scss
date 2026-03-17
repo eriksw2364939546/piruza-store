@@ -4,6 +4,7 @@
 
 @use '../dashboard.shared';
 
+
 .detail-page {
     display: flex;
     flex-direction: column;
@@ -683,5 +684,36 @@
         padding: 1px 6px;
         font-size: 11px;
         font-weight: 700;
+    }
+}
+
+// ── Рейтинг на обложке ──
+.detail-page__rating {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+
+    &-star {
+        color: #fbbf24;
+        fill: #fbbf24;
+    }
+
+    &-value {
+        line-height: 1;
+    }
+
+    &-count {
+        font-size: 11px;
+        opacity: 0.75;
     }
 }

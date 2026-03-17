@@ -5,8 +5,9 @@
 // Отличия от Owner: нет кнопки "Удалить"
 // ═══════════════════════════════════════════════════════
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import {
   activateSellerAction,
   extendSellerAction,
@@ -266,7 +267,7 @@ const Filters = ({ filters, onChange, cities, categories }) => (
     >
       <option value="">Все города</option>
       {cities.map((city) => (
-        <option key={city._id} value={city._id}>
+        <option key={city._id} value={city.slug}>
           {city.name}
         </option>
       ))}
@@ -278,7 +279,7 @@ const Filters = ({ filters, onChange, cities, categories }) => (
     >
       <option value="">Все категории</option>
       {categories.map((cat) => (
-        <option key={cat._id} value={cat._id}>
+        <option key={cat._id} value={cat.slug}>
           {cat.name}
         </option>
       ))}
@@ -292,7 +293,10 @@ const AdminSellersPage = ({
   pagination,
   cities = [],
   categories = [],
+  initialFilters = {},
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const [activateSeller, setActivateSeller] = useState(null);
   const [filters, setFilters] = useState({
     query: "",
@@ -301,13 +305,19 @@ const AdminSellersPage = ({
     category: "",
   });
 
-  const filtered = filters.query
-    ? sellers.filter(
-        (s) =>
-          s.name.toLowerCase().includes(filters.query.toLowerCase()) ||
-          s.slug?.toLowerCase().includes(filters.query.toLowerCase()),
-      )
-    : sellers;
+  const handleFilterChange = useCallback(
+    (newFilters) => {
+      setFilters(newFilters);
+      const params = new URLSearchParams();
+      if (newFilters.query) params.set("query", newFilters.query);
+      if (newFilters.status) params.set("status", newFilters.status);
+      if (newFilters.city) params.set("city", newFilters.city);
+      if (newFilters.category) params.set("category", newFilters.category);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+    },
+    [router, pathname],
+  );
 
   return (
     <div className="sellers-page">
@@ -328,12 +338,12 @@ const AdminSellersPage = ({
 
       <Filters
         filters={filters}
-        onChange={setFilters}
+        onChange={handleFilterChange}
         cities={cities}
         categories={categories}
       />
 
-      {filtered.length === 0 ? (
+      {sellers.length === 0 ? (
         <div className="sellers-page__empty">Продавцов не найдено</div>
       ) : (
         <div className="sellers-page__table-wrap">
@@ -349,7 +359,7 @@ const AdminSellersPage = ({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((seller) => (
+              {sellers.map((seller) => (
                 <SellerRow
                   key={seller._id}
                   seller={seller}
