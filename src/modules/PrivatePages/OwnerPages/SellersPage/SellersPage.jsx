@@ -35,7 +35,6 @@ const STATUS_LABELS = {
   inactive: { label: "Отключён", cls: "inactive" },
 };
 
-// ─── Форматирование даты ───
 const formatDate = (date) => {
   if (!date) return "—";
   return new Date(date).toLocaleDateString("ru-RU");
@@ -71,7 +70,6 @@ const SellerForm = ({
 
   if (state.success) onClose();
 
-  // Текущие глобальные категории продавца
   const currentCatIds = seller?.globalCategories?.map((c) => c._id || c) || [];
   const [selectedCats, setSelectedCats] = useState(currentCatIds);
 
@@ -90,7 +88,6 @@ const SellerForm = ({
       )}
 
       <div className="sellers-modal__grid">
-        {/* Название */}
         <div className="sellers-modal__field sellers-modal__field--full">
           <label>Название *</label>
           <input
@@ -101,8 +98,6 @@ const SellerForm = ({
             autoFocus
           />
         </div>
-
-        {/* Тип бизнеса */}
         <div className="sellers-modal__field">
           <label>Тип бизнеса *</label>
           <input
@@ -113,8 +108,6 @@ const SellerForm = ({
             required
           />
         </div>
-
-        {/* Email */}
         <div className="sellers-modal__field">
           <label>Email *</label>
           <input
@@ -124,8 +117,6 @@ const SellerForm = ({
             required
           />
         </div>
-
-        {/* Телефон */}
         <div className="sellers-modal__field">
           <label>Телефон *</label>
           <input
@@ -135,8 +126,6 @@ const SellerForm = ({
             required
           />
         </div>
-
-        {/* WhatsApp */}
         <div className="sellers-modal__field">
           <label>WhatsApp *</label>
           <input
@@ -146,8 +135,6 @@ const SellerForm = ({
             required
           />
         </div>
-
-        {/* Адрес */}
         <div className="sellers-modal__field sellers-modal__field--full">
           <label>Адрес *</label>
           <input
@@ -157,8 +144,6 @@ const SellerForm = ({
             required
           />
         </div>
-
-        {/* Описание */}
         <div className="sellers-modal__field sellers-modal__field--full">
           <label>Описание *</label>
           <textarea
@@ -168,8 +153,6 @@ const SellerForm = ({
             required
           />
         </div>
-
-        {/* Юр. информация */}
         <div className="sellers-modal__field sellers-modal__field--full">
           <label>Юр. информация</label>
           <input
@@ -178,8 +161,6 @@ const SellerForm = ({
             defaultValue={seller?.legalInfo}
           />
         </div>
-
-        {/* Город */}
         <div className="sellers-modal__field">
           <label>Город *</label>
           <select
@@ -195,8 +176,6 @@ const SellerForm = ({
             ))}
           </select>
         </div>
-
-        {/* Глобальные категории */}
         <div className="sellers-modal__field sellers-modal__field--full">
           <label>Глобальные категории</label>
           <div className="sellers-modal__cats">
@@ -298,8 +277,7 @@ const ActivateModal = ({ seller, mode, onClose }) => {
 
 // ─── Строка таблицы ───
 const SellerRow = ({ seller, onActivate, onExtend }) => {
-  const [loading, setLoading] = useState(null); // 'deactivate' | 'draft' | 'delete'
-
+  const [loading, setLoading] = useState(null);
   const statusInfo = STATUS_LABELS[seller.status] || STATUS_LABELS.draft;
 
   const handleDeactivate = async () => {
@@ -335,7 +313,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
 
   return (
     <tr>
-      {/* Название — кликабельно, ведёт на детали */}
       <td>
         <Link
           href={`${SELLERS_BASE}/${seller.slug}`}
@@ -345,21 +322,13 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
           <div className="sellers-row__meta">{seller.businessType}</div>
         </Link>
       </td>
-
-      {/* Город */}
       <td>{seller.city?.name || "—"}</td>
-
-      {/* Менеджер */}
       <td>{seller.createdBy?.name || "—"}</td>
-
-      {/* Статус */}
       <td>
         <span className={`sellers-badge sellers-badge--${statusInfo.cls}`}>
           {statusInfo.label}
         </span>
       </td>
-
-      {/* Срок */}
       <td>
         <div className="sellers-row__dates">
           {seller.activationEndDate ? (
@@ -377,11 +346,8 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
           )}
         </div>
       </td>
-
-      {/* Действия */}
       <td>
         <div className="sellers-actions">
-          {/* Детали */}
           <Link
             href={`${SELLERS_BASE}/${seller.slug}`}
             className="sellers-btn sellers-btn--sm sellers-btn--ghost"
@@ -389,8 +355,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
           >
             👁
           </Link>
-
-          {/* Редактировать */}
           <Link
             href={`${SELLERS_BASE}/${seller.slug}/edit`}
             className="sellers-btn sellers-btn--sm sellers-btn--ghost"
@@ -398,8 +362,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
           >
             ✏️
           </Link>
-
-          {/* Активировать (если draft или expired или inactive) */}
           {(seller.status === "draft" ||
             seller.status === "expired" ||
             seller.status === "inactive") && (
@@ -411,8 +373,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
               🟢
             </button>
           )}
-
-          {/* Продлить (если active) */}
           {seller.status === "active" && (
             <button
               className="sellers-btn sellers-btn--sm sellers-btn--info"
@@ -422,8 +382,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
               ⏱️
             </button>
           )}
-
-          {/* Деактивировать (если active или expired) */}
           {(seller.status === "active" || seller.status === "expired") && (
             <button
               className="sellers-btn sellers-btn--sm sellers-btn--warning"
@@ -434,8 +392,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
               {loading === "deactivate" ? "..." : "🔴"}
             </button>
           )}
-
-          {/* В черновик (если active или inactive или expired) */}
           {seller.status !== "draft" && (
             <button
               className="sellers-btn sellers-btn--sm sellers-btn--ghost"
@@ -446,8 +402,6 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
               {loading === "draft" ? "..." : "📝"}
             </button>
           )}
-
-          {/* Удалить */}
           <button
             className="sellers-btn sellers-btn--sm sellers-btn--danger"
             onClick={handleDelete}
@@ -520,6 +474,15 @@ const Filters = ({ filters, onChange, cities, categories }) => {
           </option>
         ))}
       </select>
+      {/* ── Кнопка "Мои продавцы" ── */}
+      <button
+        className={`sellers-filter__mine ${filters.mine ? "sellers-filter__mine--active" : ""}`}
+        onClick={() =>
+          onChange({ ...filters, mine: filters.mine ? "" : "true" })
+        }
+      >
+        {filters.mine ? "★ Мои" : "☆ Мои"}
+      </button>
     </div>
   );
 };
@@ -541,6 +504,7 @@ const SellersPage = ({
     status: initialFilters.status || "",
     city: initialFilters.city || "",
     category: initialFilters.category || "",
+    mine: initialFilters.mine || "",
   });
 
   const handleFilterChange = useCallback(
@@ -551,6 +515,7 @@ const SellersPage = ({
       if (newFilters.status) params.set("status", newFilters.status);
       if (newFilters.city) params.set("city", newFilters.city);
       if (newFilters.category) params.set("category", newFilters.category);
+      if (newFilters.mine) params.set("mine", newFilters.mine);
       const qs = params.toString();
       router.push(`${pathname}${qs ? "?" + qs : ""}`);
     },
@@ -559,7 +524,6 @@ const SellersPage = ({
 
   return (
     <div className="sellers-page">
-      {/* ── Шапка ── */}
       <div className="sellers-page__head">
         <div>
           <h2 className="sellers-page__title">Продавцы</h2>
@@ -575,7 +539,6 @@ const SellersPage = ({
         </Link>
       </div>
 
-      {/* ── Фильтры ── */}
       <Filters
         filters={filters}
         onChange={handleFilterChange}
@@ -583,7 +546,6 @@ const SellersPage = ({
         categories={categories}
       />
 
-      {/* ── Таблица ── */}
       {sellers.length === 0 ? (
         <div className="sellers-page__empty">Продавцов не найдено</div>
       ) : (
@@ -617,7 +579,6 @@ const SellersPage = ({
         </div>
       )}
 
-      {/* ── Модалка активации/продления ── */}
       {activateSeller && (
         <Modal
           title={activateSeller.mode === "extend" ? "Продлить" : "Активировать"}

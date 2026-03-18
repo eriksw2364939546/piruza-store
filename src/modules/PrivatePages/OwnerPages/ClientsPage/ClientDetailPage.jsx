@@ -6,6 +6,9 @@
 // ═══════════════════════════════════════════════════════
 
 import { useState, useCallback, useTransition } from "react";
+
+const MEDIA_BASE = process.env.NEXT_PUBLIC_URL || "http://localhost:7000";
+const getImg = (path) => (path ? `${MEDIA_BASE}${path}` : null);
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
@@ -83,7 +86,7 @@ function RatingsList({ ratings, ratingFilter, onFilterChange }) {
               <div className="client-detail__rating-seller">
                 {r.seller?.logo ? (
                   <img
-                    src={r.seller.logo}
+                    src={getImg(r.seller.logo)}
                     alt={r.seller.name}
                     className="client-detail__seller-logo"
                   />
@@ -143,7 +146,7 @@ function FavoritesList({ favorites }) {
             >
               {seller.logo ? (
                 <img
-                  src={seller.logo}
+                  src={getImg(seller.logo)}
                   alt={seller.name}
                   className="client-detail__seller-logo"
                 />

@@ -9,7 +9,7 @@ const LoginContent = () => {
     try {
       // credentialResponse.credential - это ID Token (JWT)
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/client/google-login`,
+        `${process.env.NEXT_PUBLIC_API_URL}/clients/google-login`,
         {
           idToken: credentialResponse.credential, // ✅ Правильный ID Token
         },
@@ -32,7 +32,7 @@ const LoginContent = () => {
 
       // Редирект на главную через 3 секунды (чтобы успеть скопировать токен)
       setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = "/cabinet";
       }, 6000);
     } catch (error) {
       console.error("Ошибка при логине:", error);

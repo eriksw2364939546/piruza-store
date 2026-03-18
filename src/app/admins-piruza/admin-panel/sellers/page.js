@@ -12,10 +12,11 @@ export default async function Page({ searchParams }) {
     const status = params?.status || '';
     const city = params?.city || '';
     const category = params?.category || '';
+    const mine = params?.mine || '';
     const page = Number(params?.page) || 1;
 
     const [sellersResult, citiesResult, categoriesResult] = await Promise.all([
-        SellerService.getAllSellers({ query, status, city, category, page, limit: 20 })
+        SellerService.getAllSellers({ query, status, city, category, mine, page, limit: 20 })
             .catch(() => ({ data: [], pagination: null })),
         CityService.getActiveCities(1, 100)           // ← только активные города
             .catch(() => ({ data: [] })),
@@ -29,7 +30,7 @@ export default async function Page({ searchParams }) {
             pagination={sellersResult.pagination}
             cities={citiesResult.data}
             categories={categoriesResult.data}
-            initialFilters={{ query, status, city, category }}
+            initialFilters={{ query, status, city, category, mine }}
         />
     );
 }

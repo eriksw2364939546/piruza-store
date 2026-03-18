@@ -783,3 +783,41 @@ header {
         opacity: 1;
     }
 }
+
+
+header {
+    nav {
+        .header-user-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #8b6f63;
+            padding: 4px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+
+            &:hover {
+                color: #6b4f43;
+                transform: translateY(-2px);
+            }
+
+            &--active {
+                color: #8b6f63;
+
+                svg {
+                    // заполняем иконку когда авторизован
+                    fill: rgba(139, 111, 99, 0.15);
+                }
+
+                &:hover {
+                    svg {
+                        fill: rgba(139, 111, 99, 0.25);
+                    }
+                }
+            }
+        }
+    }
+}

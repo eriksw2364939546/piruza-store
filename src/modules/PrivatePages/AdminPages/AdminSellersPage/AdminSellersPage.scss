@@ -469,3 +469,29 @@
         margin-top: 8px;
     }
 }
+
+// ── Кнопка "Мои продавцы" ──
+.sellers-filter__mine {
+    padding: 8px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:hover {
+        border-color: #1a1a1a;
+        color: #1a1a1a;
+    }
+
+    &--active {
+        background: #1a1a1a;
+        border-color: #1a1a1a;
+        color: #fff;
+    }
+}

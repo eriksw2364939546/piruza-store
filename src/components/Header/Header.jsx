@@ -3,24 +3,42 @@
 import "./Header.scss";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { LogIn, CircleUserRound } from "lucide-react";
 import OrderModal from "@/components/OrderModal/OrderModal";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation"; // Добавляем для навигации
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter(); // Для перехода на страницу логина
+  const [clientName, setClientName] = useState(null);
+  const router = useRouter();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setClientName(null);
+      return;
+    }
 
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.success && json.data?.name) {
+          setClientName(json.data.name);
+        } else {
+          localStorage.removeItem("token");
+          setClientName(null);
+        }
+      })
+      .catch(() => setClientName(null));
+  }, []);
 
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const closeMenu = () => setIsMenuOpen(false);
   const openModal = () => {
     setIsModalOpen(true);
     closeMenu();
@@ -29,15 +47,13 @@ const Header = () => {
   const handleSuccess = () => {
     toast.success(
       "Piruza a déjà commencé à préparer votre sudjouke ❤️\nNous vous appellerons ou vous enverrons un SMS pour confirmer votre commande !",
-      {
-        duration: 6000,
-      },
+      { duration: 6000 },
     );
   };
 
   const handleLoginClick = () => {
-    router.push("/login"); // Переход на страницу входа
-    closeMenu(); // Закрываем меню если оно открыто
+    router.push(clientName ? "/cabinet" : "/login");
+    closeMenu();
   };
 
   return (
@@ -56,7 +72,6 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Бургер-меню кнопка */}
             <button
               className={`burger-menu ${isMenuOpen ? "active" : ""}`}
               onClick={toggleMenu}
@@ -67,14 +82,12 @@ const Header = () => {
               <span></span>
             </button>
 
-            {/* Кнопка заказа для мобильных */}
             <div className="header-mobile-order">
               <button className="header-btn btn" onClick={openModal}>
                 Commande
               </button>
             </div>
 
-            {/* Навигация */}
             <nav className={isMenuOpen ? "active" : ""}>
               <div className="header-nav__items">
                 <a href="/" onClick={closeMenu}>
@@ -118,28 +131,17 @@ const Header = () => {
                   Comment commander
                 </a>
 
-                {/* Кнопка входа */}
-                <button className="header-login-btn" onClick={handleLoginClick}>
-                  <svg
-                    className="header-login-btn__icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M15 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H15"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M10 17L15 12M15 12L10 7M15 12H3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span>Se connecter</span>
+                {/* ── Иконка входа / кабинет ── */}
+                <button
+                  className={`header-user-btn ${clientName ? "header-user-btn--active" : ""}`}
+                  onClick={handleLoginClick}
+                  title={clientName ? clientName : "Se connecter"}
+                >
+                  {clientName ? (
+                    <CircleUserRound size={28} strokeWidth={1.5} />
+                  ) : (
+                    <LogIn size={28} strokeWidth={1.5} />
+                  )}
                 </button>
 
                 <button
@@ -153,7 +155,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Оверлей для закрытия меню при клике вне его */}
         {isMenuOpen && <div className="menu-overlay" onClick={closeMenu}></div>}
       </header>
 

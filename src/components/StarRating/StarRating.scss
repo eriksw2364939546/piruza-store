@@ -1,0 +1,26 @@
+.star-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+
+    &__star {
+        font-size: var(--star-size, 16px);
+        line-height: 1;
+        transition: color 0.15s;
+
+        &--filled {
+            color: #fbbf24;
+        }
+
+        &--empty {
+            color: #e5e7eb;
+        }
+    }
+
+    &__value {
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        margin-left: 4px;
+    }
+}

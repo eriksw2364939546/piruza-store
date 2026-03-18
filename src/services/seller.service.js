@@ -16,13 +16,14 @@ class SellerService {
      * Все продавцы (Owner все, Admin фильтрованные, Manager свои)
      * GET /api/sellers
      */
-    async getAllSellers({ query, status, city, category, page = 1, limit = 20 } = {}) {
+    async getAllSellers({ query, status, city, category, mine, page = 1, limit = 20 } = {}) {
         const token = await getTokenOrRedirect();
         const params = new URLSearchParams({ page, limit });
         if (query) params.set('query', query);
         if (status) params.set('status', status);
         if (city) params.set('city', city);
         if (category) params.set('category', category);
+        if (mine) params.set('mine', mine);
         const json = await apiWithAuth(`/api/sellers?${params}`, token);
         return json;
     }

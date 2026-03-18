@@ -51,7 +51,6 @@ const ActivateModal = ({ seller, mode, onClose }) => {
   const [months, setMonths] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const isExtend = mode === "extend";
 
   const handleSubmit = async () => {
@@ -240,52 +239,75 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
 };
 
 // ─── Фильтры ───
-const Filters = ({ filters, onChange, cities, categories }) => (
-  <div className="sellers-page__filters">
-    <input
-      className="sellers-filter__input"
-      type="text"
-      placeholder="Поиск по названию..."
-      value={filters.query}
-      onChange={(e) => onChange({ ...filters, query: e.target.value })}
-    />
-    <select
-      className="sellers-filter__select"
-      value={filters.status}
-      onChange={(e) => onChange({ ...filters, status: e.target.value })}
-    >
-      <option value="">Все статусы</option>
-      <option value="active">Активные</option>
-      <option value="draft">Черновики</option>
-      <option value="expired">Истёкшие</option>
-      <option value="inactive">Отключённые</option>
-    </select>
-    <select
-      className="sellers-filter__select"
-      value={filters.city}
-      onChange={(e) => onChange({ ...filters, city: e.target.value })}
-    >
-      <option value="">Все города</option>
-      {cities.map((city) => (
-        <option key={city._id} value={city.slug}>
-          {city.name}
-        </option>
-      ))}
-    </select>
-    <select
-      className="sellers-filter__select"
-      value={filters.category}
-      onChange={(e) => onChange({ ...filters, category: e.target.value })}
-    >
-      <option value="">Все категории</option>
-      {categories.map((cat) => (
-        <option key={cat._id} value={cat.slug}>
-          {cat.name}
-        </option>
-      ))}
-    </select>
-  </div>
-);
+const Filters = ({ filters, onChange, cities, categories }) => {
+  const [queryInput, setQueryInput] = useState(filters.query);
+  const timerRef = useRef(null);
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQueryInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onChange({ ...filters, query: val });
+    }, 400);
+  };
+
+  return (
+    <div className="sellers-page__filters">
+      <input
+        className="sellers-filter__input"
+        type="text"
+        placeholder="Поиск по названию..."
+        value={queryInput}
+        onChange={handleQueryChange}
+      />
+      <select
+        className="sellers-filter__select"
+        value={filters.status}
+        onChange={(e) => onChange({ ...filters, status: e.target.value })}
+      >
+        <option value="">Все статусы</option>
+        <option value="active">Активные</option>
+        <option value="draft">Черновики</option>
+        <option value="expired">Истёкшие</option>
+        <option value="inactive">Отключённые</option>
+      </select>
+      <select
+        className="sellers-filter__select"
+        value={filters.city}
+        onChange={(e) => onChange({ ...filters, city: e.target.value })}
+      >
+        <option value="">Все города</option>
+        {cities.map((city) => (
+          <option key={city._id} value={city.slug}>
+            {city.name}
+          </option>
+        ))}
+      </select>
+      <select
+        className="sellers-filter__select"
+        value={filters.category}
+        onChange={(e) => onChange({ ...filters, category: e.target.value })}
+      >
+        <option value="">Все категории</option>
+        {categories.map((cat) => (
+          <option key={cat._id} value={cat.slug}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+      {/* ── Кнопка "Мои продавцы" ── */}
+      <button
+        className={`sellers-filter__mine ${filters.mine ? "sellers-filter__mine--active" : ""}`}
+        onClick={() =>
+          onChange({ ...filters, mine: filters.mine ? "" : "true" })
+        }
+      >
+        {filters.mine ? "★ Мои" : "☆ Мои"}
+      </button>
+    </div>
+  );
+};
 
 // ─── Главный компонент ───
 const AdminSellersPage = ({
@@ -297,12 +319,14 @@ const AdminSellersPage = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
+
   const [activateSeller, setActivateSeller] = useState(null);
   const [filters, setFilters] = useState({
-    query: "",
-    status: "",
-    city: "",
-    category: "",
+    query: initialFilters.query || "",
+    status: initialFilters.status || "",
+    city: initialFilters.city || "",
+    category: initialFilters.category || "",
+    mine: initialFilters.mine || "",
   });
 
   const handleFilterChange = useCallback(
@@ -313,6 +337,7 @@ const AdminSellersPage = ({
       if (newFilters.status) params.set("status", newFilters.status);
       if (newFilters.city) params.set("city", newFilters.city);
       if (newFilters.category) params.set("category", newFilters.category);
+      if (newFilters.mine) params.set("mine", newFilters.mine);
       const qs = params.toString();
       router.push(`${pathname}${qs ? "?" + qs : ""}`);
     },
