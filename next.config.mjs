@@ -12,14 +12,15 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === 'development',
   },
 
-  sassOptions: {
-    silenceDeprecations: ['legacy-js-api'],
-  },
-
   experimental: {
+    scrollRestoration: true,
     serverActions: {
       bodySizeLimit: '5mb',
     },
+  },
+
+  sassOptions: {
+    silenceDeprecations: ['legacy-js-api'],
   },
 };
 

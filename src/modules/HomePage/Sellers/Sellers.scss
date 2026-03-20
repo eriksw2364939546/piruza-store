@@ -1,0 +1,261 @@
+.sellers {
+    padding: 80px 0;
+    background: var(--header-color);
+
+    &__section {
+        &+& {
+            margin-top: 64px;
+            padding-top: 64px;
+            border-top: 1px solid #ebebeb;
+        }
+    }
+
+    // ── Шапка секции ──
+    &__head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+    }
+
+    &__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #a86a3d;
+        margin-bottom: 8px;
+
+        &::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: #a86a3d;
+            border-radius: 2px;
+        }
+    }
+
+    &__title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -1px;
+        line-height: 1.1;
+        margin: 0;
+
+        em {
+            font-style: italic;
+            color: #a86a3d;
+            font-weight: 400;
+        }
+
+        @media (max-width: 768px) {
+            font-size: 26px;
+        }
+    }
+
+    &__see-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #a86a3d;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: gap 0.2s;
+
+        &:hover {
+            gap: 10px;
+        }
+    }
+
+    // ── Сетка ──
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__empty {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: #bbb;
+        font-size: 14px;
+        padding: 32px;
+    }
+
+    @media (max-width: 768px) {
+        padding: 60px 0;
+
+        &__section+&__section {
+            margin-top: 48px;
+            padding-top: 48px;
+        }
+    }
+}
+
+// ── Карточка продавца ─────────────────────────────────
+
+.seller-card {
+    display: block;
+    text-decoration: none;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #f0ede8;
+    transition: transform 0.25s, box-shadow 0.25s;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(168, 106, 61, 0.1);
+    }
+
+    &__cover {
+        position: relative;
+        height: 130px;
+        background: #f5f0eb;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        &:hover img {
+            transform: scale(1.04);
+        }
+    }
+
+    &__cover-empty {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f0ede8, #e8e4de);
+    }
+
+    &__logo {
+        position: absolute;
+        bottom: -12px;
+        left: 12px;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 2px solid #fff;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__body {
+        padding: 18px 12px 12px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    &__info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__type {
+        font-size: 12px;
+        color: #bbb;
+        margin-bottom: 5px;
+    }
+
+    &__city {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #888;
+        margin: 0;
+
+        svg {
+            color: #a86a3d;
+            flex-shrink: 0;
+        }
+    }
+
+    &__rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #a86a3d;
+        flex-shrink: 0;
+
+        svg {
+            fill: #a86a3d;
+        }
+    }
+
+    // ── Скелетон ──
+    &--skeleton {
+        pointer-events: none;
+    }
+
+    &__cover--skeleton {
+        background: linear-gradient(90deg, #f0ede8 25%, #e8e4de 50%, #f0ede8 75%);
+        background-size: 200% 100%;
+        animation: sellers-shimmer 1.5s infinite;
+    }
+
+    &__skeleton-line {
+        height: 12px;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #f0ede8 25%, #e8e4de 50%, #f0ede8 75%);
+        background-size: 200% 100%;
+        animation: sellers-shimmer 1.5s infinite;
+        margin-bottom: 8px;
+
+        &--short {
+            width: 60%;
+        }
+    }
+}
+
+@keyframes sellers-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}

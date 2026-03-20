@@ -5,7 +5,6 @@
 import { api, apiWithAuth, apiPost, apiPut, apiPatch, apiDelete } from '@/lib/api';
 import { getTokenOrRedirect } from '@/lib/auth';
 
-
 class SellerService {
 
     // ════════════════════════════════════════
@@ -55,6 +54,15 @@ class SellerService {
     async getSellerBySlug(slug) {
         const token = await getTokenOrRedirect();
         const json = await apiWithAuth(`/api/sellers/slug/${slug}`, token);
+        return json.data;
+    }
+
+    /**
+     * Продавец по slug (публично, без токена)
+     * GET /api/sellers/slug/:slug
+     */
+    async getPublicSellerBySlug(slug) {
+        const json = await api(`/api/sellers/slug/${slug}`);
         return json.data;
     }
 

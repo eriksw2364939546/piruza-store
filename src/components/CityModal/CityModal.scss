@@ -1,0 +1,81 @@
+.city-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px 32px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
+
+    &__overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    &__icon {
+        width: 56px;
+        height: 56px;
+        background: #f5ede4;
+        color: #a86a3d;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+
+    &__title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+    }
+
+    &__subtitle {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 28px;
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 20px;
+        background: #faf9f7;
+        border: 1.5px solid #f0ede8;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        text-align: left;
+
+        svg {
+            color: #a86a3d;
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            background: #f5ede4;
+            border-color: #a86a3d;
+            color: #a86a3d;
+            transform: translateX(4px);
+        }
+    }
+}

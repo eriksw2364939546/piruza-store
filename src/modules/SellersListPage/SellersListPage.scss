@@ -1,0 +1,226 @@
+.sellers-list-page {
+    padding: 120px 0 80px;
+    min-height: 100vh;
+    background: #f7f6f4;
+
+    // ── Шапка ──
+    &__head {
+        margin-bottom: 28px;
+    }
+
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #999;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-bottom: 12px;
+        font-family: inherit;
+        transition: color 0.2s;
+
+        &:hover {
+            color: #1a1a1a;
+        }
+    }
+
+    &__title {
+        font-size: 36px;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -1px;
+        margin-bottom: 4px;
+
+        @media (max-width: 768px) {
+            font-size: 28px;
+        }
+    }
+
+    &__count {
+        font-size: 14px;
+        color: #999;
+        margin: 0;
+    }
+
+    // ── Фильтры ──
+    &__filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+    }
+
+    &__search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 200px;
+        max-width: 360px;
+    }
+
+    &__search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #bbb;
+        pointer-events: none;
+    }
+
+    &__search {
+        width: 100%;
+        padding: 10px 14px 10px 36px;
+        border: 1.5px solid #e5ddd5;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        background: #fff;
+        box-sizing: border-box;
+        transition: border-color 0.2s;
+
+        &:focus {
+            border-color: #a86a3d;
+        }
+
+        &::placeholder {
+            color: #bbb;
+        }
+    }
+
+    &__select {
+        padding: 10px 32px 10px 14px;
+        border: 1.5px solid #e5ddd5;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: inherit;
+        background: #fff;
+        color: #333;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23bbb' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+
+        &:focus {
+            border-color: #a86a3d;
+        }
+    }
+
+    // ── Сетка ──
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    // ── Скелетон ──
+    &__loading {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+
+        @media (max-width: 1024px) {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 768px) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 480px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__skeleton {
+        height: 220px;
+        border-radius: 14px;
+        background: linear-gradient(90deg, #f0ede8 25%, #e8e4de 50%, #f0ede8 75%);
+        background-size: 200% 100%;
+        animation: slp-shimmer 1.5s infinite;
+    }
+
+    // ── Пустое состояние ──
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 80px 20px;
+        color: #bbb;
+        font-size: 15px;
+    }
+
+    // ── Пагинация ──
+    &__pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 48px;
+        flex-wrap: wrap;
+    }
+
+    &__page-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        border: 1.5px solid #e5ddd5;
+        background: #fff;
+        font-size: 14px;
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: inherit;
+
+        &:hover {
+            border-color: #a86a3d;
+            color: #a86a3d;
+        }
+
+        &--active {
+            background: #a86a3d;
+            border-color: #a86a3d;
+            color: #fff;
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 100px 0 60px;
+
+        &__filters {
+            flex-direction: column;
+        }
+
+        &__search-wrap {
+            max-width: 100%;
+        }
+    }
+}
+
+@keyframes slp-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}

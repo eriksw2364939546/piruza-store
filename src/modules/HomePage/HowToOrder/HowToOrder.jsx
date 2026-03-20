@@ -1,100 +1,74 @@
 "use client";
+
 import "./HowToOrder.scss";
-import { useState } from "react";
-import OrderModal from "@/components/OrderModal/OrderModal";
-import toast from "react-hot-toast";
-import { Train, Truck, Star } from "lucide-react"; // Исправлено: Train вместо Metro
+import { Search, MessageCircle, Package } from "lucide-react";
+import Link from "next/link";
+
+const steps = [
+  {
+    num: "01",
+    icon: <Search size={28} />,
+    title: "Trouvez un vendeur",
+    text: "Parcourez les boutiques locales par ville ou catégorie et trouvez ce qui vous plaît.",
+    color: "#f0ede8",
+  },
+  {
+    num: "02",
+    icon: <MessageCircle size={28} />,
+    title: "Commandez via WhatsApp",
+    text: "Choisissez vos produits, ajoutez les quantités souhaitées et envoyez votre commande directement.",
+    color: "#e8f5e9",
+  },
+  {
+    num: "03",
+    icon: <Package size={28} />,
+    title: "Recevez votre commande",
+    text: "Le vendeur vous contactera pour confirmer les détails de livraison ou de retrait.",
+    color: "#e8f0ff",
+  },
+];
 
 const HowToOrder = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleSuccess = () => {
-    toast.success(
-      "Piruza a déjà commencé à préparer votre sudjouke ❤️\nNous vous appellerons ou vous enverrons un SMS pour confirmer votre commande !",
-      {
-        duration: 6000,
-      },
-    );
-  };
-
   return (
     <section id="how-to__order" className="how-to__order">
       <div className="container">
         <div className="how-to__order-content">
-          <h2>Comment commander</h2>
-
-          <div className="delivery-info">
-            <div className="delivery-badge">
-              <Truck className="delivery-icon" />
-              <span>Livraison gratuite</span>
-            </div>
-            <p className="delivery-description">
-              Nous vous rencontrerons à la station de métro de votre choix à
-              Marseille pour vous remettre votre commande en main propre.
+          <div className="how-to__head">
+            <span className="how-to__eyebrow">Simple & rapide</span>
+            <h2>
+              Comment <em>commander</em>
+            </h2>
+            <p className="how-to__desc">
+              En 3 étapes simples, trouvez vos artisans locaux préférés et
+              passez commande sans intermédiaire.
             </p>
           </div>
 
           <div className="how-to__order-items">
-            <div className="how-to__order-item row">
-              <p>1</p>
-              <p>Choisissez une saveur.</p>
-            </div>
-            <div className="how-to__order-item row">
-              <p>2</p>
-              <p>Laissez vos coordonnées.</p>
-            </div>
-            <div className="how-to__order-item row">
-              <p>3</p>
-              <p>Piruza va commencer à cuisiner.</p>
-            </div>
+            {steps.map((step, i) => (
+              <div
+                key={i}
+                className="how-to__order-item"
+                style={{ "--step-bg": step.color }}
+              >
+                <div className="how-to__step-icon">{step.icon}</div>
+                <div className="how-to__step-num">{step.num}</div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            ))}
           </div>
 
-          <div className="how-to__order-features">
-            <div className="feature-item">
-              <Train className="feature-icon" /> {/* Исправлено на Train */}
-              <div>
-                <h3>Rencontre au métro</h3>
-                <p>Choisissez votre station préférée à Marseille</p>
-              </div>
-            </div>
-            <div className="feature-item">
-              <Truck className="feature-icon" />
-              <div>
-                <h3>Gratuit</h3>
-                <p>Livraison offerte sans frais supplémentaires</p>
-              </div>
-            </div>
-            <div className="feature-item">
-              <Star className="feature-icon" />
-              <div>
-                <h3>Frais et fait main</h3>
-                <p>Préparé le jour même par Piruza</p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            className="how-to__order-btn btn open-modal"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Commander maintenant
-          </button>
-
-          <div className="order-note">
-            <p>
-              📞 <strong>Comment ça marche ?</strong> Après votre commande,
-              Piruza vous contactera pour confirmer le lieu et l'heure de
-              rencontre à la station choisie.
+          <div className="how-to__cta">
+            <Link href="/sellers" className="how-to__order-btn btn">
+              Découvrir les vendeurs
+            </Link>
+            <p className="how-to__note">
+              Commande directe · Sans frais · 100% local
             </p>
           </div>
         </div>
       </div>
-
-      <OrderModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleSuccess}
-      />
     </section>
   );
 };

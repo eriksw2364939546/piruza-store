@@ -2,8 +2,9 @@
 // Product Service — все запросы для товаров
 // ═══════════════════════════════════════════════════════
 
-import { apiWithAuth, apiPost, apiPut, apiDelete } from '@/lib/api';
+import { api, apiWithAuth, apiPost, apiPut, apiDelete } from '@/lib/api';
 import { getTokenOrRedirect } from '@/lib/auth';
+
 
 class ProductService {
 
@@ -23,6 +24,8 @@ class ProductService {
         );
         return json; // { data: [...], pagination: {...} }
     }
+
+
 
     /**
  * Товары по локальной категории
@@ -143,6 +146,16 @@ class ProductService {
         const json = await apiDelete(`/api/products/${id}/image`, token);
         return json.data;
     }
+
+    async getPublicProductsBySeller(sellerId, page = 1, limit = 20, query = '', category = '') {
+        const params = new URLSearchParams({ page, limit });
+        if (query) params.set('query', query);
+        if (category) params.set('category', category);
+        const json = await api(`/api/products/seller/${sellerId}?${params}`);
+        return json;
+    }
 }
+
+
 
 export default new ProductService();

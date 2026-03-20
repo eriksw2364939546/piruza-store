@@ -61,6 +61,15 @@ class CategoryService {
     }
 
     /**
+     * Публичные категории продавца (без токена)
+     * GET /api/categories/public/seller/:sellerId
+     */
+    async getPublicSellerCategories(sellerId) {
+        const json = await api(`/api/categories/seller/${sellerId}`);
+        return json;
+    }
+
+    /**
      * Категория продавца по slug
      * GET /api/categories/seller/:sellerId/slug/:slug
      */
