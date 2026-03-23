@@ -26,18 +26,13 @@ const HomePage = ({ categories = [], cities = [], sellers = [] }) => {
 
   // Определяем город клиента
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      clientApi
-        .get("/clients/profile")
-        .then((json) => {
-          if (json.data?.city) setCity(json.data.city);
-          else checkLocalCity();
-        })
-        .catch(() => checkLocalCity());
-    } else {
-      checkLocalCity();
-    }
+    clientApi
+      .get("/clients/profile")
+      .then((json) => {
+        if (json.data?.city) setCity(json.data.city);
+        else checkLocalCity();
+      })
+      .catch(() => checkLocalCity());
   }, []);
 
   const checkLocalCity = () => {

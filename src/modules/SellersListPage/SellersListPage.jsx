@@ -29,7 +29,6 @@ const SellersListPage = ({
   const pageTitle =
     initialFilters.sort === "views" ? "Les plus visités" : "Vendeurs locaux";
 
-  // Если city нет в URL — берём из localStorage или профиля
   useEffect(() => {
     if (initialFilters.city) return;
 
@@ -39,19 +38,14 @@ const SellersListPage = ({
       router.replace(`${pathname}?${params.toString()}`);
     };
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      clientApi
-        .get("/clients/profile")
-        .then((json) => {
-          const citySlug = json.data?.city?.slug;
-          if (citySlug) injectCity(citySlug);
-          else checkLocal();
-        })
-        .catch(() => checkLocal());
-    } else {
-      checkLocal();
-    }
+    clientApi
+      .get("/clients/profile")
+      .then((json) => {
+        const citySlug = json.data?.city?.slug;
+        if (citySlug) injectCity(citySlug);
+        else checkLocal();
+      })
+      .catch(() => checkLocal());
 
     function checkLocal() {
       const saved = localStorage.getItem("piruza_city");

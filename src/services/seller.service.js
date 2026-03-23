@@ -70,10 +70,12 @@ class SellerService {
      * Универсальный публичный (по slug города и категории)
      * GET /api/sellers/public?city=slug&category=slug
      */
-    async getPublicSellers({ city, category, page = 1, limit = 20 } = {}) {
+    async getPublicSellers({ city, category, query, sort, page = 1, limit = 20 } = {}) {
         const params = new URLSearchParams({ page, limit });
         if (city) params.set('city', city);
         if (category) params.set('category', category);
+        if (query) params.set('query', query);
+        if (sort) params.set('sort', sort);
         const json = await api(`/api/sellers/public?${params}`);
         return json;
     }

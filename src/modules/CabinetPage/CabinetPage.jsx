@@ -224,12 +224,6 @@ export default function CabinetPage() {
 
   // Проверяем токен и загружаем данные
   const loadData = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.replace("/login");
-      return;
-    }
-
     setLoading(true);
     try {
       const [profileRes, favRes, ratingsRes, citiesRes] =
@@ -242,9 +236,10 @@ export default function CabinetPage() {
           ),
         ]);
 
-      if (profileRes.status === "fulfilled") setProfile(profileRes.value.data);
-      else {
-        localStorage.removeItem("token");
+      if (profileRes.status === "fulfilled") {
+        setProfile(profileRes.value.data);
+      } else {
+        // Cookie нет или истёк → редирект на логин
         router.replace("/login");
         return;
       }
@@ -252,13 +247,12 @@ export default function CabinetPage() {
       if (favRes.status === "fulfilled") setFavorites(favRes.value.data || []);
       if (ratingsRes.status === "fulfilled") {
         const r = ratingsRes.value;
-        // Поддерживаем оба формата: массив или { data: [] }
         setRatings(Array.isArray(r.data) ? r.data : Array.isArray(r) ? r : []);
       }
       if (citiesRes.status === "fulfilled")
         setCities(citiesRes.value.data || []);
     } catch {
-      setError("Ошибка загрузки данных");
+      router.replace("/login");
     } finally {
       setLoading(false);
     }
@@ -277,8 +271,10 @@ export default function CabinetPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    try {
+      await clientApi.post("/clients/logout");
+    } catch {}
     router.replace("/login");
   };
 

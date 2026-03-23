@@ -1,22 +1,16 @@
 // ═══════════════════════════════════════════════════════
 // clientApi.js — API хелпер для клиентского приложения
-// Использует токен из localStorage
+// Использует HttpOnly cookie (credentials: include)
 // ═══════════════════════════════════════════════════════
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
 
-function getToken() {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
-}
-
 async function clientFetch(path, options = {}) {
-    const token = getToken();
     const res = await fetch(`${API_URL}${path}`, {
         ...options,
+        credentials: 'include', // отправляем cookie автоматически
         headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(options.headers || {}),
         },
     });

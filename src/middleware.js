@@ -1,37 +1,55 @@
-// ═══════════════════════════════════════════════════════
-// Middleware — Защита /admins-piruza/* маршрутов
-// ═══════════════════════════════════════════════════════
-
 import { NextResponse } from 'next/server';
 
 const COOKIE_NAME = process.env.COOKIE_NAME || 'admin_token';
+const CLIENT_COOKIE = 'client_token';
 
 export function middleware(request) {
     const { pathname } = request.nextUrl;
-    const token = request.cookies.get(COOKIE_NAME)?.value;
 
-    // Добавляем pathname в headers — используется в root layout
-    // чтобы скрыть публичный Header/Footer для админских роутов
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-pathname', pathname);
 
-    // ── Страница логина ──
+    // ── Защита /cabinet ──
+    if (pathname.startsWith('/cabinet')) {
+        const clientToken = request.cookies.get(CLIENT_COOKIE)?.value;
+        if (!clientToken) {
+            return NextResponse.redirect(new URL('/login', request.url));
+        }
+        return NextResponse.next({
+            request: { headers: requestHeaders },
+        });
+    }
+
+    // ── Страница логина клиента ──
+    if (pathname === '/login') {
+        const clientToken = request.cookies.get(CLIENT_COOKIE)?.value;
+        if (clientToken) {
+            return NextResponse.redirect(new URL('/cabinet', request.url));
+        }
+        return NextResponse.next({
+            request: { headers: requestHeaders },
+        });
+    }
+
+    // ── Страница логина админки ──
     if (pathname === '/admins-piruza/login') {
-        // Уже авторизован → на дашборд
-        if (token) {
+        const adminToken = request.cookies.get(COOKIE_NAME)?.value;
+        if (adminToken) {
             return NextResponse.redirect(new URL('/admins-piruza', request.url));
         }
-        // Нет токена → показываем логин
         return NextResponse.next({
             request: { headers: requestHeaders },
         });
     }
 
     // ── Все остальные страницы админки ──
-    if (!token) {
-        const loginUrl = new URL('/admins-piruza/login', request.url);
-        loginUrl.searchParams.set('from', pathname);
-        return NextResponse.redirect(loginUrl);
+    if (pathname.startsWith('/admins-piruza')) {
+        const adminToken = request.cookies.get(COOKIE_NAME)?.value;
+        if (!adminToken) {
+            const loginUrl = new URL('/admins-piruza/login', request.url);
+            loginUrl.searchParams.set('from', pathname);
+            return NextResponse.redirect(loginUrl);
+        }
     }
 
     return NextResponse.next({
@@ -40,5 +58,5 @@ export function middleware(request) {
 }
 
 export const config = {
-    matcher: '/admins-piruza/:path*',
+    matcher: ['/admins-piruza/:path*', '/cabinet/:path*', '/cabinet', '/login'],
 };

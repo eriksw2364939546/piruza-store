@@ -19,6 +19,7 @@ import StarRating from "@/components/StarRating/StarRating";
 import Pagination from "@/components/Pagination/Pagination";
 import { clientApi } from "@/lib/clientApi";
 import { getImageUrl } from "@/lib/utils";
+import { validatePhone } from "@/lib/validation/orderForm.fr.schema";
 import PublicProductCard from "@/components/PublicProductCard/PublicProductCard";
 import useCart from "@/hooks/useCart";
 import "./SellerProfilePage.scss";
@@ -35,8 +36,8 @@ const OrderForm = ({
   onClear,
 }) => {
   const [clientPhone, setClientPhone] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
-  // Товары в корзине
   const cartItems = products.filter((p) => cart[p._id] > 0);
 
   const total = cartItems.reduce((sum, p) => {
@@ -48,6 +49,13 @@ const OrderForm = ({
       alert("Choisissez au moins un produit");
       return;
     }
+    const err = validatePhone(clientPhone);
+    if (err) {
+      setPhoneError(err);
+      return;
+    }
+    setPhoneError("");
+
     const lines = cartItems.map((p) => {
       const qty = cart[p._id];
       const price = p.price
@@ -67,8 +75,6 @@ const OrderForm = ({
       `https://wa.me/${seller.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`,
       "_blank",
     );
-
-    // Очищаем корзину после отправки
     onClear();
     onClose();
   };
@@ -135,11 +141,18 @@ const OrderForm = ({
         <div className="order-form__phone">
           <input
             type="tel"
-            placeholder="Votre numéro de téléphone"
+            placeholder="06 12 34 56 78"
             value={clientPhone}
-            onChange={(e) => setClientPhone(e.target.value)}
-            className="order-form__phone-input"
+            onChange={(e) => {
+              setClientPhone(e.target.value);
+              if (phoneError) setPhoneError("");
+            }}
+            onBlur={() => setPhoneError(validatePhone(clientPhone) || "")}
+            className={`order-form__phone-input ${phoneError ? "order-form__phone-input--error" : ""}`}
           />
+          {phoneError && (
+            <p className="order-form__phone-error">{phoneError}</p>
+          )}
         </div>
 
         <button
@@ -170,12 +183,29 @@ export default function SellerProfilePage({
 
   const [orderOpen, setOrderOpen] = useState(false);
   const [isFav, setIsFav] = useState(false);
+  const [myRating, setMyRating] = useState(null);
   const [query, setQuery] = useState(initialFilters.query || "");
 
   const { cart, addItem, removeItem, totalItems, totalPrice, clearCart } =
     useCart(seller._id);
 
-  // Восстанавливаем скролл после фильтрации
+  useEffect(() => {
+    clientApi
+      .get("/clients/favorites")
+      .then((json) => {
+        const favs = json.data || [];
+        setIsFav(favs.some((s) => s._id === seller._id || s === seller._id));
+      })
+      .catch(() => {});
+
+    clientApi
+      .get(`/ratings/seller/${seller._id}/my`)
+      .then((json) => {
+        setMyRating(json.data?.rating || null);
+      })
+      .catch(() => {});
+  }, [seller._id]);
+
   useEffect(() => {
     const saved = sessionStorage.getItem("seller_scroll");
     if (saved) {
@@ -186,9 +216,8 @@ export default function SellerProfilePage({
 
   const pushUrl = useCallback(
     (newQuery, newCategory, newPage = 1, saveScroll = true) => {
-      if (saveScroll) {
+      if (saveScroll)
         sessionStorage.setItem("seller_scroll", window.scrollY.toString());
-      }
       const params = new URLSearchParams();
       if (newQuery) params.set("query", newQuery);
       if (newCategory) params.set("category", newCategory);
@@ -202,14 +231,13 @@ export default function SellerProfilePage({
     const val = e.target.value;
     setQuery(val);
     clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      pushUrl(val, initialFilters.category);
-    }, 400);
+    timerRef.current = setTimeout(
+      () => pushUrl(val, initialFilters.category),
+      400,
+    );
   };
 
-  const handleCategory = (categoryId) => {
-    pushUrl(query, categoryId);
-  };
+  const handleCategory = (categoryId) => pushUrl(query, categoryId);
 
   const handlePage = (newPage) => {
     pushUrl(query, initialFilters.category, newPage);
@@ -217,15 +245,28 @@ export default function SellerProfilePage({
   };
 
   const handleToggleFav = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
     try {
       await clientApi.post(`/clients/favorites/${seller._id}`);
       setIsFav((prev) => !prev);
-    } catch {}
+    } catch (err) {
+      if (err.message?.includes("401") || err.message?.includes("Токен"))
+        router.push("/login");
+    }
+  };
+
+  const handleRate = async (rating) => {
+    try {
+      if (rating === null) {
+        await clientApi.delete(`/ratings/seller/${seller._id}/my`);
+        setMyRating(null);
+      } else {
+        await clientApi.post(`/ratings/seller/${seller._id}`, { rating });
+        setMyRating(rating);
+      }
+    } catch (err) {
+      if (err.message?.includes("401") || err.message?.includes("Токен"))
+        router.push("/login");
+    }
   };
 
   const totalPages = pagination?.totalPages ?? pagination?.pages ?? 1;
@@ -234,25 +275,43 @@ export default function SellerProfilePage({
 
   return (
     <div className="seller-profile">
-      {/* ── Обложка ── */}
-      <div className="seller-profile__cover">
-        {seller.coverImage ? (
-          <img src={getImageUrl(seller.coverImage)} alt={seller.name} />
-        ) : (
-          <div className="seller-profile__cover-empty" />
-        )}
-        <div className="seller-profile__logo-wrap">
-          {seller.logo ? (
-            <img
-              src={getImageUrl(seller.logo)}
-              alt={seller.name}
-              className="seller-profile__logo"
-            />
-          ) : (
-            <div className="seller-profile__logo-placeholder">
-              {seller.name?.charAt(0)}
+      {/* ── Обложка внутри container ── */}
+      <div className="seller-profile__cover-wrap">
+        <div className="container">
+          <div className="seller-profile__cover">
+            <div className="seller-profile__cover-img-wrap">
+              {seller.coverImage ? (
+                <img src={getImageUrl(seller.coverImage)} alt={seller.name} />
+              ) : (
+                <div className="seller-profile__cover-empty" />
+              )}
             </div>
-          )}
+
+            {/* Лого — левый нижний угол */}
+            <div className="seller-profile__logo-wrap">
+              {seller.logo ? (
+                <img
+                  src={getImageUrl(seller.logo)}
+                  alt={seller.name}
+                  className="seller-profile__logo"
+                />
+              ) : (
+                <div className="seller-profile__logo-placeholder">
+                  {seller.name?.charAt(0)}
+                </div>
+              )}
+            </div>
+
+            {/* Рейтинг — правый верхний угол */}
+            {seller.averageRating > 0 && (
+              <div className="seller-profile__cover-rating">
+                <StarRating value={seller.averageRating} size={14} />
+                <span className="seller-profile__cover-rating-count">
+                  ({seller.totalRatings})
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -267,45 +326,33 @@ export default function SellerProfilePage({
             <ArrowLeft size={16} /> Retour
           </button>
 
-          {/* Инфо о продавце */}
+          {/* ── Инфо — двухколоночный ── */}
           <div className="seller-profile__info">
-            <div className="seller-profile__title-row">
-              <div>
+            {/* Левая колонка */}
+            <div className="seller-profile__info-left">
+              <div className="seller-profile__title-row">
                 <h1 className="seller-profile__name">{seller.name}</h1>
                 <p className="seller-profile__type">{seller.businessType}</p>
               </div>
-              <button
-                className={`seller-profile__fav ${isFav ? "seller-profile__fav--active" : ""}`}
-                onClick={handleToggleFav}
-              >
-                <Heart size={20} fill={isFav ? "currentColor" : "none"} />
-              </button>
+
+              {seller.address && (
+                <p className="seller-profile__address">
+                  <MapPin size={14} /> {seller.address}
+                </p>
+              )}
+
+              {seller.description && (
+                <p className="seller-profile__desc">{seller.description}</p>
+              )}
+
+              {seller.legalInfo && (
+                <p className="seller-profile__legal">{seller.legalInfo}</p>
+              )}
             </div>
 
-            {seller.averageRating > 0 && (
-              <div className="seller-profile__rating">
-                <StarRating value={seller.averageRating} size={16} />
-                <span className="seller-profile__rating-count">
-                  ({seller.totalRatings})
-                </span>
-              </div>
-            )}
-
-            {seller.address && (
-              <p className="seller-profile__address">
-                <MapPin size={14} /> {seller.address}
-              </p>
-            )}
-
-            {seller.description && (
-              <p className="seller-profile__desc">{seller.description}</p>
-            )}
-
-            {seller.legalInfo && (
-              <p className="seller-profile__legal">{seller.legalInfo}</p>
-            )}
-
-            <div className="seller-profile__contacts">
+            {/* Правая колонка */}
+            <div className="seller-profile__info-right">
+              {/* Контакты */}
               {seller.phone && (
                 <a
                   href={`tel:${seller.phone}`}
@@ -314,13 +361,49 @@ export default function SellerProfilePage({
                   <Phone size={16} /> {seller.phone}
                 </a>
               )}
+
+              {/* Оценить продавца */}
+              <div className="seller-profile__rate">
+                <div className="seller-profile__rate-head">
+                  <p className="seller-profile__rate-label">
+                    {myRating ? "Votre note" : "Noter ce vendeur"}
+                  </p>
+                  <button
+                    className={`seller-profile__fav ${isFav ? "seller-profile__fav--active" : ""}`}
+                    onClick={handleToggleFav}
+                    title={
+                      isFav ? "Retirer des favoris" : "Ajouter aux favoris"
+                    }
+                  >
+                    <Heart size={18} fill={isFav ? "currentColor" : "none"} />
+                  </button>
+                </div>
+                <div className="seller-profile__rate-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      className={`seller-profile__rate-star ${myRating >= star ? "seller-profile__rate-star--active" : ""}`}
+                      onClick={() => handleRate(star)}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+                {myRating && (
+                  <button
+                    className="seller-profile__rate-delete"
+                    onClick={() => handleRate(null)}
+                  >
+                    Supprimer ma note
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
           {/* ── Товары ── */}
           <div className="seller-profile__products">
             <div className="seller-profile__products-layout">
-              {/* Сайдбар категорий */}
               {categories.length > 0 && (
                 <aside className="seller-profile__sidebar">
                   <p className="seller-profile__sidebar-title">Catégories</p>
@@ -350,9 +433,7 @@ export default function SellerProfilePage({
                 </aside>
               )}
 
-              {/* Основной контент */}
               <div className="seller-profile__products-main">
-                {/* Поиск */}
                 <div className="seller-profile__search-wrap">
                   <Search size={15} className="seller-profile__search-icon" />
                   <input
@@ -364,7 +445,6 @@ export default function SellerProfilePage({
                   />
                 </div>
 
-                {/* Сетка товаров */}
                 {products.length === 0 ? (
                   <div className="seller-profile__empty">
                     <p>Aucun produit trouvé</p>
@@ -384,7 +464,6 @@ export default function SellerProfilePage({
                   </div>
                 )}
 
-                {/* Пагинация */}
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}

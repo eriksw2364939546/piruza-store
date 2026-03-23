@@ -3,6 +3,7 @@
 import "./Header.scss";
 import Link from "next/link";
 import Image from "next/image";
+import { clientApi } from "@/lib/clientApi";
 import { useState, useEffect } from "react";
 import { LogIn, CircleUserRound } from "lucide-react";
 import OrderModal from "@/components/OrderModal/OrderModal";
@@ -16,21 +17,12 @@ const Header = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setClientName(null);
-      return;
-    }
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/profile`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
+    clientApi
+      .get("/clients/profile")
       .then((json) => {
         if (json.success && json.data?.name) {
           setClientName(json.data.name);
         } else {
-          localStorage.removeItem("token");
           setClientName(null);
         }
       })
