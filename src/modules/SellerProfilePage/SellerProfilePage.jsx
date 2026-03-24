@@ -38,10 +38,11 @@ const OrderForm = ({
   const [clientPhone, setClientPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
-  const cartItems = products.filter((p) => cart[p._id] > 0);
+  // products уже отфильтрован через getCartItems
+  const cartItems = products;
 
   const total = cartItems.reduce((sum, p) => {
-    return sum + (p?.price || 0) * (cart[p._id] || 0);
+    return sum + (p?.price || 0) * (cart[p._id] || p.quantity || 0);
   }, 0);
 
   const handleSend = () => {
@@ -186,8 +187,15 @@ export default function SellerProfilePage({
   const [myRating, setMyRating] = useState(null);
   const [query, setQuery] = useState(initialFilters.query || "");
 
-  const { cart, addItem, removeItem, totalItems, totalPrice, clearCart } =
-    useCart(seller._id);
+  const {
+    cart,
+    addItem,
+    removeItem,
+    totalItems,
+    totalPrice,
+    clearCart,
+    getCartItems,
+  } = useCart(seller._id);
 
   useEffect(() => {
     clientApi
@@ -500,7 +508,7 @@ export default function SellerProfilePage({
       {orderOpen && (
         <OrderForm
           seller={seller}
-          products={products}
+          products={getCartItems(products)}
           cart={cart}
           onAdd={addItem}
           onRemove={removeItem}

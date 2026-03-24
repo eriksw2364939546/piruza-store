@@ -235,6 +235,17 @@ export async function activateSellerAction(id, months = null, slug = null) {
     }
 }
 
+export async function activateSellerManagerAction(sellerId, sellerSlug) {
+    try {
+        const token = await getTokenOrRedirect();
+        await SellerService.activateSellerManager(token, sellerId);
+        revalidatePath(`/admins-piruza/manager/sellers/${sellerSlug}`);
+        return { success: true };
+    } catch (err) {
+        return { success: false, message: err.message };
+    }
+}
+
 /**
  * Продлить продавца (Owner/Admin)
  * @param {string} id

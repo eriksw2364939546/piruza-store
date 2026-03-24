@@ -63,6 +63,15 @@ class ProductService {
         return json.data;
     }
 
+    /**
+ * Публичный товар по slug внутри продавца (без токена)
+ * GET /api/products/seller/:sellerId/slug/:slug
+ */
+    async getPublicProductBySlug(sellerId, slug) {
+        const json = await api(`/api/products/seller/${sellerId}/slug/${slug}`);
+        return json.data;
+    }
+
     // ════════════════════════════════════════
     // Мутации (вызываются из Server Actions)
     // ════════════════════════════════════════

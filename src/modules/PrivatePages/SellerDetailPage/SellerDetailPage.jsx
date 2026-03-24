@@ -49,6 +49,7 @@ import {
   deleteSellerLogoAction,
   uploadSellerCoverAction,
   deleteSellerCoverAction,
+  activateSellerManagerAction,
 } from "@/app/actions/seller.actions";
 
 import {
@@ -798,6 +799,14 @@ export default function SellerDetailPage({
     });
   }
 
+  function handleManagerActivate() {
+    if (!confirm(`Активировать "${seller.name}"?`)) return;
+    startStatusTransition(async () => {
+      const res = await activateSellerManagerAction(seller._id, seller.slug);
+      res.success ? toast.success("Активирован") : toast.error(res.message);
+    });
+  }
+
   // ── Изображения продавца ──
 
   async function handleLogoUpload(fd, hasLogo) {
@@ -924,7 +933,7 @@ export default function SellerDetailPage({
         {/* ── Колонка: инфо ── */}
         <div className="detail-page__col detail-page__col--main">
           {/* Управление статусом — только Owner/Admin */}
-          {!managerMode && (
+          {!managerMode ? (
             <section className="detail-card">
               <h2 className="detail-card__title">Управление статусом</h2>
               <div className="detail-card__status-row">
@@ -988,6 +997,33 @@ export default function SellerDetailPage({
                   </span>
                 </div>
               )}
+            </section>
+          ) : (
+            <section className="detail-card">
+              <h2 className="detail-card__title">Управление статусом</h2>
+              <div className="detail-card__status-row">
+                <StatusBadge status={seller.status} />
+                <div className="sellers-actions">
+                  {seller.status !== "draft" && (
+                    <button
+                      className="sellers-btn sellers-btn--ghost sellers-btn--sm"
+                      onClick={handleDraft}
+                      disabled={statusLoading}
+                    >
+                      <FileText size={14} /> В черновик
+                    </button>
+                  )}
+                  {seller.status === "draft" && (
+                    <button
+                      className="sellers-btn sellers-btn--success sellers-btn--sm"
+                      onClick={handleManagerActivate}
+                      disabled={statusLoading}
+                    >
+                      <CheckCircle size={14} /> Активировать
+                    </button>
+                  )}
+                </div>
+              </div>
             </section>
           )}
 

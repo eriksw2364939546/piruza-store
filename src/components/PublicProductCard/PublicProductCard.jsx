@@ -56,7 +56,7 @@ const PublicProductCard = ({ product, sellerSlug, cart, onAdd, onRemove }) => {
             {quantity === 0 ? (
               <button
                 className="public-product-card__add-btn"
-                onClick={() => onAdd(product._id)}
+                onClick={() => onAdd(product._id, product)}
               >
                 +
               </button>
@@ -73,7 +73,7 @@ const PublicProductCard = ({ product, sellerSlug, cart, onAdd, onRemove }) => {
                 </span>
                 <button
                   className="public-product-card__counter-btn public-product-card__counter-btn--plus"
-                  onClick={() => onAdd(product._id)}
+                  onClick={() => onAdd(product._id, product)}
                 >
                   +
                 </button>
