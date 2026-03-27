@@ -21,6 +21,7 @@ class RequestService {
         if (status) params.set('status', status);
         if (managerId) params.set('managerId', managerId);
         const json = await apiWithAuth(`/api/requests?${params}`, token);
+
         return json; // { data: [...], pagination: {...} }
     }
 

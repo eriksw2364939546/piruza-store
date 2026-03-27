@@ -11,7 +11,11 @@ import {
   useTransition,
   useActionState,
   useEffect,
+  useCallback,
 } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Pagination from "@/components/Pagination/Pagination";
+import { Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -41,6 +45,7 @@ import {
 
 import {
   activateSellerAction,
+  activateSellerManagerAction,
   extendSellerAction,
   deactivateSellerAction,
   moveToDraftAction,
@@ -49,7 +54,6 @@ import {
   deleteSellerLogoAction,
   uploadSellerCoverAction,
   deleteSellerCoverAction,
-  activateSellerManagerAction,
 } from "@/app/actions/seller.actions";
 
 import {
@@ -445,7 +449,7 @@ function ProductRow({ product, seller, basePath, onEdit }) {
       {/* Цена */}
       <td className="product-row__price">
         {product.price != null ? (
-          `${product.price} ₽`
+          `${product.price} €`
         ) : (
           <span className="product-row__none">—</span>
         )}
@@ -652,29 +656,68 @@ function ProductsSection({
   basePath,
   onAddProduct,
   onEditProduct,
+  pagination,
+  initialFilters = {},
+  totalAll = null,
 }) {
-  const [activeCat, setActiveCat] = useState("all");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const timerRef = useRef(null);
 
-  const filtered =
-    activeCat === "all"
-      ? products
-      : activeCat === "none"
-        ? products.filter((p) => !p.category)
-        : products.filter((p) => p.category?._id === activeCat);
+  const [queryInput, setQueryInput] = useState(initialFilters.query || "");
 
-  // Считаем кол-во товаров по каждой категории
-  const counts = {};
-  products.forEach((p) => {
-    const key = p.category?._id || "none";
-    counts[key] = (counts[key] || 0) + 1;
-  });
+  // Восстанавливаем скролл после навигации — по паттерну SellerProfilePage
+  useEffect(() => {
+    const saved = sessionStorage.getItem("seller_detail_scroll");
+    if (saved) {
+      sessionStorage.removeItem("seller_detail_scroll");
+      window.scrollTo({ top: parseInt(saved), behavior: "instant" });
+    }
+  }, [searchParams]);
+
+  const pushUrl = useCallback(
+    (query, category, page = 1, saveScroll = true) => {
+      if (saveScroll) {
+        sessionStorage.setItem("seller_detail_scroll", String(window.scrollY));
+      }
+      const params = new URLSearchParams();
+      if (query) params.set("productQuery", query);
+      if (category) params.set("productCategory", category);
+      if (page > 1) params.set("productPage", page);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
+    },
+    [router, pathname],
+  );
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQueryInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      pushUrl(val, initialFilters.category);
+    }, 400);
+  };
+
+  const handleCategory = (categoryId) => {
+    pushUrl(queryInput, categoryId);
+  };
+
+  const handlePage = (newPage) => {
+    pushUrl(queryInput, initialFilters.category, newPage);
+  };
+
+  const activeCategory = initialFilters.category || "";
+  const totalPages = pagination?.totalPages ?? pagination?.pages ?? 1;
+  const currentPage = pagination?.page ?? 1;
+  const total = pagination?.total ?? products.length;
 
   return (
     <section className="detail-card detail-card--full">
       <div className="detail-card__head">
         <h2 className="detail-card__title">
-          Товары{" "}
-          <span className="detail-card__count">{products?.length || 0}</span>
+          Товары <span className="detail-card__count">{total}</span>
         </h2>
         <button
           className="sellers-btn sellers-btn--primary sellers-btn--sm"
@@ -684,46 +727,41 @@ function ProductsSection({
         </button>
       </div>
 
+      {/* Поиск */}
+      <div className="products-search-wrap">
+        <Search size={14} className="products-search-icon" />
+        <input
+          className="products-search"
+          type="text"
+          placeholder="Поиск по названию..."
+          value={queryInput}
+          onChange={handleQueryChange}
+        />
+      </div>
+
       {/* Фильтры по категориям */}
-      {categories?.length > 0 && products?.length > 0 && (
+      {categories?.length > 0 && (
         <div className="products-filter">
           <button
-            className={`products-filter__btn ${activeCat === "all" ? "products-filter__btn--active" : ""}`}
-            onClick={() => setActiveCat("all")}
+            className={`products-filter__btn ${!activeCategory ? "products-filter__btn--active" : ""}`}
+            onClick={() => handleCategory("")}
           >
             Все
-            <span className="products-filter__count">{products.length}</span>
+            <span className="products-filter__count">{totalAll ?? total}</span>
           </button>
-
-          {categories.map(
-            (cat) =>
-              counts[cat._id] > 0 && (
-                <button
-                  key={cat._id}
-                  className={`products-filter__btn ${activeCat === cat._id ? "products-filter__btn--active" : ""}`}
-                  onClick={() => setActiveCat(cat._id)}
-                >
-                  {cat.name}
-                  <span className="products-filter__count">
-                    {counts[cat._id] || 0}
-                  </span>
-                </button>
-              ),
-          )}
-
-          {counts["none"] > 0 && (
+          {categories.map((cat) => (
             <button
-              className={`products-filter__btn ${activeCat === "none" ? "products-filter__btn--active" : ""}`}
-              onClick={() => setActiveCat("none")}
+              key={cat._id}
+              className={`products-filter__btn ${activeCategory === cat.slug ? "products-filter__btn--active" : ""}`}
+              onClick={() => handleCategory(cat.slug)}
             >
-              Без категории
-              <span className="products-filter__count">{counts["none"]}</span>
+              {cat.name}
             </button>
-          )}
+          ))}
         </div>
       )}
 
-      {filtered?.length > 0 ? (
+      {products?.length > 0 ? (
         <div className="detail-page__table-wrap">
           <table className="detail-page__table">
             <thead>
@@ -737,7 +775,7 @@ function ProductsSection({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => (
+              {products.map((p) => (
                 <ProductRow
                   key={p._id}
                   product={p}
@@ -752,13 +790,15 @@ function ProductsSection({
       ) : (
         <div className="detail-page__empty">
           <Package size={32} />
-          <p>
-            {activeCat === "all"
-              ? "Товаров пока нет"
-              : "Нет товаров в этой категории"}
-          </p>
+          <p>Товаров не найдено</p>
         </div>
       )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePage}
+      />
     </section>
   );
 }
@@ -770,9 +810,12 @@ function ProductsSection({
 export default function SellerDetailPage({
   seller,
   products,
+  productsPagination,
   categories,
   basePath = "/admins-piruza/owner/sellers",
   managerMode = false,
+  initialProductFilters = {},
+  productsTotalAll = null,
 }) {
   const [activateModal, setActivateModal] = useState(null);
   const [productModal, setProductModal] = useState(null);
@@ -887,11 +930,11 @@ export default function SellerDetailPage({
           <div className="detail-page__rating">
             <Star size={14} className="detail-page__rating-star" />
             <span className="detail-page__rating-value">
-              {seller.averageRating ? seller.averageRating.toFixed(1) : "—"}
+              {seller.rating?.average ? seller.rating.average.toFixed(1) : "—"}
             </span>
-            {seller.totalRatings?.count > 0 && (
+            {seller.rating?.count > 0 && (
               <span className="detail-page__rating-count">
-                ({seller.totalRatings.count})
+                ({seller.rating.count})
               </span>
             )}
           </div>
@@ -933,7 +976,7 @@ export default function SellerDetailPage({
         {/* ── Колонка: инфо ── */}
         <div className="detail-page__col detail-page__col--main">
           {/* Управление статусом — только Owner/Admin */}
-          {!managerMode ? (
+          {!managerMode && (
             <section className="detail-card">
               <h2 className="detail-card__title">Управление статусом</h2>
               <div className="detail-card__status-row">
@@ -998,7 +1041,10 @@ export default function SellerDetailPage({
                 </div>
               )}
             </section>
-          ) : (
+          )}
+
+          {/* Управление статусом — Manager */}
+          {managerMode && (
             <section className="detail-card">
               <h2 className="detail-card__title">Управление статусом</h2>
               <div className="detail-card__status-row">
@@ -1152,6 +1198,9 @@ export default function SellerDetailPage({
         basePath={basePath}
         onAddProduct={() => setProductModal("create")}
         onEditProduct={(p) => setProductModal(p)}
+        pagination={productsPagination}
+        initialFilters={initialProductFilters}
+        totalAll={productsTotalAll}
       />
 
       {/* ── Модальные окна ── */}

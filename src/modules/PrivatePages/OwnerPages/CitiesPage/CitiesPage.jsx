@@ -53,7 +53,7 @@ const CreateForm = ({ onClose }) => {
         <input
           name="name"
           type="text"
-          placeholder="Например: Москва"
+          placeholder="Например: Paris"
           required
           autoFocus
         />

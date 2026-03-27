@@ -135,7 +135,7 @@ function SellerRow({ seller, onActivate, onExtend }) {
     )
       return;
     setLoading("delete");
-    const res = await deleteSellerAction(seller._id);
+    const res = await deleteSellerAction(seller._id, seller.slug);
     if (!res.success) {
       toast.error(res.message);
       setLoading(null);

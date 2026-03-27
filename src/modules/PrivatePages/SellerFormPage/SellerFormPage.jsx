@@ -6,10 +6,10 @@
 // /owner/sellers/[slug]/edit
 // ═══════════════════════════════════════════════════════
 
-import { useState, useActionState, useEffect } from "react";
+import { useState, useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, AlertCircle } from "lucide-react";
 
 import {
   createSellerAction,
@@ -35,6 +35,14 @@ export default function SellerFormPage({
 
   const [state, formAction, pending] = useActionState(action, INIT_STATE);
 
+  // Рефы для скролла
+  const categoriesSectionRef = useRef(null);
+  const categoriesContainerRef = useRef(null);
+
+  // Локальная ошибка валидации
+  const [localError, setLocalError] = useState(null);
+  const [validationError, setValidationError] = useState(null);
+
   // Чекбоксы глобальных категорий
   const initCats = seller?.globalCategories?.map((c) => c._id || c) || [];
   const [selectedCats, setSelectedCats] = useState(initCats);
@@ -43,6 +51,44 @@ export default function SellerFormPage({
     setSelectedCats((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
+    // Очищаем ошибку валидации при выборе категории
+    if (validationError === "categories") {
+      setValidationError(null);
+      setLocalError(null);
+    }
+  };
+
+  // Валидация перед отправкой
+  const handleSubmit = (e) => {
+    // Проверяем, выбраны ли глобальные категории
+    if (selectedCats.length === 0) {
+      e.preventDefault(); // Отменяем отправку формы
+      setValidationError("categories");
+      setLocalError("Выберите хотя бы одну глобальную категорию");
+
+      // Скроллим к секции категорий
+      if (categoriesSectionRef.current) {
+        categoriesSectionRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        // Добавляем подсветку
+        categoriesSectionRef.current.classList.add(
+          "seller-form-page__section--error",
+        );
+        setTimeout(() => {
+          categoriesSectionRef.current?.classList.remove(
+            "seller-form-page__section--error",
+          );
+        }, 2000);
+      }
+
+      return false;
+    }
+
+    // Если валидация прошла, форма отправится
+    return true;
   };
 
   // Показываем ошибку через toast
@@ -68,15 +114,30 @@ export default function SellerFormPage({
       </div>
 
       {/* ── Форма ── */}
-      <form action={formAction} className="seller-form-page__form">
+      <form
+        action={formAction}
+        onSubmit={handleSubmit}
+        className="seller-form-page__form"
+      >
         {/* Скрытые поля */}
         {isEdit && <input type="hidden" name="id" value={seller._id} />}
         {isEdit && <input type="hidden" name="slug" value={seller.slug} />}
         <input type="hidden" name="basePath" value={basePath} />
 
-        {/* Ошибка */}
+        {/* Глобальная ошибка */}
         {state.success === false && (
-          <div className="seller-form-page__error">{state.message}</div>
+          <div className="seller-form-page__error">
+            <AlertCircle size={16} />
+            {state.message}
+          </div>
+        )}
+
+        {/* Локальная ошибка валидации */}
+        {localError && (
+          <div className="seller-form-page__error seller-form-page__error--validation">
+            <AlertCircle size={16} />
+            {localError}
+          </div>
         )}
 
         {/* ── Секция: основная информация ── */}
@@ -199,9 +260,13 @@ export default function SellerFormPage({
         </section>
 
         {/* ── Секция: категории ── */}
-        <section className="seller-form-page__section">
+        <section
+          ref={categoriesSectionRef}
+          className={`seller-form-page__section ${validationError === "categories" ? "seller-form-page__section--error" : ""}`}
+        >
           <h2 className="seller-form-page__section-title">
             Глобальные категории
+            <span className="seller-form-page__required-star">*</span>
           </h2>
           <p className="seller-form-page__hint">
             Выберите к каким глобальным категориям относится продавец
@@ -212,7 +277,10 @@ export default function SellerFormPage({
             <input key={id} type="hidden" name="globalCategories" value={id} />
           ))}
 
-          <div className="seller-form-page__cats">
+          <div
+            ref={categoriesContainerRef}
+            className={`seller-form-page__cats ${validationError === "categories" ? "seller-form-page__cats--error" : ""}`}
+          >
             {categories.length > 0 ? (
               categories.map((cat) => (
                 <label
@@ -236,6 +304,14 @@ export default function SellerFormPage({
               <p className="seller-form-page__empty">Нет доступных категорий</p>
             )}
           </div>
+
+          {/* Сообщение об ошибке под категориями */}
+          {validationError === "categories" && (
+            <div className="seller-form-page__field-error">
+              <AlertCircle size={14} />
+              Выберите хотя бы одну глобальную категорию
+            </div>
+          )}
         </section>
 
         {/* ── Кнопки ── */}

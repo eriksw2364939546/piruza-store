@@ -346,6 +346,7 @@ function RequestRow({ request, onView, onApprove, onReject }) {
 export default function AdminRequestsPage({
   requests,
   pagination,
+  counts: propCounts,
   initialStatus = "",
 }) {
   const router = useRouter();
@@ -369,7 +370,7 @@ export default function AdminRequestsPage({
     res.success ? toast.success(res.message) : toast.error(res.message);
   }
 
-  const counts = {
+  const counts = propCounts ?? {
     all: pagination?.total ?? requests.length,
     pending: requests.filter((r) => r.status === "pending").length,
     approved: requests.filter((r) => r.status === "approved").length,

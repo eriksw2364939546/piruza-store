@@ -304,7 +304,7 @@ const SellerRow = ({ seller, onActivate, onExtend }) => {
     )
       return;
     setLoading("delete");
-    const result = await deleteSellerAction(seller._id);
+    const result = await deleteSellerAction(seller._id, seller.slug);
     if (!result.success) {
       alert(result.message);
       setLoading(null);

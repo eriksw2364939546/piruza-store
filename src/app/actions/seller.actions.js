@@ -303,11 +303,11 @@ export async function moveToDraftAction(id, slug = null) {
  * Удалить продавца
  * @param {string} id
  */
-export async function deleteSellerAction(id) {
+export async function deleteSellerAction(id, slug = null) {
     try {
         const token = await getTokenOrRedirect();
         await SellerService.deleteSeller(token, id);
-        revalidatePath(SELLERS_PATH);
+        revalidateSeller(slug);
         return { success: true };
     } catch (err) {
         return { success: false, message: err.message || 'Ошибка удаления' };

@@ -7,14 +7,24 @@ export default async function Page({ searchParams }) {
     const params = await searchParams;
     const status = params?.status || '';
 
-    const result = await RequestService.getAllRequests({ status, limit: 50 })
-        .catch(() => ({ data: [], pagination: null }));
-
-    return (
-        <AdminRequestsPage
-            requests={result.data}
-            pagination={result.pagination}
-            initialStatus={status}
-        />
-    );
+    try {
+        const res = await RequestService.getAllRequests({ status, limit: 50 });
+        return (
+            <AdminRequestsPage
+                requests={res.data || []}
+                pagination={res.pagination || null}
+                counts={res.counts || null}
+                initialStatus={status}
+            />
+        );
+    } catch {
+        return (
+            <AdminRequestsPage
+                requests={[]}
+                pagination={null}
+                counts={null}
+                initialStatus={status}
+            />
+        );
+    }
 }

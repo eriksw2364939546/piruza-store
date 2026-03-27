@@ -7,22 +7,25 @@ export default async function Page({ searchParams }) {
     const params = await searchParams;
     const status = params?.status || '';
 
-    let requests = [];
-    let pagination = null;
-
     try {
         const res = await RequestService.getAllRequests({ status, limit: 50 });
-        requests = res.data || [];
-        pagination = res.pagination || null;
-    } catch {
-        requests = [];
-    }
 
-    return (
-        <RequestsPage
-            requests={requests}
-            pagination={pagination}
-            initialStatus={status}
-        />
-    );
+        return (
+            <RequestsPage
+                requests={res.data || []}
+                pagination={res.pagination || null}
+                counts={res.counts || null}
+                initialStatus={status}
+            />
+        );
+    } catch {
+        return (
+            <RequestsPage
+                requests={[]}
+                pagination={null}
+                counts={null}
+                initialStatus={status}
+            />
+        );
+    }
 }

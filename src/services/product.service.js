@@ -16,10 +16,13 @@ class ProductService {
      * Все товары продавца (с токеном — Owner/Admin все, Manager своих)
      * GET /api/products/seller/:sellerId
      */
-    async getProductsBySeller(sellerId, page = 1, limit = 20) {
+    async getProductsBySeller(sellerId, page = 1, limit = 10, query = '', category = '') {
         const token = await getTokenOrRedirect();
+        const params = new URLSearchParams({ page, limit });
+        if (query) params.set('query', query);
+        if (category) params.set('category', category);
         const json = await apiWithAuth(
-            `/api/products/seller/${sellerId}?page=${page}&limit=${limit}`,
+            `/api/products/seller/${sellerId}?${params}`,
             token
         );
         return json; // { data: [...], pagination: {...} }
