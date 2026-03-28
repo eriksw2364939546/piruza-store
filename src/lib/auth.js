@@ -64,3 +64,16 @@ export async function deleteToken() {
     const cookieStore = await cookies();
     cookieStore.delete(COOKIE_NAME);
 }
+
+const CLIENT_COOKIE_NAME = 'client_token';
+
+export async function getClientToken() {
+    const cookieStore = await cookies();
+    return cookieStore.get(CLIENT_COOKIE_NAME)?.value || null;
+}
+
+export async function getClientTokenOrRedirect() {
+    const token = await getClientToken();
+    if (!token) redirect('/login');
+    return token;
+}

@@ -14,9 +14,12 @@ class CityService {
      * Owner only
      * GET /api/cities
      */
-    async getAllCities(page = 1, limit = 20) {
+    async getAllCities(page = 1, limit = 20, query = '', status = '') {
         const token = await getTokenOrRedirect();
-        const json = await apiWithAuth(`/api/cities?page=${page}&limit=${limit}`, token);
+        const params = new URLSearchParams({ page, limit });
+        if (query) params.set('query', query);
+        if (status) params.set('status', status);
+        const json = await apiWithAuth(`/api/cities?${params}`, token);
         return json;
     }
 

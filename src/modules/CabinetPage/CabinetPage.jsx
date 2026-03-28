@@ -5,15 +5,18 @@
 // src/modules/CabinetPage/CabinetPage.jsx
 // ═══════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import StarRating from "@/components/StarRating/StarRating";
 import SellerCard from "@/components/SellerCard/SellerCard";
-import { clientApi } from "@/lib/clientApi";
+import Pagination from "@/components/Pagination/Pagination";
+import { getImageUrl } from "@/lib/utils";
+import {
+  toggleFavoriteAction,
+  logoutClientAction,
+  updateClientCityAction,
+} from "@/app/actions/client.actions";
 import "./CabinetPage.scss";
-
-const MEDIA_BASE = process.env.NEXT_PUBLIC_URL || "http://localhost:7000";
-const getImg = (path) => (path ? `${MEDIA_BASE}${path}` : null);
 
 const TABS = [
   { key: "profile", label: "👤 Профиль" },
@@ -23,7 +26,7 @@ const TABS = [
 
 // ── Вкладка профиля ───────────────────────────────────
 
-function ProfileTab({ profile, onCityChange, cities, onLogout }) {
+function ProfileTab({ profile, onCityChange, cities }) {
   const [editing, setEditing] = useState(false);
   const [cityId, setCityId] = useState(profile.city?._id || profile.city || "");
   const [loading, setLoading] = useState(false);
@@ -32,7 +35,7 @@ function ProfileTab({ profile, onCityChange, cities, onLogout }) {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await clientApi.patch("/clients/city", { city: cityId });
+      await updateClientCityAction(cityId);
       setSuccess(true);
       setEditing(false);
       onCityChange();
@@ -46,7 +49,6 @@ function ProfileTab({ profile, onCityChange, cities, onLogout }) {
 
   return (
     <div className="cabinet-profile">
-      {/* Аватар + имя */}
       <div className="cabinet-profile__hero">
         <div className="cabinet-profile__avatar">
           {profile.avatar ? (
@@ -61,7 +63,6 @@ function ProfileTab({ profile, onCityChange, cities, onLogout }) {
         </div>
       </div>
 
-      {/* Поля */}
       <div className="cabinet-profile__fields">
         <div className="cabinet-profile__field">
           <span className="cabinet-profile__label">Email</span>
@@ -128,19 +129,13 @@ function ProfileTab({ profile, onCityChange, cities, onLogout }) {
       {success && (
         <div className="cabinet-profile__success">✅ Город обновлён</div>
       )}
-
-      <div className="cabinet-profile__logout">
-        <button className="cabinet-btn cabinet-btn--ghost" onClick={onLogout}>
-          🚪 Выйти из аккаунта
-        </button>
-      </div>
     </div>
   );
 }
 
 // ── Вкладка избранных ─────────────────────────────────
 
-function FavoritesTab({ favorites, onRemove }) {
+function FavoritesTab({ favorites, pagination, onRemove, onPage }) {
   if (!favorites?.length) {
     return (
       <div className="cabinet-empty">
@@ -151,17 +146,24 @@ function FavoritesTab({ favorites, onRemove }) {
   }
 
   return (
-    <div className="cabinet-grid">
-      {favorites.map((seller) => (
-        <SellerCard key={seller._id} seller={seller} onRemove={onRemove} />
-      ))}
-    </div>
+    <>
+      <div className="cabinet-grid">
+        {favorites.map((seller) => (
+          <SellerCard key={seller._id} seller={seller} onRemove={onRemove} />
+        ))}
+      </div>
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.pages ?? 1}
+        onPageChange={onPage}
+      />
+    </>
   );
 }
 
 // ── Вкладка оценок ────────────────────────────────────
 
-function RatingsTab({ ratings }) {
+function RatingsTab({ ratings, pagination, onPage }) {
   if (!ratings?.length) {
     return (
       <div className="cabinet-empty">
@@ -172,139 +174,123 @@ function RatingsTab({ ratings }) {
   }
 
   return (
-    <div className="cabinet-ratings">
-      {ratings.map((r) => (
-        <div key={r._id} className="cabinet-rating-row">
-          <div className="cabinet-rating-row__seller">
-            {r.seller?.logo ? (
-              <img
-                src={getImg(r.seller.logo)}
-                alt={r.seller.name}
-                className="cabinet-rating-row__logo"
-              />
-            ) : (
-              <div className="cabinet-rating-row__logo-placeholder">
-                {r.seller?.name?.charAt(0) || "S"}
-              </div>
-            )}
-            <div>
-              <div className="cabinet-rating-row__name">
-                {r.seller?.name || "—"}
-              </div>
-              <div className="cabinet-rating-row__date">
-                {new Date(r.createdAt).toLocaleDateString("ru-RU", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+    <>
+      <div className="cabinet-ratings">
+        {ratings.map((r) => (
+          <div key={r._id} className="cabinet-rating-row">
+            <div className="cabinet-rating-row__seller">
+              {r.seller?.logo ? (
+                <img
+                  src={getImageUrl(r.seller.logo)}
+                  alt={r.seller.name}
+                  className="cabinet-rating-row__logo"
+                />
+              ) : (
+                <div className="cabinet-rating-row__logo-placeholder">
+                  {r.seller?.name?.charAt(0) || "S"}
+                </div>
+              )}
+              <div>
+                <div className="cabinet-rating-row__name">
+                  {r.seller?.name || "—"}
+                </div>
+                <div className="cabinet-rating-row__date">
+                  {new Date(r.createdAt).toLocaleDateString("ru-RU", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </div>
               </div>
             </div>
+            <StarRating value={r.rating} size={18} />
           </div>
-          <StarRating value={r.rating} size={18} />
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? pagination?.pages ?? 1}
+        onPageChange={onPage}
+      />
+    </>
   );
 }
 
 // ── Главный компонент ─────────────────────────────────
 
-export default function CabinetPage() {
+export default function CabinetPage({
+  profile,
+  favorites = [],
+  favPagination = null,
+  ratings = [],
+  ratPagination = null,
+  cities = [],
+  initialTab = "profile",
+  initialFavPage = 1,
+  initialRatPage = 1,
+}) {
   const router = useRouter();
+  const pathname = usePathname();
 
-  const [activeTab, setActiveTab] = useState("profile");
-  const [profile, setProfile] = useState(null);
-  const [favorites, setFavorites] = useState([]);
-  const [ratings, setRatings] = useState(null);
-  const [cities, setCities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  // Проверяем токен и загружаем данные
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [profileRes, favRes, ratingsRes, citiesRes] =
-        await Promise.allSettled([
-          clientApi.get("/clients/profile"),
-          clientApi.get("/clients/favorites"),
-          clientApi.get("/clients/ratings"),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/cities/active`).then((r) =>
-            r.json(),
-          ),
-        ]);
-
-      if (profileRes.status === "fulfilled") {
-        setProfile(profileRes.value.data);
-      } else {
-        // Cookie нет или истёк → редирект на логин
-        router.replace("/login");
-        return;
-      }
-
-      if (favRes.status === "fulfilled") setFavorites(favRes.value.data || []);
-      if (ratingsRes.status === "fulfilled") {
-        const r = ratingsRes.value;
-        setRatings(Array.isArray(r.data) ? r.data : Array.isArray(r) ? r : []);
-      }
-      if (citiesRes.status === "fulfilled")
-        setCities(citiesRes.value.data || []);
-    } catch {
-      router.replace("/login");
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [favsList, setFavsList] = useState(favorites);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    setFavsList(favorites);
+  }, [favorites]);
+
+  const pushUrl = useCallback(
+    (tab, favPage, ratPage) => {
+      const params = new URLSearchParams();
+      if (tab !== "profile") params.set("tab", tab);
+      if (favPage > 1) params.set("favPage", favPage);
+      if (ratPage > 1) params.set("ratPage", ratPage);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+    },
+    [router, pathname],
+  );
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    pushUrl(tab, initialFavPage, initialRatPage);
+  };
+
+  const handleFavPage = (page) => pushUrl(activeTab, page, initialRatPage);
+  const handleRatPage = (page) => pushUrl(activeTab, initialFavPage, page);
 
   const handleRemoveFavorite = async (sellerId) => {
-    try {
-      await clientApi.post(`/clients/favorites/${sellerId}`);
-      setFavorites((prev) => prev.filter((s) => s._id !== sellerId));
-    } catch (e) {
-      alert(e.message);
+    const res = await toggleFavoriteAction(sellerId);
+    if (res.success) {
+      setFavsList((prev) => prev.filter((s) => s._id !== sellerId));
     }
   };
 
   const handleLogout = async () => {
-    try {
-      await clientApi.post("/clients/logout");
-    } catch {}
-    router.replace("/login");
+    await logoutClientAction();
   };
 
-  if (loading) {
-    return (
-      <div className="cabinet-loading">
-        <div className="cabinet-loading__spinner" />
-        <p>Загрузка...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="cabinet-error">{error}</div>;
-  }
-
-  if (!profile) return null;
+  const handleCityChange = () => {
+    router.refresh();
+  };
 
   return (
     <div className="cabinet">
-      {/* ── Контент ── */}
       <main className="cabinet-main">
         {/* Статистика */}
         <div className="cabinet-stats">
           <div className="cabinet-stat">
-            <span className="cabinet-stat__num">{favorites.length}</span>
+            <span className="cabinet-stat__num">
+              {favPagination?.total ?? favsList.length}
+            </span>
             <span className="cabinet-stat__label">Избранных</span>
           </div>
           <div className="cabinet-stat">
-            <span className="cabinet-stat__num">{ratings?.length ?? 0}</span>
+            <span className="cabinet-stat__num">
+              {ratPagination?.total ?? ratings.length}
+            </span>
             <span className="cabinet-stat__label">Оценок</span>
           </div>
         </div>
@@ -315,11 +301,21 @@ export default function CabinetPage() {
             <button
               key={tab.key}
               className={`cabinet-tab ${activeTab === tab.key ? "cabinet-tab--active" : ""}`}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
             >
               {tab.label}
             </button>
           ))}
+        </div>
+
+        {/* Кнопка выхода */}
+        <div className="cabinet-logout">
+          <button
+            className="cabinet-btn cabinet-btn--ghost"
+            onClick={handleLogout}
+          >
+            🚪 Выйти из аккаунта
+          </button>
         </div>
 
         {/* Контент таба */}
@@ -328,17 +324,24 @@ export default function CabinetPage() {
             <ProfileTab
               profile={profile}
               cities={cities}
-              onCityChange={loadData}
-              onLogout={handleLogout}
+              onCityChange={handleCityChange}
             />
           )}
           {activeTab === "favorites" && (
             <FavoritesTab
-              favorites={favorites}
+              favorites={favsList}
+              pagination={favPagination}
               onRemove={handleRemoveFavorite}
+              onPage={handleFavPage}
             />
           )}
-          {activeTab === "ratings" && <RatingsTab ratings={ratings} />}
+          {activeTab === "ratings" && (
+            <RatingsTab
+              ratings={ratings}
+              pagination={ratPagination}
+              onPage={handleRatPage}
+            />
+          )}
         </div>
       </main>
     </div>

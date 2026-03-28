@@ -175,6 +175,7 @@ export default function SellerProfilePage({
   categories,
   products,
   pagination,
+  productsTotalAll = null,
   initialFilters = {},
 }) {
   const router = useRouter();
@@ -423,15 +424,15 @@ export default function SellerProfilePage({
                       >
                         Tous{" "}
                         <span className="seller-profile__sidebar-count">
-                          {total}
+                          {productsTotalAll ?? total}
                         </span>
                       </button>
                     </li>
                     {categories.map((cat) => (
                       <li key={cat._id}>
                         <button
-                          className={`seller-profile__sidebar-btn ${initialFilters.category === cat._id ? "seller-profile__sidebar-btn--active" : ""}`}
-                          onClick={() => handleCategory(cat._id)}
+                          className={`seller-profile__sidebar-btn ${initialFilters.category === cat.slug ? "seller-profile__sidebar-btn--active" : ""}`}
+                          onClick={() => handleCategory(cat.slug)}
                         >
                           {cat.name}
                         </button>

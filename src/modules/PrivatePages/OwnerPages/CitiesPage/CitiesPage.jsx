@@ -6,6 +6,9 @@
 // ═══════════════════════════════════════════════════════
 
 import { useState, useActionState } from "react";
+import { useCallback, useRef, useTransition } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Pagination from "@/components/Pagination/Pagination";
 import {
   createCityAction,
   updateCityAction,
@@ -190,9 +193,42 @@ const CityRow = ({ city, onEdit }) => {
 };
 
 // ─── Главный компонент ───
-const CitiesPage = ({ cities, pagination }) => {
+const CitiesPage = ({ cities, pagination, initialFilters = {} }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const timerRef = useRef(null);
   const [showCreate, setShowCreate] = useState(false);
   const [editCity, setEditCity] = useState(null);
+  const [queryInput, setQueryInput] = useState(initialFilters.query || "");
+
+  const pushUrl = useCallback(
+    (query, status, page = 1) => {
+      const params = new URLSearchParams();
+      if (query) params.set("query", query);
+      if (status) params.set("status", status);
+      if (page > 1) params.set("page", page);
+      const qs = params.toString();
+      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+    },
+    [router, pathname],
+  );
+
+  const handleQueryChange = (e) => {
+    const val = e.target.value;
+    setQueryInput(val);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(
+      () => pushUrl(val, initialFilters.status),
+      400,
+    );
+  };
+
+  const handleStatus = (status) => pushUrl(queryInput, status);
+  const handlePage = (page) => pushUrl(queryInput, initialFilters.status, page);
+
+  const activeStatus = initialFilters.status || "";
+  const totalPages = pagination?.totalPages ?? 1;
+  const currentPage = pagination?.page ?? 1;
 
   return (
     <div className="cities-page">
@@ -210,6 +246,32 @@ const CitiesPage = ({ cities, pagination }) => {
         >
           + Добавить город
         </button>
+      </div>
+
+      {/* ── Поиск + фильтр ── */}
+      <div className="cities-page__filters">
+        <input
+          className="cities-page__search"
+          type="text"
+          placeholder="Поиск по названию..."
+          value={queryInput}
+          onChange={handleQueryChange}
+        />
+        <div className="cities-page__status-filter">
+          {[
+            { value: "", label: "Все" },
+            { value: "active", label: "Активные" },
+            { value: "inactive", label: "Неактивные" },
+          ].map(({ value, label }) => (
+            <button
+              key={value}
+              className={`cities-btn cities-btn--sm ${activeStatus === value ? "cities-btn--primary" : "cities-btn--ghost"}`}
+              onClick={() => handleStatus(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Таблица ── */}
@@ -236,6 +298,13 @@ const CitiesPage = ({ cities, pagination }) => {
           </table>
         </div>
       )}
+
+      {/* ── Пагинация ── */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePage}
+      />
 
       {/* ── Модалка создания ── */}
       {showCreate && (

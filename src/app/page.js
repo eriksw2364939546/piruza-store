@@ -9,7 +9,7 @@ export default async function Home() {
   const [categoriesRes, citiesRes, sellersRes] = await Promise.allSettled([
     CategoryService.getGlobalCategories(1, 100),
     CityService.getActiveCities(1, 100),
-    SellerService.getActiveSellers({ limit: 100 }),
+    SellerService.getActiveSellers({ limit: 20, sort: 'views' }),
   ]);
 
   const categories = categoriesRes.status === 'fulfilled' ? categoriesRes.value.data || [] : [];

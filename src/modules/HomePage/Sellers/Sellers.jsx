@@ -71,15 +71,17 @@ const Sellers = ({ sellers = [], city }) => {
     return sellers.filter((s) => (s.city?.slug || s.city) === citySlug);
   }, [sellers, citySlug]);
 
-  const popular = useMemo(
-    () =>
-      [...byCitySlug]
-        .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
-        .slice(0, 4),
-    [byCitySlug],
-  );
+  const popular = useMemo(() => {
+    const sorted = [...byCitySlug]
+      .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
+      .slice(0, 4);
 
-  const local = useMemo(() => byCitySlug.slice(0, 4), [byCitySlug]);
+    return sorted;
+  }, [byCitySlug]);
+
+  const local = useMemo(() => {
+    return [...byCitySlug].sort(() => Math.random() - 0.5).slice(0, 4);
+  }, [byCitySlug]);
 
   return (
     <section className="sellers">
@@ -101,7 +103,11 @@ const Sellers = ({ sellers = [], city }) => {
           title={`Vendeurs <em>locaux</em>`}
           sellers={local}
           loading={loading}
-          allHref={citySlug ? `/sellers?city=${citySlug}` : "/sellers"}
+          allHref={
+            citySlug
+              ? `/sellers?city=${citySlug}&sort=random`
+              : "/sellers?sort=random"
+          }
         />
       </div>
     </section>

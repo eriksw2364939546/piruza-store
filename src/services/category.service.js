@@ -14,9 +14,12 @@ class CategoryService {
      * Owner only
      * GET /api/categories/global/all
      */
-    async getAllGlobalCategories(page = 1, limit = 20) {
+    async getAllGlobalCategories(page = 1, limit = 20, query = '', status = '') {
         const token = await getTokenOrRedirect();
-        const json = await apiWithAuth(`/api/categories/global/all?page=${page}&limit=${limit}`, token);
+        const params = new URLSearchParams({ page, limit });
+        if (query) params.set('query', query);
+        if (status) params.set('status', status);
+        const json = await apiWithAuth(`/api/categories/global/all?${params}`, token);
         return json;
     }
 

@@ -6,10 +6,10 @@ import RequestService from '@/services/request.service';
 export default async function Page({ searchParams }) {
     const params = await searchParams;
     const status = params?.status || '';
+    const page = Number(params?.page) || 1;
 
     try {
-        const res = await RequestService.getAllRequests({ status, limit: 50 });
-
+        const res = await RequestService.getAllRequests({ status, page, limit: 20 });
         return (
             <RequestsPage
                 requests={res.data || []}

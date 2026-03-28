@@ -21,6 +21,7 @@ import {
   rejectRequestAction,
 } from "@/app/actions/request.actions";
 import "./RequestsPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 // ── Утилиты ──────────────────────────────────────────
 
@@ -457,6 +458,18 @@ export default function RequestsPage({
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? 1}
+        onPageChange={(page) => {
+          const params = new URLSearchParams();
+          if (statusFilter) params.set("status", statusFilter);
+          if (page > 1) params.set("page", page);
+          const qs = params.toString();
+          router.push(`${pathname}${qs ? "?" + qs : ""}`);
+        }}
+      />
 
       {/* ── Модалка детали ── */}
       {viewRequest && (

@@ -84,9 +84,10 @@ class SellerService {
      * Все активные продавцы (публично)
      * GET /api/sellers/public/active
      */
-    async getActiveSellers({ category, page = 1, limit = 20 } = {}) {
+    async getActiveSellers({ category, page = 1, limit = 20, sort } = {}) {
         const params = new URLSearchParams({ page, limit });
         if (category) params.set('category', category);
+        if (sort) params.set('sort', sort);
         const json = await api(`/api/sellers/public/active?${params}`);
         return json;
     }

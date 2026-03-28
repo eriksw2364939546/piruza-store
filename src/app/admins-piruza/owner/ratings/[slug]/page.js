@@ -12,7 +12,7 @@ export default async function Page({ params, searchParams }) {
     const query = sp?.query || '';
     const page = Number(sp?.page) || 1;
 
-    let seller, stats, ratings;
+    let seller;
 
     try {
         seller = await SellerService.getSellerBySlug(slug);
@@ -30,15 +30,16 @@ export default async function Page({ params, searchParams }) {
         }),
     ]);
 
-    stats = statsResult.status === 'fulfilled' ? statsResult.value : null;
-    ratings = ratingsResult.status === 'fulfilled' ? ratingsResult.value : { data: [], pagination: null };
+    const stats = statsResult.status === 'fulfilled' ? statsResult.value : null;
+    const ratingsData = ratingsResult.status === 'fulfilled' ? (ratingsResult.value.data || []) : [];
+    const ratingsPagination = ratingsResult.status === 'fulfilled' ? (ratingsResult.value.pagination || null) : null;
 
     return (
         <RatingDetailPage
             seller={seller}
             stats={stats}
-            ratings={ratings.data}
-            pagination={ratings.pagination}
+            ratings={ratingsData}
+            pagination={ratingsPagination}
             ratingFilter={ratingFilter}
             initialQuery={query}
             basePath="/admins-piruza/owner/ratings"

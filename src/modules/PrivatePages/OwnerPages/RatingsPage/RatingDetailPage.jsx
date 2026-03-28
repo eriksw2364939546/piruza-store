@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { ArrowLeft, Star, Users, Eye, Search } from "lucide-react";
 import "./RatingsPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 function formatDate(date) {
   if (!date) return "—";
@@ -58,12 +59,13 @@ export default function RatingDetailPage({
   const [queryInput, setQueryInput] = useState(initialQuery);
 
   const pushUrl = useCallback(
-    (rating, query) => {
+    (rating, query, page = 1) => {
       const params = new URLSearchParams();
       if (rating) params.set("rating", rating);
       if (query) params.set("query", query);
+      if (page > 1) params.set("page", page);
       const qs = params.toString();
-      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
     },
     [router, pathname],
   );
@@ -242,6 +244,11 @@ export default function RatingDetailPage({
               </div>
             )}
           </div>
+          <Pagination
+            currentPage={pagination?.page ?? 1}
+            totalPages={pagination?.pages ?? pagination?.totalPages ?? 1}
+            onPageChange={(page) => pushUrl(ratingFilter, queryInput, page)}
+          />
         </div>
       </div>
     </div>

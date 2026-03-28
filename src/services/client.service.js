@@ -4,10 +4,30 @@
 // ═══════════════════════════════════════════════════════
 
 import { apiWithAuth } from '@/lib/api';
-import { getTokenOrRedirect } from '@/lib/auth';
+import { getTokenOrRedirect, getClientTokenOrRedirect } from '@/lib/auth';
 
 class ClientService {
+    // GET /api/clients/profile — для кабинета клиента
+    async getClientProfile() {
+        const token = await getClientTokenOrRedirect();
+        const json = await apiWithAuth('/api/clients/profile', token);
+        return json.data;
+    }
 
+    // GET /api/clients/favorites?page=1&limit=10
+    async getClientFavorites(page = 1, limit = 10) {
+        const token = await getClientTokenOrRedirect();
+        const json = await apiWithAuth(`/api/clients/favorites?page=${page}&limit=${limit}`, token);
+        return json;
+    }
+
+    // GET /api/clients/ratings?page=1&limit=10
+    async getClientRatingsOwn(page = 1, limit = 10) {
+        const token = await getClientTokenOrRedirect();
+        const json = await apiWithAuth(`/api/clients/ratings?page=${page}&limit=${limit}`, token);
+        return json;
+    }
+    ______________________________________________________________________________________________________________________
     // GET /api/clients?page=1&limit=20&query=&isActive=
     async getAllClients({ page = 1, limit = 20, query = '', isActive = '' } = {}) {
         const token = await getTokenOrRedirect();

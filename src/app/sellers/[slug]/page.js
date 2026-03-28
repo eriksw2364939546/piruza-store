@@ -13,7 +13,6 @@ export default async function Page({ params, searchParams }) {
     const query = sp?.query || '';
     const page = Number(sp?.page) || 1;
 
-    // Продавец по slug
     let seller;
     try {
         seller = await SellerService.getPublicSellerBySlug(slug);
@@ -35,12 +34,16 @@ export default async function Page({ params, searchParams }) {
     const pagination = productsRes.status === 'fulfilled'
         ? productsRes.value.pagination || null : null;
 
+    const totalAll = productsRes.status === 'fulfilled'
+        ? productsRes.value.counts?.totalAll ?? null : null;
+
     return (
         <SellerProfilePage
             seller={seller}
             categories={categories}
             products={products}
             pagination={pagination}
+            productsTotalAll={totalAll}
             initialFilters={{ category, query, page }}
         />
     );

@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Star, Search } from "lucide-react";
 import "./RatingsPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 const STATUS_LABELS = {
   active: { label: "Активен", cls: "active" },
@@ -48,14 +49,15 @@ export default function RatingsListPage({
   const [queryInput, setQueryInput] = useState(initialFilters.query || "");
 
   const pushUrl = useCallback(
-    (newFilters) => {
+    (newFilters, page = 1) => {
       const params = new URLSearchParams();
       if (newFilters.query) params.set("query", newFilters.query);
       if (newFilters.status) params.set("status", newFilters.status);
       if (newFilters.city) params.set("city", newFilters.city);
       if (newFilters.category) params.set("category", newFilters.category);
+      if (page > 1) params.set("page", page);
       const qs = params.toString();
-      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
     },
     [router, pathname],
   );
@@ -190,6 +192,12 @@ export default function RatingsListPage({
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? 1}
+        onPageChange={(page) => pushUrl(filters, page)}
+      />
     </div>
   );
 }
