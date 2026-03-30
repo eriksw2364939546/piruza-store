@@ -19,6 +19,7 @@ import {
   deleteSellerAction,
 } from "@/app/actions/seller.actions";
 import "./AdminManagersPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 // Используем классы mgr-* из ManagersPage.scss через AdminManagersPage.scss
 
@@ -397,7 +398,11 @@ function ManagerRow({ manager, basePath }) {
 }
 
 // ─── Главный компонент ───
-export default function AdminManagersPage({ managers, sellersByManager = {} }) {
+export default function AdminManagersPage({
+  managers,
+  pagination,
+  sellersByManager = {},
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const basePath = "/admins-piruza/admin-panel/managers";
@@ -411,7 +416,7 @@ export default function AdminManagersPage({ managers, sellersByManager = {} }) {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       const qs = val ? `?query=${encodeURIComponent(val)}` : "";
-      router.push(`${pathname}${qs}`);
+      router.push(`${pathname}${qs}`, { scroll: false });
     }, 400);
   };
 
@@ -420,7 +425,9 @@ export default function AdminManagersPage({ managers, sellersByManager = {} }) {
       <div className="amgr-page__head">
         <div>
           <h2 className="amgr-page__title">Менеджеры</h2>
-          <p className="amgr-page__subtitle">Всего: {managers.length}</p>
+          <p className="amgr-page__subtitle">
+            Всего: {pagination?.total ?? managers.length}
+          </p>
         </div>
         <input
           className="mgr-page__search"
@@ -455,6 +462,18 @@ export default function AdminManagersPage({ managers, sellersByManager = {} }) {
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? pagination?.pages ?? 1}
+        onPageChange={(page) => {
+          const params = new URLSearchParams();
+          if (queryInput) params.set("query", queryInput);
+          if (page > 1) params.set("page", page);
+          const qs = params.toString();
+          router.push(`${pathname}${qs ? "?" + qs : ""}`);
+        }}
+      />
     </div>
   );
 }

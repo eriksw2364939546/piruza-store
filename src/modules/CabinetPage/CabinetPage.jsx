@@ -8,7 +8,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import StarRating from "@/components/StarRating/StarRating";
-import SellerCard from "@/components/SellerCard/SellerCard";
+import SellerPublicCard from "@/components/SellerPublicCard/SellerPublicCard";
 import Pagination from "@/components/Pagination/Pagination";
 import { getImageUrl } from "@/lib/utils";
 import {
@@ -149,7 +149,7 @@ function FavoritesTab({ favorites, pagination, onRemove, onPage }) {
     <>
       <div className="cabinet-grid">
         {favorites.map((seller) => (
-          <SellerCard key={seller._id} seller={seller} onRemove={onRemove} />
+          <SellerPublicCard key={seller._id} seller={seller} />
         ))}
       </div>
       <Pagination
@@ -248,7 +248,7 @@ export default function CabinetPage({
       if (favPage > 1) params.set("favPage", favPage);
       if (ratPage > 1) params.set("ratPage", ratPage);
       const qs = params.toString();
-      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
     },
     [router, pathname],
   );

@@ -16,7 +16,7 @@ const OwnerSellersPage = async ({ searchParams }) => {
     const page = Number(params?.page) || 1;
 
     const [sellersResult, citiesResult, categoriesResult] = await Promise.all([
-        SellerService.getAllSellers({ query, status, city, category, mine, page, limit: 2 })
+        SellerService.getAllSellers({ query, status, city, category, mine, page, limit: 20 })
             .catch(() => ({ data: [], pagination: null })),
         CityService.getAllCities(1, 100)
             .catch(() => ({ data: [] })),

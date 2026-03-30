@@ -208,7 +208,7 @@ const CitiesPage = ({ cities, pagination, initialFilters = {} }) => {
       if (status) params.set("status", status);
       if (page > 1) params.set("page", page);
       const qs = params.toString();
-      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
     },
     [router, pathname],
   );

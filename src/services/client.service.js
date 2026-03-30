@@ -53,6 +53,12 @@ class ClientService {
         const json = await apiWithAuth(`/api/clients/${id}/ratings?${params}`, token);
         return json; // { data, pagination }
     }
+    async getClientFavoritesById(id, { page = 1, limit = 10 } = {}) {
+        const token = await getTokenOrRedirect();
+        const params = new URLSearchParams({ page, limit });
+        const json = await apiWithAuth(`/api/clients/${id}/favorites?${params}`, token);
+        return json;
+    }
 
     // PATCH /api/clients/:id/toggle-active
     async toggleClientActive(id) {

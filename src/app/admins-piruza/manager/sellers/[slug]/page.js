@@ -23,7 +23,7 @@ export default async function Page({ params, searchParams }) {
 
     const [productsResult, categories] = await Promise.all([
         ProductService.getProductsBySeller(
-            seller._id, productPage, 3, productQuery, productCategory
+            seller._id, productPage, 20, productQuery, productCategory
         ).catch(() => ({ data: [], pagination: null })),
         CategoryService.getSellerCategories(seller._id)
             .then(r => r.data || []).catch(() => []),

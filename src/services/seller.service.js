@@ -31,10 +31,13 @@ class SellerService {
      * Продавцы конкретного Manager'а (Owner/Admin)
      * GET /api/sellers/manager/:managerId
      */
-    async getSellersByManager(managerId, page = 1, limit = 20) {
+    async getSellersByManager(managerId, page = 1, limit = 20, query = '', status = '') {
         const token = await getTokenOrRedirect();
-        const json = await apiWithAuth(`/api/sellers/manager/${managerId}?page=${page}&limit=${limit}`, token);
-        return json.data || [];
+        const params = new URLSearchParams({ page, limit });
+        if (query) params.set('query', query);
+        if (status) params.set('status', status);
+        const json = await apiWithAuth(`/api/sellers/manager/${managerId}?${params}`, token);
+        return json; // { data, pagination } — не json.data
     }
 
     /**

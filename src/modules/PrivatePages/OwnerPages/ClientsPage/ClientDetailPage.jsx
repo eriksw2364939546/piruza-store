@@ -6,9 +6,6 @@
 // ═══════════════════════════════════════════════════════
 
 import { useState, useCallback, useTransition } from "react";
-
-const MEDIA_BASE = process.env.NEXT_PUBLIC_URL || "http://localhost:7000";
-const getImg = (path) => (path ? `${MEDIA_BASE}${path}` : null);
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
@@ -23,6 +20,8 @@ import {
   ShieldOff,
 } from "lucide-react";
 import { toggleClientActiveAction } from "@/app/actions/client.actions";
+import Pagination from "@/components/Pagination/Pagination";
+import { getImageUrl } from "@/lib/utils";
 import "./ClientsPage.scss";
 
 function formatDate(date) {
@@ -47,12 +46,18 @@ function formatDateTime(date) {
 
 // ── Список оценок ─────────────────────────────────────
 
-function RatingsList({ ratings, ratingFilter, onFilterChange }) {
+function RatingsList({
+  ratings,
+  ratingsPagination,
+  ratingFilter,
+  onFilterChange,
+  onPage,
+}) {
   return (
     <div className="client-detail__section">
       <div className="client-detail__section-head">
         <h3 className="client-detail__section-title">
-          Оценки ({ratings.length})
+          Оценки ({ratingsPagination?.total ?? ratings.length})
         </h3>
         <div className="client-detail__rating-filters">
           <button
@@ -86,7 +91,7 @@ function RatingsList({ ratings, ratingFilter, onFilterChange }) {
               <div className="client-detail__rating-seller">
                 {r.seller?.logo ? (
                   <img
-                    src={getImg(r.seller.logo)}
+                    src={getImageUrl(r.seller.logo)}
                     alt={r.seller.name}
                     className="client-detail__seller-logo"
                   />
@@ -122,51 +127,68 @@ function RatingsList({ ratings, ratingFilter, onFilterChange }) {
           ))}
         </div>
       )}
+
+      <Pagination
+        currentPage={ratingsPagination?.page ?? 1}
+        totalPages={
+          ratingsPagination?.pages ?? ratingsPagination?.totalPages ?? 1
+        }
+        onPageChange={onPage}
+      />
     </div>
   );
 }
 
 // ── Список избранных ──────────────────────────────────
 
-function FavoritesList({ favorites }) {
+function FavoritesList({ favorites, favoritesPagination, onPage }) {
   return (
     <div className="client-detail__section">
       <h3 className="client-detail__section-title">
-        Избранные ({favorites?.length ?? 0})
+        Избранные ({favoritesPagination?.total ?? favorites?.length ?? 0})
       </h3>
       {!favorites?.length ? (
         <div className="client-detail__empty">Нет избранных продавцов</div>
       ) : (
-        <div className="client-detail__favorites-list">
-          {favorites.map((seller) => (
-            <Link
-              key={seller._id}
-              href={`/admins-piruza/owner/sellers/${seller.slug}`}
-              className="client-detail__fav-row"
-            >
-              {seller.logo ? (
-                <img
-                  src={getImg(seller.logo)}
-                  alt={seller.name}
-                  className="client-detail__seller-logo"
-                />
-              ) : (
-                <div className="client-detail__seller-placeholder">
-                  {seller.name?.charAt(0) || "S"}
-                </div>
-              )}
-              <div className="client-detail__fav-info">
-                <div className="client-detail__seller-name">{seller.name}</div>
-                {seller.averageRating > 0 && (
-                  <div className="client-detail__fav-rating">
-                    <Star size={12} className="client-detail__star--filled" />
-                    {Number(seller.averageRating).toFixed(1)}
+        <>
+          <div className="client-detail__favorites-list">
+            {favorites.map((seller) => (
+              <Link
+                key={seller._id}
+                href={`/admins-piruza/owner/sellers/${seller.slug}`}
+                className="client-detail__fav-row"
+              >
+                {seller.logo ? (
+                  <img
+                    src={getImageUrl(seller.logo)}
+                    alt={seller.name}
+                    className="client-detail__seller-logo"
+                  />
+                ) : (
+                  <div className="client-detail__seller-placeholder">
+                    {seller.name?.charAt(0) || "S"}
                   </div>
                 )}
-              </div>
-            </Link>
-          ))}
-        </div>
+                <div className="client-detail__fav-info">
+                  <div className="client-detail__seller-name">
+                    {seller.name}
+                  </div>
+                  {seller.averageRating > 0 && (
+                    <div className="client-detail__fav-rating">
+                      <Star size={12} className="client-detail__star--filled" />
+                      {Number(seller.averageRating).toFixed(1)}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+          <Pagination
+            currentPage={favoritesPagination?.page ?? 1}
+            totalPages={favoritesPagination?.pages ?? 1}
+            onPageChange={onPage}
+          />
+        </>
       )}
     </div>
   );
@@ -178,6 +200,8 @@ export default function ClientDetailPage({
   client,
   ratings = [],
   ratingsPagination,
+  favorites = [],
+  favoritesPagination,
   ratingFilter,
   activeTab,
   basePath,
@@ -188,25 +212,22 @@ export default function ClientDetailPage({
   const [isActive, setIsActive] = useState(client.isActive);
   const [blocking, startBlocking] = useTransition();
 
-  const handleTabChange = useCallback(
-    (tab) => {
-      const qs = ratingFilter
-        ? `?tab=${tab}&rating=${ratingFilter}`
-        : `?tab=${tab}`;
-      router.push(`${pathname}${qs}`);
-    },
-    [router, pathname, ratingFilter],
-  );
-
-  const handleRatingFilter = useCallback(
-    (val) => {
+  const pushUrl = useCallback(
+    (tab, ratPage, favPage, rating) => {
       const params = new URLSearchParams();
-      params.set("tab", "ratings");
-      if (val) params.set("rating", val);
+      params.set("tab", tab);
+      if (rating) params.set("rating", rating);
+      if (ratPage > 1) params.set("ratPage", ratPage);
+      if (favPage > 1) params.set("favPage", favPage);
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname],
   );
+
+  const handleTabChange = (tab) => pushUrl(tab, 1, 1, ratingFilter);
+  const handleRatingFilter = (val) => pushUrl("ratings", 1, 1, val);
+  const handleRatPage = (page) => pushUrl(activeTab, page, 1, ratingFilter);
+  const handleFavPage = (page) => pushUrl(activeTab, 1, page, ratingFilter);
 
   const handleToggleActive = () => {
     startBlocking(async () => {
@@ -296,7 +317,7 @@ export default function ClientDetailPage({
         </div>
         <div className="client-detail__stat">
           <span className="client-detail__stat-num">
-            {client.favorites?.length ?? 0}
+            {favoritesPagination?.total ?? client.favorites?.length ?? 0}
           </span>
           <span className="client-detail__stat-label">Избранных</span>
         </div>
@@ -323,11 +344,17 @@ export default function ClientDetailPage({
         {activeTab === "ratings" ? (
           <RatingsList
             ratings={ratings}
+            ratingsPagination={ratingsPagination}
             ratingFilter={ratingFilter}
             onFilterChange={handleRatingFilter}
+            onPage={handleRatPage}
           />
         ) : (
-          <FavoritesList favorites={client.favorites} />
+          <FavoritesList
+            favorites={favorites}
+            favoritesPagination={favoritesPagination}
+            onPage={handleFavPage}
+          />
         )}
       </div>
     </div>

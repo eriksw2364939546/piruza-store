@@ -13,7 +13,8 @@ export default async function Page({ searchParams }) {
     let sellersByAdmin = {};
 
     try {
-        allAdmins = await AuthService.getAllUsers('admin');
+        const result = await AuthService.getAllUsers('admin');
+        allAdmins = result.data || [];
 
         admins = statusFilter
             ? allAdmins.filter(a => {

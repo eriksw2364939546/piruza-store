@@ -32,6 +32,7 @@ import {
   toggleUserStatusAction,
 } from "@/app/actions/admin-auth.actions";
 import "./ManagersPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 const INIT = { success: null, message: "" };
 
@@ -457,6 +458,7 @@ function ManagerRow({ manager, onEdit, basePath }) {
 
 export default function ManagersPage({
   managers,
+  pagination,
   sellersByManager = {},
   initialStatus = "",
   initialQuery = "",
@@ -475,12 +477,13 @@ export default function ManagersPage({
 
   // Обновляем URL с обоими параметрами
   const pushUrl = useCallback(
-    (status, query) => {
+    (status, query, page = 1) => {
       const params = new URLSearchParams();
       if (status) params.set("status", status);
       if (query) params.set("query", query);
+      if (page > 1) params.set("page", page);
       const qs = params.toString();
-      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
     },
     [router, pathname],
   );
@@ -509,7 +512,9 @@ export default function ManagersPage({
       <div className="mgr-page__head">
         <div>
           <h2 className="mgr-page__title">Менеджеры</h2>
-          <p className="mgr-page__subtitle">Всего: {managers.length}</p>
+          <p className="mgr-page__subtitle">
+            Всего: {pagination?.total ?? managers.length}
+          </p>
         </div>
         <button
           className="sellers-btn sellers-btn--primary"
@@ -590,6 +595,12 @@ export default function ManagersPage({
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.pages ?? 1}
+        onPageChange={(page) => pushUrl(statusFilter, queryInput, page)}
+      />
 
       {/* ── Модалка создания ── */}
       {showCreate && <ManagerModal onClose={() => setShowCreate(false)} />}

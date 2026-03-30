@@ -155,7 +155,7 @@ const OwnerDashboard = ({ overview, managers, sellersByStatus, userStats }) => {
               className="dashboard__badge dashboard__badge--active"
               style={{ marginLeft: 8 }}
             >
-              {sellersByStatus.active.length}
+              {sellersByStatus.totals?.active ?? sellersByStatus.active.length}
             </span>
           </p>
           {sellersByStatus.active.length === 0 ? (
@@ -176,7 +176,7 @@ const OwnerDashboard = ({ overview, managers, sellersByStatus, userStats }) => {
               className="dashboard__badge dashboard__badge--draft"
               style={{ marginLeft: 8 }}
             >
-              {sellersByStatus.draft.length}
+              {sellersByStatus.totals?.draft ?? sellersByStatus.draft.length}
             </span>
           </p>
           {sellersByStatus.draft.length === 0 ? (
@@ -197,7 +197,8 @@ const OwnerDashboard = ({ overview, managers, sellersByStatus, userStats }) => {
               className="dashboard__badge dashboard__badge--expired"
               style={{ marginLeft: 8 }}
             >
-              {sellersByStatus.expired.length}
+              {sellersByStatus.totals?.expired ??
+                sellersByStatus.expired.length}
             </span>
           </p>
           {sellersByStatus.expired.length === 0 ? (
@@ -218,7 +219,8 @@ const OwnerDashboard = ({ overview, managers, sellersByStatus, userStats }) => {
               className="dashboard__badge dashboard__badge--inactive"
               style={{ marginLeft: 8 }}
             >
-              {sellersByStatus.inactive.length}
+              {sellersByStatus.totals?.inactive ??
+                sellersByStatus.inactive.length}
             </span>
           </p>
           {sellersByStatus.inactive.length === 0 ? (

@@ -11,16 +11,17 @@ export default async function Page({ searchParams }) {
     const query = params?.query || '';
     const city = params?.city || '';
     const category = params?.category || '';
+    const page = Number(params?.page) || 1;
 
-    let allSellers = [];
-    let cities = [];
-    let categories = [];
+    let sellers = [], pagination = null, counts = {}, cities = [], categories = [];
 
     try {
-        const result = await SellerService.getAllSellers({ limit: 100 });
-        allSellers = result?.data || [];
+        const result = await SellerService.getAllSellers({ query, status, city, category, page, limit: 10 });
+        sellers = result?.data || [];
+        pagination = result?.pagination || null;
+        counts = result?.counts || {};
     } catch {
-        allSellers = [];
+        sellers = [];
     }
 
     try {
@@ -33,28 +34,10 @@ export default async function Page({ searchParams }) {
         categories = res?.data || [];
     } catch { categories = []; }
 
-    // Фильтрация на сервере
-    const sellers = allSellers.filter(s => {
-        const matchStatus = !status || s.status === status;
-        const matchQuery = !query ||
-            s.name?.toLowerCase().includes(query.toLowerCase()) ||
-            s.city?.name?.toLowerCase().includes(query.toLowerCase());
-        const matchCity = !city || s.city?.slug === city;
-        const matchCategory = !category || s.globalCategories?.some(c => c.slug === category);
-        return matchStatus && matchQuery && matchCity && matchCategory;
-    });
-
-    const counts = {
-        all: allSellers.length,
-        active: allSellers.filter(s => s.status === 'active').length,
-        draft: allSellers.filter(s => s.status === 'draft').length,
-        expired: allSellers.filter(s => s.status === 'expired').length,
-        inactive: allSellers.filter(s => s.status === 'inactive').length,
-    };
-
     return (
         <ManagerSellersPage
             sellers={sellers}
+            pagination={pagination}
             counts={counts}
             cities={cities}
             categories={categories}

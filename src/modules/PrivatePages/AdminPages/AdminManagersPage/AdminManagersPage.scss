@@ -793,3 +793,28 @@
 .amgr-modal__actions {
     @extend .mgr-modal__actions;
 }
+
+.mgr-page__search-row {
+    margin-bottom: 16px;
+
+    .sellers-filter__input {
+        width: 100%;
+        max-width: 420px;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s;
+        background: #fff;
+
+        &:focus {
+            border-color: #a86a3d;
+        }
+
+        &::placeholder {
+            color: #bbb;
+        }
+    }
+}

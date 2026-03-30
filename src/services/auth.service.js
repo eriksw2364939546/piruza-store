@@ -40,11 +40,18 @@ class AuthService {
      * GET /api/auth/users?role=manager|admin
      * Owner видит всех, Admin — admin+manager
      */
-    async getAllUsers(role) {
+    async getAllUsers(role, { page = 1, limit = 20, query = '', status = '' } = {}) {
         const token = await getTokenOrRedirect();
-        const query = role ? `?role=${role}` : '';
-        const json = await apiWithAuth(`/api/auth/users${query}`, token);
-        return json.data || [];
+        const params = new URLSearchParams({ page, limit });
+        if (role) params.set('role', role);
+        if (query) params.set('query', query);
+        if (status) params.set('status', status);
+        const json = await apiWithAuth(`/api/auth/users?${params}`, token);
+        return {
+            data: json.data || [],
+            pagination: json.pagination || null,
+            counts: json.counts || {}
+        };
     }
 
     /**

@@ -8,33 +8,22 @@ export default async function Page({ searchParams }) {
     const params = await searchParams;
     const statusFilter = params?.status || '';
     const query = params?.query || '';
+    const page = Number(params?.page) || 1;
 
-    let allManagers = [];
-    let managers = [];
-    let sellersByManager = {};
+    let managers = [], sellersByManager = {}, counts = {}, pagination = null;
 
     try {
-        allManagers = await AuthService.getAllUsers('manager');
+        const result = await AuthService.getAllUsers('manager', { page, limit: 20, query, status: statusFilter });
+        managers = result.data || [];
+        pagination = result.pagination || null;
+        counts = result.counts || {};
 
-        managers = allManagers.filter(m => {
-            const matchStatus =
-                !statusFilter ||
-                (statusFilter === 'active' && m.isActive === true) ||
-                (statusFilter === 'inactive' && m.isActive === false);
-            const matchQuery =
-                !query ||
-                m.name?.toLowerCase().includes(query.toLowerCase()) ||
-                m.email?.toLowerCase().includes(query.toLowerCase());
-            return matchStatus && matchQuery;
-        });
-
-        if (allManagers.length > 0) {
+        if (managers.length > 0) {
             const results = await Promise.allSettled(
-                allManagers.map(m => SellerService.getSellersByManager(m._id))
+                managers.map(m => SellerService.getSellersByManager(m._id))
             );
             results.forEach((result, idx) => {
-                const managerId = allManagers[idx]._id;
-                sellersByManager[managerId] = result.status === 'fulfilled'
+                sellersByManager[managers[idx]._id] = result.status === 'fulfilled'
                     ? (result.value || [])
                     : [];
             });
@@ -43,17 +32,13 @@ export default async function Page({ searchParams }) {
         managers = [];
     }
 
-    const counts = {
-        all: allManagers.length,
-        active: allManagers.filter(m => m.isActive).length,
-        inactive: allManagers.filter(m => !m.isActive).length,
-    };
-
     return (
         <AdminManagersPage
             managers={managers}
+            pagination={pagination}
             sellersByManager={sellersByManager}
             initialStatus={statusFilter}
+            initialQuery={query}
             counts={counts}
         />
     );

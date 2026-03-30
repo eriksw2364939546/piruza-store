@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Search, Users } from "lucide-react";
 import "./ClientsPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 function formatDate(date) {
   if (!date) return "—";
@@ -84,10 +85,11 @@ export default function ClientsListPage({
   const basePath = "/admins-piruza/owner/clients";
 
   const pushUrl = useCallback(
-    (query, isActive) => {
+    (query, isActive, page = 1) => {
       const params = new URLSearchParams();
       if (query) params.set("query", query);
       if (isActive !== "") params.set("isActive", isActive);
+      if (page > 1) params.set("page", page);
       const qs = params.toString();
       router.push(`${pathname}${qs ? "?" + qs : ""}`);
     },
@@ -181,6 +183,12 @@ export default function ClientsListPage({
           </table>
         </div>
       )}
+
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.pages ?? pagination?.totalPages ?? 1}
+        onPageChange={(page) => pushUrl(queryInput, activeFilter, page)}
+      />
     </div>
   );
 }

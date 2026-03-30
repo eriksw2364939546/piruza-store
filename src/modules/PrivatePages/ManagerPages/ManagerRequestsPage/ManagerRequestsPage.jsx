@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { createRequestAction } from "@/app/actions/request.actions";
 import "./ManagerRequestsPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 const STATUS_MAP = {
   pending: { label: "На рассмотрении", cls: "pending", Icon: Clock },
@@ -193,6 +194,7 @@ function RequestCard({ request }) {
 
 export default function ManagerRequestsPage({
   requests = [],
+  pagination = null,
   counts = {},
   initialStatus = "",
 }) {
@@ -298,6 +300,16 @@ export default function ManagerRequestsPage({
           ))}
         </div>
       )}
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? pagination?.pages ?? 1}
+        onPageChange={(page) => {
+          const params = new URLSearchParams();
+          if (statusFilter) params.set("status", statusFilter);
+          if (page > 1) params.set("page", page);
+          router.push(`${pathname}?${params.toString()}`);
+        }}
+      />
 
       {/* ── Модалка ── */}
       {showModal && <CreateRequestModal onClose={() => setShowModal(false)} />}

@@ -19,6 +19,7 @@ import { Store, Plus } from "lucide-react";
 import { createRequestAction } from "@/app/actions/request.actions";
 import { deleteSellerAction } from "@/app/actions/seller.actions";
 import "./ManagerSellersPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 const SELLERS_BASE = "/admins-piruza/manager/sellers";
 
@@ -219,6 +220,7 @@ function SellerRow({ seller }) {
 // ─── Главный компонент ────────────────────────────────
 export default function ManagerSellersPage({
   sellers = [],
+  pagination = null,
   counts = {},
   cities = [],
   categories = [],
@@ -417,6 +419,19 @@ export default function ManagerSellersPage({
           </table>
         </div>
       )}
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? pagination?.pages ?? 1}
+        onPageChange={(page) => {
+          const params = new URLSearchParams();
+          if (statusFilter) params.set("status", statusFilter);
+          if (queryInput) params.set("query", queryInput);
+          if (cityFilter) params.set("city", cityFilter);
+          if (catFilter) params.set("category", catFilter);
+          if (page > 1) params.set("page", page);
+          router.push(`${pathname}?${params.toString()}`);
+        }}
+      />
 
       {/* ── Модалка заявки ── */}
       {showModal && <CreateRequestModal onClose={() => setShowModal(false)} />}

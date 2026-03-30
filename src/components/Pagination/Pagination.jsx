@@ -1,16 +1,35 @@
 "use client";
 
-// ═══════════════════════════════════════════════════════
-// Pagination — переиспользуемый компонент пагинации
-// src/components/Pagination/Pagination.jsx
-// ═══════════════════════════════════════════════════════
-
 import "./Pagination.scss";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (!totalPages || totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const getPages = () => {
+    if (totalPages <= 8) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    const pages = [];
+    const delta = 2;
+
+    pages.push(1);
+
+    const rangeStart = Math.max(2, currentPage - delta);
+    const rangeEnd = Math.min(totalPages - 1, currentPage + delta);
+
+    if (rangeStart > 2) pages.push("...");
+
+    for (let i = rangeStart; i <= rangeEnd; i++) {
+      pages.push(i);
+    }
+
+    if (rangeEnd < totalPages - 1) pages.push("...");
+
+    pages.push(totalPages);
+
+    return pages;
+  };
 
   return (
     <div className="pagination">
@@ -22,15 +41,21 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         ←
       </button>
 
-      {pages.map((p) => (
-        <button
-          key={p}
-          className={`pagination__btn ${p === currentPage ? "pagination__btn--active" : ""}`}
-          onClick={() => onPageChange(p)}
-        >
-          {p}
-        </button>
-      ))}
+      {getPages().map((p, idx) =>
+        p === "..." ? (
+          <span key={`dots-${idx}`} className="pagination__dots">
+            ...
+          </span>
+        ) : (
+          <button
+            key={p}
+            className={`pagination__btn ${p === currentPage ? "pagination__btn--active" : ""}`}
+            onClick={() => onPageChange(p)}
+          >
+            {p}
+          </button>
+        ),
+      )}
 
       <button
         className="pagination__btn pagination__btn--arrow"

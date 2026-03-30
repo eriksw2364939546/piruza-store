@@ -8,30 +8,34 @@ export default async function Page({ params, searchParams }) {
     const { id } = await params;
     const sp = await searchParams;
     const ratingFilter = sp?.rating || '';
-    const tab = sp?.tab || 'ratings'; // ratings | favorites
-    const page = Number(sp?.page) || 1;
+    const tab = sp?.tab || 'ratings';
+    const ratPage = Number(sp?.ratPage) || 1;
+    const favPage = Number(sp?.favPage) || 1;
 
-    let client, ratings, favorites;
-
+    let client;
     try {
         client = await ClientService.getClientById(id);
     } catch {
         notFound();
     }
 
-    const [ratingsResult] = await Promise.allSettled([
-        ClientService.getClientRatings(id, { page, limit: 20, rating: ratingFilter }),
+    const [ratingsResult, favoritesResult] = await Promise.allSettled([
+        ClientService.getClientRatings(id, { page: ratPage, limit: 10, rating: ratingFilter }),
+        ClientService.getClientFavoritesById(id, { page: favPage, limit: 10 }),
     ]);
 
-    ratings = ratingsResult.status === 'fulfilled'
-        ? ratingsResult.value
-        : { data: [], pagination: null };
+    const ratings = ratingsResult.status === 'fulfilled' ? ratingsResult.value.data || [] : [];
+    const ratingsPagination = ratingsResult.status === 'fulfilled' ? ratingsResult.value.pagination || null : null;
+    const favorites = favoritesResult.status === 'fulfilled' ? favoritesResult.value.data || [] : [];
+    const favoritesPagination = favoritesResult.status === 'fulfilled' ? favoritesResult.value.pagination || null : null;
 
     return (
         <ClientDetailPage
             client={client}
-            ratings={ratings.data}
-            ratingsPagination={ratings.pagination}
+            ratings={ratings}
+            ratingsPagination={ratingsPagination}
+            favorites={favorites}
+            favoritesPagination={favoritesPagination}
             ratingFilter={ratingFilter}
             activeTab={tab}
             basePath="/admins-piruza/owner/clients"

@@ -8,28 +8,19 @@ export default async function Page({ searchParams }) {
     const params = await searchParams;
     const statusFilter = params?.status || '';
 
-    let allAdmins = [];
-    let admins = [];
-    let sellersByAdmin = {};
+    let admins = [], sellersByAdmin = {}, counts = {};
 
     try {
-        allAdmins = await AuthService.getAllUsers('admin');
+        const result = await AuthService.getAllUsers('admin', { status: statusFilter, limit: 100 });
+        admins = result.data || [];
+        counts = result.counts || {};
 
-        admins = statusFilter
-            ? allAdmins.filter(a => {
-                if (statusFilter === 'active') return a.isActive === true;
-                if (statusFilter === 'inactive') return a.isActive === false;
-                return true;
-            })
-            : allAdmins;
-
-        if (allAdmins.length > 0) {
+        if (admins.length > 0) {
             const results = await Promise.allSettled(
-                allAdmins.map(a => SellerService.getSellersByManager(a._id))
+                admins.map(a => SellerService.getSellersByManager(a._id))
             );
             results.forEach((result, idx) => {
-                const adminId = allAdmins[idx]._id;
-                sellersByAdmin[adminId] = result.status === 'fulfilled'
+                sellersByAdmin[admins[idx]._id] = result.status === 'fulfilled'
                     ? (result.value || [])
                     : [];
             });
@@ -37,12 +28,6 @@ export default async function Page({ searchParams }) {
     } catch {
         admins = [];
     }
-
-    const counts = {
-        all: allAdmins.length,
-        active: allAdmins.filter(a => a.isActive).length,
-        inactive: allAdmins.filter(a => !a.isActive).length,
-    };
 
     return (
         <AdminsPage

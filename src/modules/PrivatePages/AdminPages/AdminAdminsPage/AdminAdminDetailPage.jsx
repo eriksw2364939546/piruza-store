@@ -6,7 +6,7 @@
 // Admin только просматривает — нет редактирования/деактивации
 // ═══════════════════════════════════════════════════════
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ import {
   deleteSellerAction,
 } from "@/app/actions/seller.actions";
 import "./AdminAdminsPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 const STATUS_LABELS = {
   active: { label: "Активен", cls: "active" },
@@ -228,8 +229,10 @@ function SellerRow({ seller, sellersBasePath, onActivate, onExtend }) {
 export default function AdminAdminDetailPage({
   admin,
   sellers,
+  pagination,
   counts,
   statusFilter,
+  initialQuery = "",
   basePath,
   sellersBasePath,
 }) {
@@ -237,14 +240,26 @@ export default function AdminAdminDetailPage({
   const pathname = usePathname();
 
   const [activateSeller, setActivateSeller] = useState(null);
+  const [queryInput, setQueryInput] = useState(initialQuery);
+  const timerRef = useRef(null);
+
+  const pushUrl = useCallback(
+    (status, query, page = 1) => {
+      const params = new URLSearchParams();
+      if (status) params.set("status", status);
+      if (query) params.set("query", query);
+      if (page > 1) params.set("page", page);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [router, pathname],
+  );
 
   const handleStatusFilter = useCallback(
     (status) => {
       const newStatus = statusFilter === status ? "" : status;
-      const qs = newStatus ? `?status=${newStatus}` : "";
-      router.push(`${pathname}${qs}`);
+      pushUrl(newStatus, queryInput);
     },
-    [router, pathname, statusFilter],
+    [pushUrl, statusFilter, queryInput],
   );
 
   return (
@@ -297,7 +312,7 @@ export default function AdminAdminDetailPage({
       <div className="adm-detail__stats">
         <button
           className={`adm-stat adm-stat--all ${!statusFilter ? "adm-stat--selected" : ""}`}
-          onClick={() => router.push(pathname)}
+          onClick={() => pushUrl("", queryInput)}
         >
           <span className="adm-stat__num">{counts.all}</span>
           <span className="adm-stat__label">Все</span>
@@ -314,10 +329,27 @@ export default function AdminAdminDetailPage({
         ))}
       </div>
 
+      <div className="mgr-page__search-row">
+        <input
+          className="sellers-filter__input"
+          type="text"
+          placeholder="Поиск по названию продавца..."
+          value={queryInput}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQueryInput(val);
+            clearTimeout(timerRef.current);
+            timerRef.current = setTimeout(() => {
+              pushUrl(statusFilter, val);
+            }, 400);
+          }}
+        />
+      </div>
+
       {/* ── Список продавцов ── */}
       <div className="adm-detail__sellers">
         <h3 className="adm-detail__section-title">
-          Продавцы ({sellers.length}
+          Продавцы ({pagination?.total ?? sellers.length}
           {statusFilter ? ` из ${counts.all}` : ""})
         </h3>
 
@@ -355,6 +387,14 @@ export default function AdminAdminDetailPage({
             </table>
           </div>
         )}
+      </div>
+
+      <div style={{ padding: "0 16px 16px" }}>
+        <Pagination
+          currentPage={pagination?.page ?? 1}
+          totalPages={pagination?.totalPages ?? pagination?.pages ?? 1}
+          onPageChange={(page) => pushUrl(statusFilter, queryInput, page)}
+        />
       </div>
 
       {activateSeller && (

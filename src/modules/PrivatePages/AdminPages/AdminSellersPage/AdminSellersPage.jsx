@@ -16,6 +16,7 @@ import {
   deleteSellerAction,
 } from "@/app/actions/seller.actions";
 import "./AdminSellersPage.scss";
+import Pagination from "@/components/Pagination/Pagination";
 
 const SELLERS_BASE = "/admins-piruza/admin-panel/sellers";
 
@@ -339,7 +340,7 @@ const AdminSellersPage = ({
       if (newFilters.category) params.set("category", newFilters.category);
       if (newFilters.mine) params.set("mine", newFilters.mine);
       const qs = params.toString();
-      router.push(`${pathname}${qs ? "?" + qs : ""}`);
+      router.push(`${pathname}${qs ? "?" + qs : ""}`, { scroll: false });
     },
     [router, pathname],
   );
@@ -400,6 +401,21 @@ const AdminSellersPage = ({
           </table>
         </div>
       )}
+      <Pagination
+        currentPage={pagination?.page ?? 1}
+        totalPages={pagination?.totalPages ?? 1}
+        onPageChange={(page) => {
+          const params = new URLSearchParams();
+          if (filters.query) params.set("query", filters.query);
+          if (filters.status) params.set("status", filters.status);
+          if (filters.city) params.set("city", filters.city);
+          if (filters.category) params.set("category", filters.category);
+          if (filters.mine) params.set("mine", filters.mine);
+          if (page > 1) params.set("page", page);
+          const qs = params.toString();
+          router.push(`${pathname}${qs ? "?" + qs : ""}`);
+        }}
+      />
 
       {activateSeller && (
         <Modal

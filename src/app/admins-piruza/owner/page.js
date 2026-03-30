@@ -21,13 +21,13 @@ const OwnerPage = async () => {
         DashboardService.getOverview().catch(() => EMPTY_OVERVIEW),
         DashboardService.getManagersStats().catch(() => []),
         DashboardService.getSellersByStatus().catch(() => EMPTY_SELLERS_BY_STATUS),
-        AuthService.getAllUsers('manager').catch(() => []),
-        AuthService.getAllUsers('admin').catch(() => []),
+        AuthService.getAllUsers('manager').catch(() => ({ data: [] })),
+        AuthService.getAllUsers('admin').catch(() => ({ data: [] })),
     ]);
 
     const userStats = {
-        managers: allManagers.length,
-        admins: allAdmins.length,
+        managers: allManagers.data?.length ?? 0,
+        admins: allAdmins.data?.length ?? 0,
     };
 
     return (
