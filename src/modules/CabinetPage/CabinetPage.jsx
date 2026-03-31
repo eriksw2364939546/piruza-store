@@ -1,7 +1,7 @@
 "use client";
 
 // ═══════════════════════════════════════════════════════
-// CabinetPage — личный кабинет клиента
+// CabinetPage — espace personnel du client
 // src/modules/CabinetPage/CabinetPage.jsx
 // ═══════════════════════════════════════════════════════
 
@@ -19,12 +19,12 @@ import {
 import "./CabinetPage.scss";
 
 const TABS = [
-  { key: "profile", label: "👤 Профиль" },
-  { key: "favorites", label: "♥ Избранные" },
-  { key: "ratings", label: "⭐ Мои оценки" },
+  { key: "profile", label: "👤 Profil" },
+  { key: "favorites", label: "♥ Favoris" },
+  { key: "ratings", label: "⭐ Mes évaluations" },
 ];
 
-// ── Вкладка профиля ───────────────────────────────────
+// ── Onglet profil ───────────────────────────────────
 
 function ProfileTab({ profile, onCityChange, cities }) {
   const [editing, setEditing] = useState(false);
@@ -36,6 +36,20 @@ function ProfileTab({ profile, onCityChange, cities }) {
     setLoading(true);
     try {
       await updateClientCityAction(cityId);
+
+      // Trouver la ville sélectionnée dans la liste et la sauvegarder dans localStorage
+      const selectedCity = cities.find((c) => c._id === cityId);
+      if (selectedCity) {
+        localStorage.setItem(
+          "piruza_city",
+          JSON.stringify({
+            _id: selectedCity._id,
+            name: selectedCity.name,
+            slug: selectedCity.slug,
+          }),
+        );
+      }
+
       setSuccess(true);
       setEditing(false);
       onCityChange();
@@ -70,7 +84,7 @@ function ProfileTab({ profile, onCityChange, cities }) {
         </div>
 
         <div className="cabinet-profile__field">
-          <span className="cabinet-profile__label">Город</span>
+          <span className="cabinet-profile__label">Ville</span>
           {editing ? (
             <div className="cabinet-profile__city-edit">
               <select
@@ -78,7 +92,7 @@ function ProfileTab({ profile, onCityChange, cities }) {
                 onChange={(e) => setCityId(e.target.value)}
                 className="cabinet-profile__select"
               >
-                <option value="">— Выберите город —</option>
+                <option value="">— Choisissez une ville —</option>
                 {cities.map((c) => (
                   <option key={c._id} value={c._id}>
                     {c.name}
@@ -90,13 +104,13 @@ function ProfileTab({ profile, onCityChange, cities }) {
                 onClick={handleSave}
                 disabled={loading}
               >
-                {loading ? "..." : "Сохранить"}
+                {loading ? "..." : "Enregistrer"}
               </button>
               <button
                 className="cabinet-btn cabinet-btn--ghost"
                 onClick={() => setEditing(false)}
               >
-                Отмена
+                Annuler
               </button>
             </div>
           ) : (
@@ -108,16 +122,16 @@ function ProfileTab({ profile, onCityChange, cities }) {
                 className="cabinet-btn cabinet-btn--ghost cabinet-btn--sm"
                 onClick={() => setEditing(true)}
               >
-                ✏️ Изменить
+                ✏️ Modifier
               </button>
             </div>
           )}
         </div>
 
         <div className="cabinet-profile__field">
-          <span className="cabinet-profile__label">Зарегистрирован</span>
+          <span className="cabinet-profile__label">Inscrit le</span>
           <span className="cabinet-profile__value cabinet-profile__value--muted">
-            {new Date(profile.createdAt).toLocaleDateString("ru-RU", {
+            {new Date(profile.createdAt).toLocaleDateString("fr-FR", {
               day: "2-digit",
               month: "long",
               year: "numeric",
@@ -127,20 +141,20 @@ function ProfileTab({ profile, onCityChange, cities }) {
       </div>
 
       {success && (
-        <div className="cabinet-profile__success">✅ Город обновлён</div>
+        <div className="cabinet-profile__success">✅ Ville mise à jour</div>
       )}
     </div>
   );
 }
 
-// ── Вкладка избранных ─────────────────────────────────
+// ── Onglet favoris ─────────────────────────────────
 
 function FavoritesTab({ favorites, pagination, onRemove, onPage }) {
   if (!favorites?.length) {
     return (
       <div className="cabinet-empty">
         <span className="cabinet-empty__icon">♥</span>
-        <p>У вас пока нет избранных продавцов</p>
+        <p>Vous n'avez pas encore de vendeurs favoris</p>
       </div>
     );
   }
@@ -161,14 +175,14 @@ function FavoritesTab({ favorites, pagination, onRemove, onPage }) {
   );
 }
 
-// ── Вкладка оценок ────────────────────────────────────
+// ── Onglet évaluations ────────────────────────────────────
 
 function RatingsTab({ ratings, pagination, onPage }) {
   if (!ratings?.length) {
     return (
       <div className="cabinet-empty">
         <span className="cabinet-empty__icon">⭐</span>
-        <p>Вы ещё не оценили ни одного продавца</p>
+        <p>Vous n'avez encore évalué aucun vendeur</p>
       </div>
     );
   }
@@ -195,7 +209,7 @@ function RatingsTab({ ratings, pagination, onPage }) {
                   {r.seller?.name || "—"}
                 </div>
                 <div className="cabinet-rating-row__date">
-                  {new Date(r.createdAt).toLocaleDateString("ru-RU", {
+                  {new Date(r.createdAt).toLocaleDateString("fr-FR", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
@@ -218,7 +232,7 @@ function RatingsTab({ ratings, pagination, onPage }) {
   );
 }
 
-// ── Главный компонент ─────────────────────────────────
+// ── Composant principal ─────────────────────────────────
 
 export default function CabinetPage({
   profile,
@@ -273,29 +287,29 @@ export default function CabinetPage({
   };
 
   const handleCityChange = () => {
-    router.refresh();
+    window.location.reload();
   };
 
   return (
     <div className="cabinet">
       <main className="cabinet-main">
-        {/* Статистика */}
+        {/* Statistiques */}
         <div className="cabinet-stats">
           <div className="cabinet-stat">
             <span className="cabinet-stat__num">
               {favPagination?.total ?? favsList.length}
             </span>
-            <span className="cabinet-stat__label">Избранных</span>
+            <span className="cabinet-stat__label">Favoris</span>
           </div>
           <div className="cabinet-stat">
             <span className="cabinet-stat__num">
               {ratPagination?.total ?? ratings.length}
             </span>
-            <span className="cabinet-stat__label">Оценок</span>
+            <span className="cabinet-stat__label">Évaluations</span>
           </div>
         </div>
 
-        {/* Табы */}
+        {/* Onglets */}
         <div className="cabinet-tabs">
           {TABS.map((tab) => (
             <button
@@ -308,17 +322,17 @@ export default function CabinetPage({
           ))}
         </div>
 
-        {/* Кнопка выхода */}
+        {/* Bouton de déconnexion */}
         <div className="cabinet-logout">
           <button
             className="cabinet-btn cabinet-btn--ghost"
             onClick={handleLogout}
           >
-            🚪 Выйти из аккаунта
+            🚪 Se déconnecter
           </button>
         </div>
 
-        {/* Контент таба */}
+        {/* Contenu de l'onglet */}
         <div className="cabinet-content">
           {activeTab === "profile" && (
             <ProfileTab

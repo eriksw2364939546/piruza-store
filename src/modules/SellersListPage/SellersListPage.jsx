@@ -10,6 +10,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { clientApi } from "@/lib/clientApi";
 import SellerPublicCard from "@/components/SellerPublicCard/SellerPublicCard";
+import CityModal from "@/components/CityModal/CityModal";
 import Pagination from "@/components/Pagination/Pagination";
 import "./SellersListPage.scss";
 
@@ -25,17 +26,41 @@ const SellersListPage = ({
 
   const [query, setQuery] = useState(initialFilters.query || "");
   const [category, setCategory] = useState(initialFilters.category || "");
+  const [showCityModal, setShowCityModal] = useState(false);
+  const [cities, setCities] = useState([]);
 
   const pageTitle =
     initialFilters.sort === "views" ? "Les plus visités" : "Vendeurs locaux";
 
-  useEffect(() => {
-    if (initialFilters.city) return;
-
-    const injectCity = (citySlug) => {
+  const injectCity = useCallback(
+    (citySlug) => {
       const params = new URLSearchParams(window.location.search);
       params.set("city", citySlug);
       router.replace(`${pathname}?${params.toString()}`);
+    },
+    [router, pathname],
+  );
+  const city = initialFilters.city;
+
+  useEffect(() => {
+    if (city) return;
+
+    const checkLocal = () => {
+      const saved = localStorage.getItem("piruza_city");
+      if (saved) {
+        const parsedCity = JSON.parse(saved);
+        if (parsedCity?.slug) {
+          injectCity(parsedCity.slug);
+        }
+      } else {
+        clientApi
+          .get("/cities/active?limit=100")
+          .then((json) => {
+            setCities(json.data || []);
+            setShowCityModal(true);
+          })
+          .catch(() => setShowCityModal(true));
+      }
     };
 
     clientApi
@@ -46,15 +71,7 @@ const SellersListPage = ({
         else checkLocal();
       })
       .catch(() => checkLocal());
-
-    function checkLocal() {
-      const saved = localStorage.getItem("piruza_city");
-      if (saved) {
-        const city = JSON.parse(saved);
-        if (city?.slug) injectCity(city.slug);
-      }
-    }
-  }, []);
+  }, [injectCity, city]);
 
   const pushUrl = useCallback(
     (newQuery, newCategory, newPage = 1) => {
@@ -89,7 +106,7 @@ const SellersListPage = ({
   };
 
   const total = pagination?.total ?? sellers.length;
-  const totalPages = pagination?.pages ?? 1;
+  const totalPages = pagination?.totalPages ?? pagination?.pages ?? 1;
   const currentPage = pagination?.page ?? 1;
 
   return (
@@ -166,6 +183,18 @@ const SellersListPage = ({
           onPageChange={handlePage}
         />
       </div>
+
+      {/* ── Модалка города если нет города ── */}
+      {showCityModal && (
+        <CityModal
+          cities={cities}
+          onSelect={(selectedCity) => {
+            localStorage.setItem("piruza_city", JSON.stringify(selectedCity));
+            setShowCityModal(false);
+            injectCity(selectedCity.slug);
+          }}
+        />
+      )}
     </div>
   );
 };

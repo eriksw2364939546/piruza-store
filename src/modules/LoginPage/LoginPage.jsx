@@ -1,26 +1,34 @@
 "use client";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import { clientApi } from "@/lib/clientApi";
 import { toast } from "react-hot-toast";
 import "./LoginPage.scss";
 
 const LoginContent = () => {
   const handleSuccess = async (credentialResponse) => {
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/clients/google-login`,
-        { idToken: credentialResponse.credential },
-        { withCredentials: true }, // ← cookie устанавливается автоматически
-      );
+      await clientApi.post("/clients/google-login", {
+        idToken: credentialResponse.credential,
+      });
+
+      const saved = localStorage.getItem("piruza_city");
+      if (saved) {
+        const localCity = JSON.parse(saved);
+        if (localCity?._id) {
+          try {
+            await clientApi.patch("/clients/city", { city: localCity._id });
+          } catch {
+            // молча игнорируем
+          }
+        }
+      }
 
       toast.success("Connexion réussie!");
-
       setTimeout(() => {
-        window.location.href = "/cabinet";
+        window.location.replace("/cabinet");
       }, 1000);
     } catch (error) {
-      console.error("Ошибка при логине:", error);
-      toast.error(error.response?.data?.message || "Erreur de connexion");
+      toast.error(error.message || "Erreur de connexion");
     }
   };
 

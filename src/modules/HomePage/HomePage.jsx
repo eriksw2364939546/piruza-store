@@ -45,6 +45,7 @@ const HomePage = ({ categories = [], cities = [], sellers = [] }) => {
     localStorage.setItem("piruza_city", JSON.stringify(selectedCity));
     setCity(selectedCity);
     setShowModal(false);
+    window.location.reload();
   };
 
   return (

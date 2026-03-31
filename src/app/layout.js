@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer/Footer";
 import ToastProvider from "@/components/ToastProvider/ToastProvider";
+import CityService from "@/services/city.service";
 
 const ptSerif = PT_Serif({
   subsets: ["latin", "cyrillic"],
@@ -20,15 +21,23 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const headersList = await headers();
-
-  // middleware.js передаёт x-pathname для всех /admins-piruza/* роутов
   const pathname = headersList.get("x-pathname") || "";
   const isAdminRoute = pathname.startsWith("/admins-piruza");
+
+  let cities = [];
+  if (!isAdminRoute) {
+    try {
+      const res = await CityService.getActiveCities(1, 100);
+      cities = res?.data || [];
+    } catch {
+      cities = [];
+    }
+  }
 
   return (
     <html lang="ru">
       <body className={ptSerif.variable}>
-        {!isAdminRoute && <Header />}
+        {!isAdminRoute && <Header cities={cities} />}
         {children}
         {!isAdminRoute && <Footer />}
         <ToastProvider />

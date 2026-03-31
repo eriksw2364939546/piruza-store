@@ -3,7 +3,7 @@
 // Использует HttpOnly cookie (credentials: include)
 // ═══════════════════════════════════════════════════════
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
+const API_URL = '/api/proxy';
 
 async function clientFetch(path, options = {}) {
     const res = await fetch(`${API_URL}${path}`, {
