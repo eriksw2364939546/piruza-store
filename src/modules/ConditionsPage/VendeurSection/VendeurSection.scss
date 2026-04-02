@@ -15,7 +15,7 @@
     }
 
     &__inner {
-        max-width: 860px;
+        width: 100%;
         position: relative;
         z-index: 1;
     }
@@ -146,7 +146,7 @@
     &__obligations {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
     }
 
     &__obligation-item {

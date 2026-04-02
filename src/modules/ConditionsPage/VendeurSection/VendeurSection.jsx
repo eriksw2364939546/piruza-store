@@ -39,9 +39,9 @@ const VendeurSection = () => {
                 <span className="cg-vendeur__statut-badge">Recommandé</span>
                 <h4>Micro-entrepreneur</h4>
                 <p>
-                  Statut simplifié idéal pour démarrer. Plafond de chiffre
-                  d'affaires annuel : 77 700 € pour les prestations de services
-                  artisanales et 188 700 € pour la vente de marchandises.
+                  Statut simplifié idéal pour démarrer une activité artisanale
+                  ou de vente. Adapté aux vendeurs qui souhaitent proposer leurs
+                  produits de façon indépendante.
                 </p>
                 <a
                   href="https://www.autoentrepreneur.urssaf.fr"
@@ -57,7 +57,7 @@ const VendeurSection = () => {
                 <h4>EURL / SASU</h4>
                 <p>
                   Sociétés unipersonnelles à responsabilité limitée. Adaptées
-                  pour les vendeurs avec un chiffre d'affaires plus important.
+                  pour les vendeurs avec une activité plus structurée.
                 </p>
               </div>
 
@@ -65,23 +65,23 @@ const VendeurSection = () => {
                 <h4>SARL / SAS</h4>
                 <p>
                   Sociétés à responsabilité limitée ou par actions simplifiée.
-                  Pour les activités commerciales structurées.
+                  Pour les activités commerciales établies.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="cg-vendeur__block">
-            <h3>Obligations fiscales et sanitaires</h3>
+            <h3>Obligations des vendeurs</h3>
             <div className="cg-vendeur__obligations">
               <div className="cg-vendeur__obligation-item">
                 <span className="cg-vendeur__obligation-icon">📋</span>
                 <div>
                   <h4>Déclaration d'activité</h4>
                   <p>
-                    Le vendeur doit être déclaré auprès de l'URSSAF et disposer
-                    d'un numéro SIRET valide avant toute mise en vente sur la
-                    plateforme.
+                    Le vendeur doit être déclaré auprès des autorités
+                    compétentes et disposer d'un numéro SIRET valide avant toute
+                    mise en ligne sur la plateforme.
                   </p>
                 </div>
               </div>
@@ -101,14 +101,12 @@ const VendeurSection = () => {
               <div className="cg-vendeur__obligation-item">
                 <span className="cg-vendeur__obligation-icon">🍽️</span>
                 <div>
-                  <h4>Normes alimentaires (DGCCRF)</h4>
+                  <h4>Normes alimentaires</h4>
                   <p>
                     Tout vendeur proposant des produits alimentaires doit
-                    respecter les normes d'hygiène alimentaire françaises
-                    (règlement CE n°852/2004), déclarer son activité auprès de
-                    la DDPP (Direction Départementale de la Protection des
-                    Populations) et disposer d'une attestation de formation
-                    HACCP si requis.
+                    respecter les normes d'hygiène alimentaire françaises en
+                    vigueur, déclarer son activité auprès des autorités
+                    sanitaires compétentes et disposer des formations requises.
                   </p>
                 </div>
               </div>
@@ -119,23 +117,33 @@ const VendeurSection = () => {
                   <h4>Étiquetage des produits</h4>
                   <p>
                     Les produits alimentaires doivent respecter la
-                    réglementation européenne sur l'étiquetage (règlement UE
-                    n°1169/2011), notamment l'indication des allergènes, la
-                    liste des ingrédients et la date de durabilité minimale.
+                    réglementation européenne sur l'étiquetage, notamment
+                    l'indication des allergènes, la liste des ingrédients et la
+                    date de durabilité minimale.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
+          <div className="cg-vendeur__block">
+            <h3>Référencement et abonnement</h3>
+            <p>
+              Le référencement sur Piruza Store est soumis au paiement d'un
+              abonnement mensuel. Cet abonnement donne accès à la visibilité sur
+              la plateforme pour la durée convenue. Piruza Store se réserve le
+              droit de suspendre ou de supprimer tout vendeur ne respectant pas
+              les présentes conditions ou les obligations légales en vigueur.
+            </p>
+          </div>
+
           <div className="cg-vendeur__disclaimer">
             <p>
-              <strong>Décharge de responsabilité :</strong> Piruza Store se
-              réserve le droit de suspendre ou de supprimer tout vendeur ne
-              respectant pas ces obligations légales. Cependant, la plateforme
-              ne peut garantir la conformité légale de chaque vendeur et décline
-              toute responsabilité en cas de manquement de leur part aux
-              obligations légales, fiscales ou sanitaires en vigueur en France.
+              <strong>Décharge de responsabilité :</strong> Piruza Store décline
+              toute responsabilité en cas de manquement des vendeurs à leurs
+              obligations légales, fiscales ou sanitaires. Chaque vendeur est
+              seul responsable de la conformité de son activité avec la
+              législation française en vigueur.
             </p>
           </div>
         </div>

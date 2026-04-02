@@ -24,26 +24,36 @@ const PresentationSection = () => {
             <h3>Ce que Piruza Store ne fait pas</h3>
             <div className="cg-presentation__list cg-presentation__list--negative">
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✗</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--negative">
+                  ✗
+                </span>
                 <p>N'accepte aucun paiement en ligne</p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✗</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--negative">
+                  ✗
+                </span>
                 <p>N'organise pas la livraison des produits</p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✗</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--negative">
+                  ✗
+                </span>
                 <p>Ne prend pas en charge les commandes</p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✗</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--negative">
+                  ✗
+                </span>
                 <p>
                   N'est pas responsable des transactions entre vendeurs et
                   clients
                 </p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✗</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--negative">
+                  ✗
+                </span>
                 <p>Ne garantit pas la disponibilité des produits affichés</p>
               </div>
             </div>
@@ -53,28 +63,35 @@ const PresentationSection = () => {
             <h3>Ce que Piruza Store fait</h3>
             <div className="cg-presentation__list cg-presentation__list--positive">
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✓</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--positive">
+                  ✓
+                </span>
                 <p>
                   Met en relation les clients avec des vendeurs locaux
                   référencés
                 </p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✓</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--positive">
+                  ✓
+                </span>
                 <p>
-                  Affiche les coordonnées des vendeurs (téléphone, WhatsApp)
-                  pour un contact direct
+                  Affiche les coordonnées des vendeurs pour un contact direct
                 </p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✓</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--positive">
+                  ✓
+                </span>
                 <p>
                   Permet aux clients de consulter les produits, les évaluer et
                   les ajouter en favoris
                 </p>
               </div>
               <div className="cg-presentation__list-item">
-                <span className="cg-presentation__list-icon">✓</span>
+                <span className="cg-presentation__list-icon cg-presentation__list-icon--positive">
+                  ✓
+                </span>
                 <p>
                   Filtre les vendeurs par ville afin de faciliter la recherche
                   locale

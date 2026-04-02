@@ -7,6 +7,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Phone,
   MessageCircle,
@@ -163,6 +164,12 @@ const OrderForm = ({
         >
           <MessageCircle size={18} /> Envoyer sur WhatsApp
         </button>
+        <p className="order-form__privacy">
+          En envoyant, vous acceptez notre{" "}
+          <Link href="/politique-de-confidentialite">
+            politique de confidentialité
+          </Link>
+        </p>
       </div>
     </div>
   );
@@ -182,6 +189,7 @@ export default function SellerProfilePage({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const timerRef = useRef(null);
+  const sidebarListRef = useRef(null);
 
   const [orderOpen, setOrderOpen] = useState(false);
   const [isFav, setIsFav] = useState(false);
@@ -235,6 +243,45 @@ export default function SellerProfilePage({
     },
     [router, pathname],
   );
+  //на список и заблокируй вертикальный скролл
+  useEffect(() => {
+    const el = sidebarListRef.current;
+    if (!el) return;
+
+    let startX = 0;
+    let startY = 0;
+    let isHorizontal = false;
+
+    const onTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isHorizontal = false;
+    };
+
+    const onTouchMove = (e) => {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+
+      // определяем направление по первому движению
+      if (dx > dy) {
+        isHorizontal = true;
+      }
+
+      // если горизонтальный скролл — блокируем вертикальный скролл страницы
+      if (isHorizontal) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false }); // passive: false — чтобы preventDefault работал
+
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
+  }, []);
 
   const handleQueryChange = (e) => {
     const val = e.target.value;
@@ -416,7 +463,10 @@ export default function SellerProfilePage({
               {categories.length > 0 && (
                 <aside className="seller-profile__sidebar">
                   <p className="seller-profile__sidebar-title">Catégories</p>
-                  <ul className="seller-profile__sidebar-list">
+                  <ul
+                    className="seller-profile__sidebar-list"
+                    ref={sidebarListRef}
+                  >
                     <li>
                       <button
                         className={`seller-profile__sidebar-btn ${!initialFilters.category ? "seller-profile__sidebar-btn--active" : ""}`}

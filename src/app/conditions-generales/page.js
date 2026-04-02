@@ -1,7 +1,7 @@
-import PrivacyPolicyPage from "@/modules/PrivacyPolicyPage/PrivacyPolicyPage";
+import ConditionsPage from "@/modules/ConditionsPage/ConditionsPage";
 
-export default function Home() {
+export default function Conditions() {
     return (
-        <PrivacyPolicyPage />
+        <ConditionsPage />
     );
 }

@@ -13,7 +13,13 @@
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  /* overflow-x: hidden; */
+}
+
+/* Вместо этого ставим на конкретный контейнер: */
+body {
+  overflow-x: clip;
+  /* clip — не создаёт новый скроллящий контекст, в отличие от hidden */
 }
 
 html {

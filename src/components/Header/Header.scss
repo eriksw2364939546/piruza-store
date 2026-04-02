@@ -373,6 +373,7 @@ header nav {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 51;
+            pointer-events: none;
 
             &.active {
                 max-height: 600px;
@@ -380,6 +381,7 @@ header nav {
                 border-bottom: 5px solid #8b6f63;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
                 overflow: visible;
+                pointer-events: auto;
             }
 
             .header-nav__items {

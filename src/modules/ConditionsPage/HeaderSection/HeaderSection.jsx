@@ -21,9 +21,9 @@ const HeaderSection = () => {
           <div className="cg-header__intro">
             <p>
               Les présentes conditions générales d'utilisation régissent l'accès
-              et l'utilisation de la plateforme <strong>Piruza Store</strong>,
-              accessible depuis notre site web. En utilisant notre plateforme,
-              vous acceptez sans réserve les présentes conditions.
+              et l'utilisation de la plateforme <strong>Piruza Store</strong>.
+              En utilisant notre plateforme, vous acceptez sans réserve les
+              présentes conditions.
             </p>
             <p>
               Piruza Store est une plateforme de mise en relation entre des
