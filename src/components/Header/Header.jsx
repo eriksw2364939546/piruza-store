@@ -128,7 +128,7 @@ const Header = ({ cities = [] }) => {
 
   return (
     <>
-      <header>
+      <header id="header">
         <div className="container">
           <div className="header-items row">
             {/* ── Мобильный логотип слева ── */}
@@ -176,7 +176,7 @@ const Header = ({ cities = [] }) => {
                 </a>
                 <a
                   className="header-nav__item-link"
-                  href="#how-to__order"
+                  href="/#how-to__order"
                   onClick={closeMenu}
                 >
                   Comment commander

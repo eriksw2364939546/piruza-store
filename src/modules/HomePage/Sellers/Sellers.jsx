@@ -74,13 +74,13 @@ const Sellers = ({ sellers = [], city }) => {
   const popular = useMemo(() => {
     const sorted = [...byCitySlug]
       .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
-      .slice(0, 4);
+      .slice(0, 8);
 
     return sorted;
   }, [byCitySlug]);
 
   const local = useMemo(() => {
-    return [...byCitySlug].sort(() => Math.random() - 0.5).slice(0, 4);
+    return [...byCitySlug].sort(() => Math.random() - 0.5).slice(0, 8);
   }, [byCitySlug]);
 
   return (

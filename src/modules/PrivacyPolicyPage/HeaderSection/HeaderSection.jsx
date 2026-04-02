@@ -1,33 +1,38 @@
-// app/privacy-policy/sections/HeaderSection.js
 import "./HeaderSection.scss";
 
 const HeaderSection = () => {
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString("fr-FR", {
-    weekday: "long",
+  const formattedDate = new Date().toLocaleDateString("fr-FR", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 
   return (
-    <section className="header-section">
-      <h1 className="header-section__title">Politique de confidentialité</h1>
-      <p className="header-section__last-update">
-        Dernière mise à jour : {formattedDate}
-      </p>
-      <div className="header-section__content">
-        <p>
-          La présente politique de confidentialité décrit la manière dont{" "}
-          <strong>Piruza Store</strong>
-          ("nous", "notre", "nos") collecte, utilise et protège vos données
-          personnelles lorsque vous utilisez notre site web et nos services.
-        </p>
-        <p>
-          Cette politique s'applique au site web accessible à l'adresse{" "}
-          {"[insérer votre URL]"}
-          et à tous les services associés proposés par Piruza Store.
-        </p>
+    <section className="cg-header">
+      <div className="container">
+        <div className="cg-header__inner">
+          <span className="cg-header__eyebrow">Informations légales</span>
+          <h1 className="cg-header__title">
+            Conditions générales d'utilisation
+          </h1>
+          <p className="cg-header__date">
+            Dernière mise à jour : {formattedDate}
+          </p>
+          <div className="cg-header__intro">
+            <p>
+              Les présentes conditions générales d'utilisation régissent l'accès
+              et l'utilisation de la plateforme <strong>Piruza Store</strong>,
+              accessible depuis notre site web. En utilisant notre plateforme,
+              vous acceptez sans réserve les présentes conditions.
+            </p>
+            <p>
+              Piruza Store est une plateforme de mise en relation entre des
+              vendeurs locaux et des clients. Elle n'intervient pas dans les
+              transactions commerciales et n'est pas responsable des échanges
+              entre les parties.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );
