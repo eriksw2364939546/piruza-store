@@ -2,12 +2,14 @@
     padding: 80px 0;
     background: var(--header-color);
 
+
     &__section {
         &+& {
             margin-top: 64px;
             padding-top: 64px;
             border-top: 1px solid #ebebeb;
         }
+
     }
 
     // ── Шапка секции ──

@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, MessageCircle, Tag, Hash } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import { validatePhone } from "@/lib/validation/orderForm.fr.schema";
@@ -150,6 +151,12 @@ const OrderForm = ({
         >
           <MessageCircle size={18} /> Envoyer sur WhatsApp
         </button>
+        <p className="order-form__privacy">
+          En envoyant, vous acceptez notre{" "}
+          <Link href="/politique-de-confidentialite">
+            politique de confidentialité
+          </Link>
+        </p>
       </div>
     </div>
   );
