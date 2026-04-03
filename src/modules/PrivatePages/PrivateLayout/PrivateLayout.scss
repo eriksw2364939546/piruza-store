@@ -6,11 +6,12 @@
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
     }
 
     // ───── SIDEBAR ─────
     &__sidebar {
-        align-self: start; // не растягивается по высоте грида
+        align-self: start;
         position: sticky;
         top: 0;
         height: 100vh;
@@ -35,7 +36,21 @@
         }
 
         @media (max-width: 768px) {
-            display: none;
+            // Превращаем в горизонтальную полосу сверху
+            position: sticky;
+            top: 0;
+            height: auto;
+            flex-direction: row;
+            align-items: center;
+            padding: 0;
+            overflow-y: visible;
+            overflow-x: auto;
+            z-index: 100;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
         }
     }
 
@@ -49,6 +64,22 @@
 
         span {
             color: #a86a3d;
+        }
+
+        @media (max-width: 768px) {
+            padding: 0 16px;
+            border-bottom: none;
+            border-right: 1px solid #2e2e2e;
+            white-space: nowrap;
+            font-size: 15px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 550px) {
+            display: none;
         }
     }
 
@@ -76,15 +107,46 @@
             background: #059669;
             color: #fff;
         }
+
+        @media (max-width: 768px) {
+            margin: 0 8px 0 12px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 550px) {
+            display: none;
+        }
     }
 
     &__nav {
         flex: 1;
         padding: 16px 0;
+
+        @media (max-width: 768px) {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0;
+            flex: 1;
+            overflow-x: auto;
+            scrollbar-width: none;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     &__nav-section {
         margin-bottom: 8px;
+
+        @media (max-width: 768px) {
+            margin-bottom: 0;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            flex-shrink: 0;
+        }
     }
 
     &__nav-label {
@@ -94,6 +156,10 @@
         letter-spacing: 1.5px;
         color: #666;
         padding: 12px 24px 6px;
+
+        @media (max-width: 768px) {
+            display: none;
+        }
     }
 
     &__nav-link {
@@ -123,6 +189,28 @@
             width: 20px;
             text-align: center;
         }
+
+        @media (max-width: 768px) {
+            padding: 0 14px;
+            height: 56px;
+            border-left: none;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 13px;
+            gap: 6px;
+            padding: 40px 10px;
+
+            &--active {
+                border-left-color: transparent;
+                border-bottom-color: #a86a3d;
+            }
+
+            .nav-icon {
+                font-size: 15px;
+                width: auto;
+            }
+        }
     }
 
     &__logout {
@@ -146,9 +234,20 @@
             color: #fff;
             border-color: #444;
         }
+
+        @media (max-width: 768px) {
+            margin: 0 8px 0 0;
+            width: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 13px;
+            height: 36px;
+        }
     }
 
-    // ───── MAIN — скролл здесь ─────
+    // ───── MAIN ─────
     &__main {
         height: 100vh;
         overflow-y: auto;
@@ -172,11 +271,11 @@
         }
 
         @media (max-width: 768px) {
-            height: 100vh;
+            height: calc(100vh - 56px); // минус высота мобильного сайдбара
         }
     }
 
-    // ───── ТОПБАР — sticky внутри __main ─────
+    // ───── ТОПБАР ─────
     &__topbar {
         position: sticky;
         top: 0;
@@ -188,10 +287,11 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        flex-shrink: 0; // не сжимается
+        flex-shrink: 0;
 
         @media (max-width: 768px) {
             padding: 0 16px;
+            height: 52px;
         }
     }
 
@@ -199,6 +299,14 @@
         font-size: 16px;
         font-weight: 600;
         color: #1a1a1a;
+
+        @media (max-width: 768px) {
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 13px;
+        }
     }
 
     &__topbar-user {
@@ -210,6 +318,12 @@
 
         strong {
             color: #1a1a1a;
+        }
+
+        @media (max-width: 768px) {
+            span {
+                display: none;
+            }
         }
     }
 
@@ -226,15 +340,25 @@
         font-weight: 700;
         text-transform: uppercase;
         flex-shrink: 0;
+
+        @media (max-width: 480px) {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
     }
 
-    // ───── CONTENT — контент страницы ─────
+    // ───── CONTENT ─────
     &__content {
         padding: 32px;
         flex: 1;
 
         @media (max-width: 768px) {
             padding: 16px;
+        }
+
+        @media (max-width: 480px) {
+            padding: 12px;
         }
     }
 }

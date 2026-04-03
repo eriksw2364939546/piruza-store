@@ -31,6 +31,7 @@ function ProfileTab({ profile, onCityChange, cities }) {
   const [cityId, setCityId] = useState(profile.city?._id || profile.city || "");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
 
   const handleSave = async () => {
     setLoading(true);
@@ -65,8 +66,13 @@ function ProfileTab({ profile, onCityChange, cities }) {
     <div className="cabinet-profile">
       <div className="cabinet-profile__hero">
         <div className="cabinet-profile__avatar">
-          {profile.avatar ? (
-            <img src={profile.avatar} alt={profile.name} />
+          {profile.avatar && !avatarError ? (
+            <img
+              src={profile.avatar}
+              alt={profile.name}
+              referrerPolicy="no-referrer"
+              onError={() => setAvatarError(true)}
+            />
           ) : (
             <span>{profile.name?.charAt(0)?.toUpperCase() || "?"}</span>
           )}

@@ -14,6 +14,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
+        flex-wrap: wrap;
     }
 
     &__back {
@@ -50,6 +51,10 @@
             height: 100%;
             object-fit: cover;
         }
+
+        @media (max-width: 480px) {
+            height: 140px;
+        }
     }
 
     &__cover-empty {
@@ -70,6 +75,12 @@
         margin-top: -36px;
         position: relative;
         z-index: 1;
+
+        @media (max-width: 480px) {
+            padding: 0 16px 16px;
+            gap: 12px;
+            margin-top: -28px;
+        }
     }
 
     &__logo {
@@ -91,10 +102,17 @@
             height: 100%;
             object-fit: cover;
         }
+
+        @media (max-width: 480px) {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+        }
     }
 
     &__hero-info {
         padding-bottom: 4px;
+        min-width: 0;
     }
 
     &__name {
@@ -102,6 +120,14 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 6px;
+        background: rgba(255, 255, 255, 0.581);
+        padding: 5px 10px;
+        border-radius: 5px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+            padding: 3px 5px;
+        }
     }
 
     &__hero-meta {
@@ -147,6 +173,7 @@
         margin-top: 16px;
         border-radius: 8px;
         border: 1px solid #f0f0f0;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
@@ -200,6 +227,10 @@
         color: #bbb;
         font-size: 14px;
         margin-top: 16px;
+
+        @media (max-width: 480px) {
+            padding: 32px 16px;
+        }
     }
 }
 
@@ -211,9 +242,11 @@
     border-radius: 12px;
     padding: 20px;
 
-    &--full {
-        // Полная ширина — используется вне grid
+    @media (max-width: 480px) {
+        padding: 14px 16px;
     }
+
+    // &--full {}
 
     &__head {
         display: flex;
@@ -221,6 +254,7 @@
         justify-content: space-between;
         margin-bottom: 16px;
         gap: 12px;
+        flex-wrap: wrap;
     }
 
     &__title {
@@ -232,7 +266,6 @@
         align-items: center;
         gap: 8px;
 
-        // Если title внутри __head — убираем margin
         .detail-card__head & {
             margin-bottom: 0;
         }
@@ -252,7 +285,6 @@
         font-weight: 600;
     }
 
-    // Статус + кнопки управления
     &__status-row {
         display: flex;
         align-items: center;
@@ -282,7 +314,6 @@
         font-weight: 600;
     }
 
-    // Список контактов
     &__info-list {
         display: flex;
         flex-direction: column;
@@ -302,7 +333,6 @@
         }
     }
 
-    // Текст (описание)
     &__text {
         font-size: 14px;
         color: #555;
@@ -322,7 +352,6 @@
         color: #bbb;
     }
 
-    // Теги
     &__tags {
         display: flex;
         flex-wrap: wrap;
@@ -351,7 +380,6 @@
         opacity: 0.8;
     }
 
-    // Мета-таблица (slug, тип, город)
     &__meta-list {
         display: flex;
         flex-direction: column;
@@ -390,7 +418,6 @@
         }
     }
 
-    // Блок изображений
     &__images {
         display: flex;
         flex-direction: column;
@@ -435,6 +462,7 @@
 
     &__controls {
         flex: 1;
+        min-width: 0;
     }
 
     &__label {
@@ -448,6 +476,7 @@
     &__btns {
         display: flex;
         gap: 6px;
+        flex-wrap: wrap;
     }
 }
 
@@ -570,7 +599,8 @@
     }
 }
 
-// ── Локальные категории ──
+// ── Локальные категории ──────────────────────────────
+
 .local-cats {
     display: flex;
     flex-direction: column;
@@ -586,6 +616,7 @@
     border-radius: 8px;
     background: #fff;
     transition: background 0.15s;
+    gap: 12px;
 
     &:hover {
         background: #f9fafb;
@@ -601,6 +632,7 @@
         align-items: center;
         gap: 8px;
         color: #666;
+        min-width: 0;
 
         svg {
             flex-shrink: 0;
@@ -611,6 +643,9 @@
         font-size: 14px;
         font-weight: 500;
         color: #1a1a1a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__badge {
@@ -619,29 +654,45 @@
         color: #991b1b;
         padding: 2px 6px;
         border-radius: 4px;
+        flex-shrink: 0;
     }
 }
 
-// ── Ссылка на название продукта ──
-.product-row__name--link {
-    color: #1a1a1a;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: color 0.15s;
+// ── Фильтры товаров по категориям ────────────────────
 
-    &:hover {
-        color: #a86a3d;
-        text-decoration: underline;
-    }
-}
-
-// ── Фильтры товаров по категориям ──
 .products-filter {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
     margin-bottom: 16px;
+
+    @media (max-width: 768px) {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #fff;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 10px 0;
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 12px;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
+
+    @media (max-width: 480px) {
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
 
     &__btn {
         display: inline-flex;
@@ -657,6 +708,8 @@
         cursor: pointer;
         transition: all 0.15s;
         font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
 
         &:hover {
             border-color: #1a1a1a;
@@ -685,7 +738,8 @@
     }
 }
 
-// ── Рейтинг на обложке ──
+// ── Рейтинг на обложке ───────────────────────────────
+
 .detail-page__rating {
     position: absolute;
     top: 14px;
@@ -716,11 +770,16 @@
     }
 }
 
-// ── Поиск товаров ──
+// ── Поиск товаров ─────────────────────────────────────
+
 .products-search-wrap {
     position: relative;
     margin-bottom: 12px;
     max-width: 360px;
+
+    @media (max-width: 480px) {
+        max-width: 100%;
+    }
 }
 
 .products-search-icon {

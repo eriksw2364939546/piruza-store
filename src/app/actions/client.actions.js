@@ -44,3 +44,13 @@ export async function logoutClientAction() {
     cookieStore.delete('client_token');
     redirect('/login');
 }
+
+export async function deleteClientAction(clientId) {
+    try {
+        await ClientService.deleteClient(clientId);
+        revalidatePath('/admins-piruza/owner/clients');
+        return { success: true };
+    } catch (err) {
+        return { success: false, message: err.message };
+    }
+}

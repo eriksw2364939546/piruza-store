@@ -68,6 +68,15 @@ class ClientService {
         });
         return json.data;
     }
+
+    // DELETE /api/clients/:id
+    async deleteClient(id) {
+        const token = await getTokenOrRedirect();
+        const json = await apiWithAuth(`/api/clients/${id}`, token, {
+            method: 'DELETE',
+        });
+        return json;
+    }
 }
 
 export default new ClientService();

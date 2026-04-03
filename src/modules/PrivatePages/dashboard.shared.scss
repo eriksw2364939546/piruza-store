@@ -69,7 +69,6 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
         }
 
-        // ── Кликабельная карточка (Link) ──
         &--link {
             text-decoration: none;
             cursor: pointer;
@@ -78,6 +77,10 @@
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
                 transform: translateY(-1px);
             }
+        }
+
+        @media (max-width: 480px) {
+            padding: 16px;
         }
     }
 
@@ -92,6 +95,10 @@
         font-weight: 700;
         color: #1a1a1a;
         line-height: 1;
+
+        @media (max-width: 480px) {
+            font-size: 26px;
+        }
     }
 
     &__stat-hint {
@@ -100,7 +107,6 @@
         margin-top: 2px;
     }
 
-    // Цветовые акценты карточек
     &__stat-card--active &__stat-value {
         color: #059669;
     }
@@ -136,7 +142,6 @@
             grid-template-columns: 1fr;
         }
 
-        // Вариант с выравниванием по верху (для секций разной высоты)
         &--top {
             align-items: flex-start;
         }
@@ -148,6 +153,10 @@
         border-radius: 12px;
         padding: 24px;
         border: 1px solid #f0f0f0;
+
+        @media (max-width: 480px) {
+            padding: 16px;
+        }
     }
 
     &__block-title {
@@ -157,12 +166,13 @@
         margin-bottom: 20px;
     }
 
-    // ── Заголовок секции + ссылка "все →" ──
     &__block-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-bottom: 14px;
+        gap: 12px;
+        flex-wrap: wrap;
     }
 
     &__link-all {
@@ -181,12 +191,20 @@
     &__table-wrap {
         overflow-x: auto;
         margin-bottom: 32px;
+        border-radius: 12px;
+        border: 1px solid #f0f0f0;
+
+        // Горизонтальный скролл на мобильных
+        @media (max-width: 768px) {
+            -webkit-overflow-scrolling: touch;
+        }
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 500px; // не сжимается ниже — скролл
 
         thead {
             tr {
@@ -227,7 +245,6 @@
         }
     }
 
-    // ── Строка пользователя в таблице ──
     &__user-name {
         font-weight: 600;
         color: #1a1a1a;
@@ -315,7 +332,6 @@
             color: #991b1b;
         }
 
-        // Нейтральный бейдж для нуля
         &--none {
             background: #f3f4f6;
             color: #9ca3af;
@@ -339,8 +355,7 @@
 }
 
 // ═══════════════════════════════════════════════════════
-// Общие классы кнопок и бейджей — используются во всех
-// страницах (SellersPage, AdminSellersPage, ManagerSellersPage и т.д.)
+// Общие классы кнопок и бейджей
 // ═══════════════════════════════════════════════════════
 
 .sellers-badge {
@@ -481,6 +496,11 @@
         font-size: 14px;
         border-radius: 6px;
     }
+
+    @media (max-width: 480px) {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 }
 
 .mgr-status,
@@ -503,7 +523,7 @@
 }
 
 // ═══════════════════════════════════════════════════════
-// Модальное окно — глобальные стили (используется везде)
+// Модальное окно
 // ═══════════════════════════════════════════════════════
 
 .sellers-modal {
@@ -531,6 +551,11 @@
         &--wide {
             max-width: 720px;
         }
+
+        @media (max-width: 480px) {
+            padding: 20px 16px;
+            border-radius: 12px;
+        }
     }
 
     &__header {
@@ -544,6 +569,10 @@
         font-size: 18px;
         font-weight: 700;
         color: #1a1a1a;
+
+        @media (max-width: 480px) {
+            font-size: 16px;
+        }
     }
 
     &__close {
@@ -621,6 +650,16 @@
         gap: 12px;
         justify-content: flex-end;
         margin-top: 8px;
+        flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .sellers-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     }
 
     &__subtitle {
@@ -645,7 +684,7 @@
 }
 
 // ═══════════════════════════════════════════════════════
-// detail-card — карточки на странице деталей продавца
+// detail-card
 // ═══════════════════════════════════════════════════════
 
 .detail-card {
@@ -653,6 +692,10 @@
     border-radius: 12px;
     padding: 20px 24px;
     border: 1px solid #f0f0f0;
+
+    @media (max-width: 480px) {
+        padding: 14px 16px;
+    }
 
     &--full {
         grid-column: 1 / -1;
@@ -671,6 +714,7 @@
         justify-content: space-between;
         margin-bottom: 16px;
         gap: 12px;
+        flex-wrap: wrap;
 
         .detail-card__title {
             margin-bottom: 0;
@@ -828,5 +872,43 @@
         display: flex;
         flex-direction: column;
         gap: 16px;
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// PrivateLayout адаптив (мобильный хедер для малых экранов)
+// ═══════════════════════════════════════════════════════
+
+@media (max-width: 768px) {
+    .private-layout {
+        &__topbar {
+            padding: 0 16px;
+
+            &-title {
+                font-size: 14px;
+            }
+
+            &-user span {
+                display: none;
+            }
+        }
+
+        &__content {
+            padding: 16px;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .private-layout {
+        &__topbar-title {
+            font-size: 13px;
+        }
+
+        &__avatar {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
     }
 }

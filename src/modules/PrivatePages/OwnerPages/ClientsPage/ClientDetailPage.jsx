@@ -18,8 +18,12 @@ import {
   Heart,
   Shield,
   ShieldOff,
+  Trash2,
 } from "lucide-react";
-import { toggleClientActiveAction } from "@/app/actions/client.actions";
+import {
+  toggleClientActiveAction,
+  deleteClientAction,
+} from "@/app/actions/client.actions";
 import Pagination from "@/components/Pagination/Pagination";
 import { getImageUrl } from "@/lib/utils";
 import "./ClientsPage.scss";
@@ -211,6 +215,21 @@ export default function ClientDetailPage({
 
   const [isActive, setIsActive] = useState(client.isActive);
   const [blocking, startBlocking] = useTransition();
+  const [deleting, startDeleting] = useTransition();
+
+  const handleDelete = () => {
+    if (!confirm(`Удалить клиента "${client.name}"? Это действие необратимо.`))
+      return;
+    startDeleting(async () => {
+      const result = await deleteClientAction(client._id);
+      if (result.success) {
+        toast.success("Клиент удалён");
+        router.push(basePath);
+      } else {
+        toast.error(result.message);
+      }
+    });
+  };
 
   const pushUrl = useCallback(
     (tab, ratPage, favPage, rating) => {
@@ -288,23 +307,39 @@ export default function ClientDetailPage({
             {isActive ? "Активен" : "Заблокирован"}
           </span>
         </div>
-        <button
-          className={`sellers-btn ${isActive ? "sellers-btn--warning" : "sellers-btn--success"}`}
-          onClick={handleToggleActive}
-          disabled={blocking}
-        >
-          {blocking ? (
-            "..."
-          ) : isActive ? (
-            <>
-              <ShieldOff size={14} /> Заблокировать
-            </>
-          ) : (
-            <>
-              <Shield size={14} /> Разблокировать
-            </>
-          )}
-        </button>
+        <div className="client-detail__actions">
+          <button
+            className={`sellers-btn ${isActive ? "sellers-btn--warning" : "sellers-btn--success"}`}
+            onClick={handleToggleActive}
+            disabled={blocking}
+          >
+            {blocking ? (
+              "..."
+            ) : isActive ? (
+              <>
+                <ShieldOff size={14} /> Заблокировать
+              </>
+            ) : (
+              <>
+                <Shield size={14} /> Разблокировать
+              </>
+            )}
+          </button>
+
+          <button
+            className="sellers-btn sellers-btn--danger"
+            onClick={handleDelete}
+            disabled={deleting}
+          >
+            {deleting ? (
+              "..."
+            ) : (
+              <>
+                <Trash2 size={14} /> Удалить
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* ── Статистика ── */}

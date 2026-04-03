@@ -96,4 +96,8 @@ section {
   section {
     padding: 80px 0 !important;
   }
+
+  section.detail-card {
+    padding: 14px 16px !important;
+  }
 }

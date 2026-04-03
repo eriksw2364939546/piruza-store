@@ -13,6 +13,8 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
     }
 
     &__title {
@@ -20,6 +22,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 4px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__subtitle {
@@ -35,12 +41,39 @@
         gap: 12px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f5f5f5;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 10px 0;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-bottom: 16px;
+            gap: 8px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     &__search-wrap {
         position: relative;
         flex: 1;
         max-width: 380px;
+
+        @media (max-width: 768px) {
+            flex: 0 0 auto;
+            max-width: none;
+            min-width: 180px;
+        }
     }
 
     &__search-icon {
@@ -77,6 +110,12 @@
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            flex-wrap: nowrap;
+            gap: 8px;
+            flex-shrink: 0;
+        }
     }
 
     &__select {
@@ -90,9 +129,16 @@
         outline: none;
         cursor: pointer;
         transition: border-color 0.2s;
+        white-space: nowrap;
+        flex-shrink: 0;
 
         &:focus {
             border-color: #a86a3d;
+        }
+
+        @media (max-width: 768px) {
+            font-size: 13px;
+            padding: 8px 10px;
         }
     }
 
@@ -102,12 +148,14 @@
         border: 1px solid #f0f0f0;
         border-radius: 12px;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 500px;
 
         thead tr {
             border-bottom: 2px solid #f0f0f0;
@@ -121,6 +169,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #999;
+            white-space: nowrap;
         }
 
         tbody tr {
@@ -150,9 +199,12 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+
+        @media (max-width: 480px) {
+            padding: 32px 16px;
+        }
     }
 
-    // ── Ячейки ──
     &__seller-link {
         text-decoration: none;
         color: inherit;
@@ -228,7 +280,12 @@
     }
 
     &__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
         margin-bottom: 24px;
+        gap: 16px;
+        flex-wrap: wrap;
     }
 
     &__seller-name {
@@ -236,6 +293,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 6px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__seller-meta {
@@ -254,11 +315,38 @@
         }
     }
 
+    &__summary {
+        @media (min-width: 861px) {
+            position: sticky;
+            top: 0;
+            align-self: start;
+        }
+    }
+
     &__empty {
         padding: 32px;
         text-align: center;
         color: #bbb;
         font-size: 14px;
+    }
+}
+
+// ── Просмотры ──
+.rating-detail__views {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #666;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 6px 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    svg {
+        color: #bbb;
     }
 }
 
@@ -282,6 +370,10 @@
         font-weight: 700;
         color: #1a1a1a;
         line-height: 1;
+
+        @media (max-width: 480px) {
+            font-size: 36px;
+        }
     }
 
     &__star {
@@ -360,11 +452,32 @@
     }
 }
 
-// ── Фильтр по звёздам ──
+// ── Фильтр по звёздам — sticky ниже 768 ──
 .rating-filter {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #fff;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 10px 0;
+        margin-left: -20px;
+        margin-right: -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 4px;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
 
     &__btn {
         display: inline-flex;
@@ -380,6 +493,8 @@
         cursor: pointer;
         transition: all 0.15s;
         font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
 
         svg {
             color: #fbbf24;
@@ -425,6 +540,7 @@
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 8px;
+        flex-wrap: wrap;
     }
 
     &__client {
@@ -470,6 +586,7 @@
         display: flex;
         align-items: center;
         gap: 2px;
+        flex-shrink: 0;
     }
 
     &__star--filled {
@@ -494,42 +611,24 @@
         color: #444;
         line-height: 1.6;
         padding-left: 46px;
+
+        @media (max-width: 480px) {
+            padding-left: 0;
+            margin-top: 8px;
+        }
     }
 }
 
-// ── Просмотры ──
-.rating-detail__head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.rating-detail__views {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: #666;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;
-    padding: 6px 14px;
-    white-space: nowrap;
-
-    svg {
-        color: #bbb;
-    }
-}
-
-// ── detail-card ──
+// ── detail-card (локальный для RatingsPage) ──
 .detail-card {
     background: #fff;
     border: 1px solid #f0f0f0;
     border-radius: 12px;
     padding: 20px;
+
+    @media (max-width: 480px) {
+        padding: 14px 16px;
+    }
 
     &__title {
         font-size: 15px;

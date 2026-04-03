@@ -23,6 +23,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 4px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__subtitle {
@@ -36,6 +40,26 @@
         gap: 10px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f5f5f5;
+            padding: 10px 0;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            gap: 8px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     // ── Таблица ──
@@ -44,13 +68,14 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
-        min-width: 700px;
+        min-width: 1000px;
 
         thead tr {
             border-bottom: 2px solid #f0f0f0;
@@ -85,6 +110,12 @@
             color: #333;
             vertical-align: middle;
         }
+
+        // td:last-child {
+        //     @media (max-width: 1024px) {
+        //         padding: 8px 10px;
+        //     }
+        // }
     }
 
     // ── Пустое состояние ──
@@ -156,15 +187,30 @@
         &:focus {
             border-color: #a86a3d;
         }
+
+        @media (max-width: 768px) {
+            flex-shrink: 0;
+            min-width: 0;
+            white-space: nowrap;
+        }
     }
 
     &__input {
         min-width: 200px;
         flex: 1;
+
+        @media (max-width: 768px) {
+            min-width: 140px;
+            flex: 0 0 auto;
+        }
     }
 
     &__select {
         min-width: 150px;
+
+        @media (max-width: 768px) {
+            min-width: 130px;
+        }
     }
 }
 
@@ -203,7 +249,9 @@
     display: flex;
     gap: 6px;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+
+
 }
 
 // ── Кнопки ──
@@ -220,7 +268,13 @@
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    text-decoration: none;
     font-family: var(--font-pt-serif);
+
+    svg {
+        display: block;
+        flex-shrink: 0;
+    }
 
     &:disabled {
         opacity: 0.6;
@@ -288,6 +342,11 @@
         font-size: 14px;
         border-radius: 6px;
     }
+
+    @media (max-width: 480px) {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 }
 
 // ── Модальное окно ──
@@ -297,7 +356,7 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.45);
-        z-index: 100;
+        z-index: 1000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -317,6 +376,11 @@
         &--wide {
             max-width: 720px;
         }
+
+        @media (max-width: 480px) {
+            padding: 20px 16px;
+            border-radius: 12px;
+        }
     }
 
     &__header {
@@ -330,6 +394,10 @@
         font-size: 18px;
         font-weight: 700;
         color: #1a1a1a;
+
+        @media (max-width: 480px) {
+            font-size: 16px;
+        }
     }
 
     &__subtitle {
@@ -364,7 +432,6 @@
         gap: 16px;
     }
 
-    // 2-колоночная сетка для полей
     &__grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -418,7 +485,6 @@
         }
     }
 
-    // Чекбоксы категорий
     &__cats {
         display: flex;
         flex-wrap: wrap;
@@ -467,31 +533,16 @@
         gap: 12px;
         justify-content: flex-end;
         margin-top: 8px;
-    }
-}
+        flex-wrap: wrap;
 
-// ── Кнопка "Мои продавцы" ──
-.sellers-filter__mine {
-    padding: 8px 16px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: inherit;
-    background: #fff;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
+        @media (max-width: 480px) {
+            flex-direction: column;
 
-    &:hover {
-        border-color: #1a1a1a;
-        color: #1a1a1a;
-    }
-
-    &--active {
-        background: #1a1a1a;
-        border-color: #1a1a1a;
-        color: #fff;
+            .sellers-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     }
 }
 

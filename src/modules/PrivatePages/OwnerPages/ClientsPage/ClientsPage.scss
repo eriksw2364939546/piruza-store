@@ -7,7 +7,6 @@
 // ══════════════════════
 @use '../../dashboard.shared';
 
-
 .clients-list {
 
     &__head {
@@ -15,6 +14,9 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+
     }
 
     &__title {
@@ -22,6 +24,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 4px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__subtitle {
@@ -37,12 +43,39 @@
         gap: 12px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f5f5f5;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 10px 0;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-bottom: 16px;
+            gap: 8px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     &__search-wrap {
         position: relative;
         flex: 1;
         max-width: 360px;
+
+        @media (max-width: 768px) {
+            flex: 0 0 auto;
+            max-width: none;
+            min-width: 160px;
+        }
     }
 
     &__search-icon {
@@ -78,6 +111,7 @@
     &__toolbar {
         display: flex;
         gap: 6px;
+        flex-shrink: 0;
     }
 
     &__filter-btn {
@@ -91,6 +125,8 @@
         cursor: pointer;
         transition: all 0.15s;
         font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
 
         &:hover {
             border-color: #1a1a1a;
@@ -120,12 +156,14 @@
         border: 1px solid #f0f0f0;
         border-radius: 12px;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 560px;
 
         thead tr {
             border-bottom: 2px solid #f0f0f0;
@@ -139,6 +177,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #999;
+            white-space: nowrap;
         }
 
         tbody tr {
@@ -171,9 +210,12 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+
+        @media (max-width: 480px) {
+            padding: 40px 16px;
+        }
     }
 
-    // ── Ячейки ──
     &__client-link {
         text-decoration: none;
         color: inherit;
@@ -222,6 +264,7 @@
         font-size: 12px;
         color: #999;
         margin-top: 2px;
+        word-break: break-all;
     }
 
     &__badge {
@@ -289,6 +332,16 @@
         padding: 24px;
         margin-bottom: 16px;
         flex-wrap: wrap;
+
+        @media (max-width: 920px) {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 480px) {
+            padding: 16px;
+            gap: 12px;
+        }
     }
 
     &__avatar-wrap {
@@ -300,6 +353,11 @@
         height: 64px;
         border-radius: 50%;
         object-fit: cover;
+
+        @media (max-width: 480px) {
+            width: 48px;
+            height: 48px;
+        }
     }
 
     &__avatar-placeholder {
@@ -313,11 +371,17 @@
         display: flex;
         align-items: center;
         justify-content: center;
+
+        @media (max-width: 480px) {
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
+        }
     }
 
     &__info {
         flex: 1;
-        min-width: 0;
+        min-width: 0; // позволяет тексту обрезаться
     }
 
     &__name {
@@ -325,8 +389,13 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 8px;
+
+        @media (max-width: 480px) {
+            font-size: 17px;
+        }
     }
 
+    // ── Email не выходит за контейнер ──
     &__meta {
         display: flex;
         gap: 16px;
@@ -339,9 +408,28 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            min-width: 0;
+            overflow: hidden;
 
             svg {
                 color: #bbb;
+                flex-shrink: 0;
+            }
+        }
+
+        // email span — разрываем длинный текст
+        span:first-child {
+            word-break: break-all;
+            overflow-wrap: break-word;
+        }
+
+        @media (max-width: 480px) {
+            gap: 8px;
+            font-size: 12px;
+
+            span {
+                word-break: break-all;
+                white-space: normal;
             }
         }
     }
@@ -369,6 +457,7 @@
         display: flex;
         gap: 12px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
     }
 
     &__stat {
@@ -380,6 +469,11 @@
         border: 1px solid #f0f0f0;
         border-radius: 10px;
         min-width: 100px;
+
+        @media (max-width: 480px) {
+            padding: 12px 16px;
+            min-width: 80px;
+        }
     }
 
     &__stat-num {
@@ -387,6 +481,10 @@
         font-weight: 700;
         color: #1a1a1a;
         line-height: 1;
+
+        @media (max-width: 480px) {
+            font-size: 22px;
+        }
     }
 
     &__stat-label {
@@ -429,16 +527,26 @@
             color: #a86a3d;
             border-bottom-color: #a86a3d;
         }
+
+        @media (max-width: 480px) {
+            padding: 10px 14px;
+            font-size: 13px;
+        }
     }
 
-    // ── Секции ──
+    // ── Секция — без overflow чтобы sticky работал ──
     &__section {
         background: #fff;
         border: 1px solid #f0f0f0;
         border-radius: 12px;
         padding: 20px;
+
+        @media (max-width: 480px) {
+            padding: 14px 16px;
+        }
     }
 
+    // ── section-head — sticky на мобильном ──
     &__section-head {
         display: flex;
         align-items: center;
@@ -446,12 +554,42 @@
         gap: 12px;
         margin-bottom: 16px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #fff;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 10px 0;
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 12px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
     }
 
     &__section-title {
         font-size: 15px;
         font-weight: 700;
         color: #1a1a1a;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     &__empty {
@@ -466,6 +604,11 @@
         display: flex;
         gap: 6px;
         flex-wrap: wrap;
+        flex-shrink: 0;
+
+        @media (max-width: 768px) {
+            flex-wrap: nowrap;
+        }
     }
 
     &__rf-btn {
@@ -482,6 +625,8 @@
         cursor: pointer;
         transition: all 0.15s;
         font-family: inherit;
+        white-space: nowrap;
+        flex-shrink: 0;
 
         svg {
             color: #fbbf24;
@@ -519,6 +664,7 @@
         gap: 12px;
         padding: 14px 0;
         border-bottom: 1px solid #f5f5f5;
+        flex-wrap: wrap;
 
         &:last-child {
             border-bottom: none;
@@ -569,6 +715,7 @@
         display: flex;
         align-items: center;
         gap: 2px;
+        flex-shrink: 0;
     }
 
     &__star--filled {
@@ -620,6 +767,7 @@
         align-items: center;
         gap: 10px;
         flex: 1;
+        min-width: 0;
     }
 
     &__fav-rating {
@@ -629,10 +777,54 @@
         font-size: 12px;
         color: #666;
         font-weight: 600;
+        flex-shrink: 0;
 
         svg {
             color: #fbbf24;
             fill: #fbbf24;
         }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+        flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            width: 100%;
+
+            .sellers-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    }
+}
+
+.sellers-btn--danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+
+    &:hover:not(:disabled) {
+        background: #991b1b;
+        color: #fff;
+        border-color: #991b1b;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 }
