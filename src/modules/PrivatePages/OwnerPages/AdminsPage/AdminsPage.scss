@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-// ManagersPage styles
+// AdminsPage styles
 // ═══════════════════════════════════════════════════════
 @use '../../dashboard.shared';
 
@@ -20,6 +20,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 4px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__subtitle {
@@ -32,12 +36,14 @@
         border-radius: 12px;
         border: 1px solid #f0f0f0;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 800px;
 
         thead tr {
             border-bottom: 2px solid #f0f0f0;
@@ -84,6 +90,10 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+
+        @media (max-width: 480px) {
+            padding: 40px 16px;
+        }
     }
 }
 
@@ -125,6 +135,7 @@
         font-size: 12px;
         color: #999;
         margin-top: 2px;
+        word-break: break-all;
     }
 }
 
@@ -166,6 +177,7 @@
         transition: color 0.2s;
         padding: 0;
         font-family: var(--font-pt-serif);
+        text-decoration: none;
 
         &:hover {
             color: #1a1a1a;
@@ -182,6 +194,11 @@
         padding: 24px;
         margin-bottom: 16px;
         flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            padding: 16px;
+            gap: 12px;
+        }
     }
 
     &__avatar {
@@ -196,6 +213,12 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+
+        @media (max-width: 480px) {
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+        }
     }
 
     &__info {
@@ -208,6 +231,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 6px;
+
+        @media (max-width: 480px) {
+            font-size: 17px;
+        }
     }
 
     &__email {
@@ -217,9 +244,12 @@
         font-size: 13px;
         color: #666;
         margin-bottom: 8px;
+        word-break: break-all;
+        min-width: 0;
 
         svg {
             color: #bbb;
+            flex-shrink: 0;
         }
     }
 
@@ -229,6 +259,16 @@
         flex-wrap: wrap;
         align-items: flex-start;
         margin-left: auto;
+
+        @media (max-width: 480px) {
+            width: 100%;
+            margin-left: 0;
+
+            .sellers-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
     }
 
     &__meta {
@@ -239,6 +279,11 @@
         background: #fafafa;
         border-radius: 10px;
         margin-bottom: 16px;
+
+        @media (max-width: 480px) {
+            padding: 12px 16px;
+            gap: 12px;
+        }
     }
 
     &__meta-item {
@@ -253,11 +298,33 @@
         }
     }
 
+    // ── Статус-блоки — sticky ниже 768 ──
     &__stats {
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f5f5f5;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 10px 0;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-bottom: 16px;
+            gap: 8px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     &__sellers {
@@ -273,16 +340,23 @@
         color: #1a1a1a;
         padding: 16px 20px;
         border-bottom: 1px solid #f5f5f5;
+
+        @media (max-width: 480px) {
+            padding: 14px 16px;
+            font-size: 14px;
+        }
     }
 
     &__table-wrap {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 800px;
 
         thead tr {
             border-bottom: 1px solid #f0f0f0;
@@ -296,6 +370,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #bbb;
+            white-space: nowrap;
         }
 
         tbody tr {
@@ -350,11 +425,31 @@
     padding: 12px 20px;
     border-radius: 10px;
     min-width: 80px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    background: none;
+    font-family: inherit;
+    flex-shrink: 0;
+
+    &:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    &--selected {
+        border-color: currentColor;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+    }
 
     &__num {
         font-size: 22px;
         font-weight: 700;
         line-height: 1;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__label {
@@ -362,6 +457,12 @@
         margin-top: 4px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    &--all {
+        background: #f3f4f6;
+        color: #374151;
     }
 
     &--active {
@@ -391,7 +492,7 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.45);
-        z-index: 100;
+        z-index: 1000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -405,6 +506,13 @@
         max-width: 440px;
         padding: 32px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        max-height: 90vh;
+        overflow-y: auto;
+
+        @media (max-width: 480px) {
+            padding: 20px 16px;
+            border-radius: 12px;
+        }
     }
 
     &__header {
@@ -418,6 +526,10 @@
         font-size: 18px;
         font-weight: 700;
         color: #1a1a1a;
+
+        @media (max-width: 480px) {
+            font-size: 16px;
+        }
     }
 
     &__close {
@@ -427,6 +539,7 @@
         color: #999;
         cursor: pointer;
         transition: color 0.2s;
+        flex-shrink: 0;
 
         &:hover {
             color: #333;
@@ -491,6 +604,16 @@
         gap: 12px;
         justify-content: flex-end;
         margin-top: 4px;
+        flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .sellers-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     }
 }
 
@@ -500,6 +623,7 @@
     display: flex;
     gap: 6px;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 .sellers-badge {
@@ -604,14 +728,41 @@
         font-size: 13px;
         border-radius: 6px;
     }
+
+    @media (max-width: 480px) {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 }
 
-// ── Фильтры статуса ──
+// ── Фильтры статуса — sticky ниже 768 ────────────────
+
 .mgr-page__filters {
     display: flex;
     gap: 8px;
     margin-bottom: 20px;
     flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #f5f5f5;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding: 10px 0;
+        margin-left: -16px;
+        margin-right: -16px;
+        padding-left: 16px;
+        padding-right: 16px;
+        margin-bottom: 16px;
+        gap: 8px;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+    }
 }
 
 .mgr-filter {
@@ -628,6 +779,8 @@
     cursor: pointer;
     transition: all 0.15s;
     font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
 
     &:hover {
         border-color: #1a1a1a;
@@ -665,117 +818,8 @@
     }
 }
 
-// ── Кликабельные статус-блоки ──
-.adm-stat {
-    cursor: pointer;
-    border: 2px solid transparent;
-    transition: all 0.15s;
-    background: none;
-    font-family: inherit;
+// ── Строка поиска ─────────────────────────────────────
 
-    &:hover {
-        opacity: 0.85;
-        transform: translateY(-1px);
-    }
-
-    &--selected {
-        border-color: currentColor;
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
-    }
-
-    &--all {
-        background: #f3f4f6;
-        color: #374151;
-    }
-}
-
-// ── Ссылка назад (Link вместо button) ──
-a.adm-detail__back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    color: #666;
-    text-decoration: none;
-    transition: color 0.2s;
-
-    &:hover {
-        color: #1a1a1a;
-    }
-}
-
-// ── Ссылка на продавца ──
-.adm-seller__link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-
-    &:hover .adm-seller__name {
-        color: #a86a3d;
-        text-decoration: underline;
-    }
-}
-
-// ── Фильтры статуса ──
-.mgr-page__filters {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.mgr-filter {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    background: #fff;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
-
-    &:hover {
-        border-color: #1a1a1a;
-        color: #1a1a1a;
-    }
-
-    &--active {
-        background: #1a1a1a;
-        border-color: #1a1a1a;
-        color: #fff;
-
-        .mgr-filter__count {
-            background: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-    }
-
-    &--active-status.mgr-filter--active {
-        background: #059669;
-        border-color: #059669;
-    }
-
-    &--inactive-status.mgr-filter--active {
-        background: #dc2626;
-        border-color: #dc2626;
-    }
-
-    &__count {
-        background: #f3f4f6;
-        color: #666;
-        border-radius: 20px;
-        padding: 1px 6px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-}
-
-// ── Строка поиска ──
 .mgr-page__search-row {
     margin-bottom: 16px;
 
@@ -791,6 +835,10 @@ a.adm-detail__back {
         transition: border-color 0.2s;
         background: #fff;
 
+        @media (max-width: 480px) {
+            max-width: 100%;
+        }
+
         &:focus {
             border-color: #a86a3d;
         }
@@ -798,5 +846,32 @@ a.adm-detail__back {
         &::placeholder {
             color: #bbb;
         }
+    }
+}
+
+// ── Ссылки ────────────────────────────────────────────
+
+a.adm-detail__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+        color: #1a1a1a;
+    }
+}
+
+.adm-seller__link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+
+    &:hover .adm-seller__name {
+        color: #a86a3d;
+        text-decoration: underline;
     }
 }

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-// RequestsPage styles
+// AdminRequestsPage styles
 // ═══════════════════════════════════════════════════════
 @use '../../dashboard.shared';
 
@@ -11,6 +11,7 @@
         justify-content: space-between;
         margin-bottom: 20px;
         gap: 16px;
+        flex-wrap: wrap;
     }
 
     &__title {
@@ -18,6 +19,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 4px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__subtitle {
@@ -25,12 +30,32 @@
         color: #999;
     }
 
-    // ── Счётчики ──
+    // ── Счётчики — sticky ниже 768 ──
     &__stats {
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f5f5f5;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 10px 0;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-bottom: 16px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     // ── Таблица ──
@@ -39,6 +64,7 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
@@ -94,6 +120,10 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+
+        @media (max-width: 480px) {
+            padding: 40px 16px;
+        }
     }
 }
 
@@ -112,6 +142,8 @@
     color: #666;
     cursor: pointer;
     transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
 
     &:hover {
         border-color: #a86a3d;
@@ -227,7 +259,7 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.45);
-        z-index: 100;
+        z-index: 1000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -247,6 +279,11 @@
         &--wide {
             max-width: 600px;
         }
+
+        @media (max-width: 480px) {
+            padding: 20px 16px;
+            border-radius: 12px;
+        }
     }
 
     &__header {
@@ -260,6 +297,10 @@
         font-size: 18px;
         font-weight: 700;
         color: #1a1a1a;
+
+        @media (max-width: 480px) {
+            font-size: 16px;
+        }
     }
 
     &__subtitle {
@@ -280,6 +321,7 @@
         cursor: pointer;
         padding: 4px;
         transition: color 0.2s;
+        flex-shrink: 0;
 
         &:hover {
             color: #333;
@@ -332,6 +374,16 @@
         gap: 12px;
         justify-content: flex-end;
         margin-top: 4px;
+        flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .sellers-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     }
 }
 

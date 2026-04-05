@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════
-// ManagersPage styles
+// AdminAdminsPage styles
 // ═══════════════════════════════════════════════════════
 
 .adm-page {
@@ -19,6 +19,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 4px;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__subtitle {
@@ -31,12 +35,14 @@
         border-radius: 12px;
         border: 1px solid #f0f0f0;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 480px;
 
         thead tr {
             border-bottom: 2px solid #f0f0f0;
@@ -83,6 +89,10 @@
         background: #fff;
         border-radius: 12px;
         border: 1px solid #f0f0f0;
+
+        @media (max-width: 480px) {
+            padding: 40px 16px;
+        }
     }
 }
 
@@ -124,6 +134,7 @@
         font-size: 12px;
         color: #999;
         margin-top: 2px;
+        word-break: break-all;
     }
 }
 
@@ -165,6 +176,7 @@
         transition: color 0.2s;
         padding: 0;
         font-family: var(--font-pt-serif);
+        text-decoration: none;
 
         &:hover {
             color: #1a1a1a;
@@ -181,6 +193,11 @@
         padding: 24px;
         margin-bottom: 16px;
         flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            padding: 16px;
+            gap: 12px;
+        }
     }
 
     &__avatar {
@@ -195,6 +212,12 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+
+        @media (max-width: 480px) {
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+        }
     }
 
     &__info {
@@ -207,6 +230,10 @@
         font-weight: 700;
         color: #1a1a1a;
         margin-bottom: 6px;
+
+        @media (max-width: 480px) {
+            font-size: 17px;
+        }
     }
 
     &__email {
@@ -216,9 +243,12 @@
         font-size: 13px;
         color: #666;
         margin-bottom: 8px;
+        word-break: break-all;
+        min-width: 0;
 
         svg {
             color: #bbb;
+            flex-shrink: 0;
         }
     }
 
@@ -228,6 +258,16 @@
         flex-wrap: wrap;
         align-items: flex-start;
         margin-left: auto;
+
+        @media (max-width: 480px) {
+            width: 100%;
+            margin-left: 0;
+
+            .sellers-btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
     }
 
     &__meta {
@@ -238,6 +278,11 @@
         background: #fafafa;
         border-radius: 10px;
         margin-bottom: 16px;
+
+        @media (max-width: 480px) {
+            padding: 12px 16px;
+            gap: 12px;
+        }
     }
 
     &__meta-item {
@@ -252,11 +297,33 @@
         }
     }
 
+    // ── Статус-блоки — sticky ниже 768 ──
     &__stats {
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
         flex-wrap: wrap;
+
+        @media (max-width: 768px) {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f5f5f5;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 10px 0;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-bottom: 16px;
+            gap: 8px;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
     }
 
     &__sellers {
@@ -272,16 +339,23 @@
         color: #1a1a1a;
         padding: 16px 20px;
         border-bottom: 1px solid #f5f5f5;
+
+        @media (max-width: 480px) {
+            padding: 14px 16px;
+            font-size: 14px;
+        }
     }
 
     &__table-wrap {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     &__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        min-width: 500px;
 
         thead tr {
             border-bottom: 1px solid #f0f0f0;
@@ -295,6 +369,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #bbb;
+            white-space: nowrap;
         }
 
         tbody tr {
@@ -350,11 +425,30 @@
     border-radius: 10px;
     min-width: 80px;
     cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    background: none;
+    font-family: inherit;
+    flex-shrink: 0;
+
+    &:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    &--selected {
+        border-color: currentColor;
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+    }
 
     &__num {
         font-size: 22px;
         font-weight: 700;
         line-height: 1;
+
+        @media (max-width: 480px) {
+            font-size: 18px;
+        }
     }
 
     &__label {
@@ -362,6 +456,12 @@
         margin-top: 4px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    &--all {
+        background: #f3f4f6;
+        color: #374151;
     }
 
     &--active {
@@ -391,7 +491,7 @@
         position: fixed;
         inset: 0;
         background: rgba(0, 0, 0, 0.45);
-        z-index: 100;
+        z-index: 1000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -405,6 +505,13 @@
         max-width: 440px;
         padding: 32px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        max-height: 90vh;
+        overflow-y: auto;
+
+        @media (max-width: 480px) {
+            padding: 20px 16px;
+            border-radius: 12px;
+        }
     }
 
     &__header {
@@ -418,6 +525,10 @@
         font-size: 18px;
         font-weight: 700;
         color: #1a1a1a;
+
+        @media (max-width: 480px) {
+            font-size: 16px;
+        }
     }
 
     &__close {
@@ -427,6 +538,7 @@
         color: #999;
         cursor: pointer;
         transition: color 0.2s;
+        flex-shrink: 0;
 
         &:hover {
             color: #333;
@@ -491,15 +603,26 @@
         gap: 12px;
         justify-content: flex-end;
         margin-top: 4px;
+        flex-wrap: wrap;
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            .sellers-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     }
 }
 
-// ── Переиспользуемые утилиты ─────────────────────────
+// ── Утилиты ──────────────────────────────────────────
 
 .sellers-actions {
     display: flex;
     gap: 6px;
     align-items: center;
+    flex-wrap: nowrap;
 }
 
 .sellers-badge {
@@ -581,6 +704,15 @@
         }
     }
 
+    &--info {
+        background: #dbeafe;
+        color: #1e40af;
+
+        &:hover:not(:disabled) {
+            background: #bfdbfe;
+        }
+    }
+
     &--warning {
         background: #fef3c7;
         color: #92400e;
@@ -604,82 +736,26 @@
         font-size: 13px;
         border-radius: 6px;
     }
-}
 
-// ── Дополнительные классы для AdminAdminsPage ──
-.adm-detail__stats {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
-
-.adm-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 20px;
-    border-radius: 8px;
-    min-width: 90px;
-    font-weight: 600;
-
-    &__num {
-        font-size: 24px;
-        line-height: 1;
-    }
-
-    &__label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-top: 4px;
-    }
-
-    &--active {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    &--draft {
-        background: #e2e3e5;
-        color: #383d41;
-    }
-
-    &--expired {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    &--inactive {
-        background: #f8d7da;
-        color: #721c24;
+    @media (max-width: 480px) {
+        padding: 8px 12px;
+        font-size: 13px;
     }
 }
 
-.adm-detail__section-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-}
-
-.adm-detail__empty {
-    color: var(--color-text-secondary);
-    padding: 16px 0;
-}
+// ── Ссылки продавцов ─────────────────────────────────
 
 .adm-seller__link {
     text-decoration: none;
     color: inherit;
+    display: block;
+
+    &:hover .adm-seller__name {
+        color: #a86a3d;
+    }
 }
 
-.adm-seller__name {
-    font-weight: 500;
-}
-
-.adm-seller__type {
-    font-size: 12px;
-    color: var(--color-text-secondary);
-}
+// ── Строка поиска ─────────────────────────────────────
 
 .mgr-page__search-row {
     margin-bottom: 16px;
@@ -695,6 +771,10 @@
         outline: none;
         transition: border-color 0.2s;
         background: #fff;
+
+        @media (max-width: 480px) {
+            max-width: 100%;
+        }
 
         &:focus {
             border-color: #a86a3d;
