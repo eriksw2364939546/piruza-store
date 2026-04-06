@@ -3,45 +3,47 @@
 import "./HowToOrder.scss";
 import { Search, MessageCircle, Package } from "lucide-react";
 import Link from "next/link";
-
-const steps = [
-  {
-    num: "01",
-    icon: <Search size={28} />,
-    title: "Trouvez un vendeur",
-    text: "Parcourez les boutiques locales par ville ou catégorie et trouvez ce qui vous plaît.",
-    color: "#f0ede8",
-  },
-  {
-    num: "02",
-    icon: <MessageCircle size={28} />,
-    title: "Commandez via WhatsApp",
-    text: "Choisissez vos produits, ajoutez les quantités souhaitées et envoyez votre commande directement.",
-    color: "#e8f5e9",
-  },
-  {
-    num: "03",
-    icon: <Package size={28} />,
-    title: "Recevez votre commande",
-    text: "Le vendeur vous contactera pour confirmer les détails de livraison ou de retrait.",
-    color: "#e8f0ff",
-  },
-];
+import { useTranslations } from "next-intl";
 
 const HowToOrder = () => {
+  const t = useTranslations("howToOrder");
+
+  const steps = [
+    {
+      num: "01",
+      icon: <Search size={28} />,
+      title: t("step1Title"),
+      text: t("step1Text"),
+      color: "#f0ede8",
+    },
+    {
+      num: "02",
+      icon: <MessageCircle size={28} />,
+      title: t("step2Title"),
+      text: t("step2Text"),
+      color: "#e8f5e9",
+    },
+    {
+      num: "03",
+      icon: <Package size={28} />,
+      title: t("step3Title"),
+      text: t("step3Text"),
+      color: "#e8f0ff",
+    },
+  ];
+
   return (
     <section id="how-to__order" className="how-to__order">
       <div className="container">
         <div className="how-to__order-content">
           <div className="how-to__head">
-            <span className="how-to__eyebrow">Simple & rapide</span>
+            <span className="how-to__eyebrow">{t("eyebrow")}</span>
             <h2>
-              Comment <em>commander</em>
+              {t.rich("title", {
+                em: (chunks) => <em key="em">{chunks}</em>,
+              })}
             </h2>
-            <p className="how-to__desc">
-              En 3 étapes simples, trouvez vos artisans locaux préférés et
-              passez commande sans intermédiaire.
-            </p>
+            <p className="how-to__desc">{t("desc")}</p>
           </div>
 
           <div className="how-to__order-items">
@@ -61,11 +63,9 @@ const HowToOrder = () => {
 
           <div className="how-to__cta">
             <Link href="/sellers" className="how-to__order-btn btn">
-              Découvrir les vendeurs
+              {t("cta")}
             </Link>
-            <p className="how-to__note">
-              Commande directe · Sans frais · 100% local
-            </p>
+            <p className="how-to__note">{t("note")}</p>
           </div>
         </div>
       </div>

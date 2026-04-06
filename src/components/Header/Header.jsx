@@ -5,12 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { clientApi } from "@/lib/clientApi";
 import { useState, useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
 import { LogIn, CircleUserRound, MapPin, Search } from "lucide-react";
 import CityModal from "@/components/CityModal/CityModal";
 import { useRouter } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const Header = ({ cities = [] }) => {
+  const t = useTranslations("header");
+  const { locale } = useParams();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [clientName, setClientName] = useState(null);
   const [city, setCity] = useState(null);
@@ -131,7 +136,6 @@ const Header = ({ cities = [] }) => {
       <header id="header">
         <div className="container">
           <div className="header-items row">
-            {/* ── Мобильный логотип слева ── */}
             <div className="header-logo">
               <Link href="/" onClick={closeMenu}>
                 <Image
@@ -143,7 +147,6 @@ const Header = ({ cities = [] }) => {
               </Link>
             </div>
 
-            {/* ── Бургер по центру мобильный ── */}
             <button
               className={`burger-menu ${isMenuOpen ? "active" : ""}`}
               onClick={toggleMenu}
@@ -154,11 +157,10 @@ const Header = ({ cities = [] }) => {
               <span></span>
             </button>
 
-            {/* ── Иконка входа справа мобильный ── */}
             <button
               className={`header-user-btn header-user-btn--mobile ${clientName ? "header-user-btn--active" : ""}`}
               onClick={handleLoginClick}
-              title={clientName ? clientName : "Se connecter"}
+              title={clientName ? clientName : t("connect")}
             >
               {clientName ? (
                 <CircleUserRound size={28} strokeWidth={1.5} />
@@ -167,23 +169,20 @@ const Header = ({ cities = [] }) => {
               )}
             </button>
 
-            {/* ── Навигация ── */}
             <nav className={isMenuOpen ? "active" : ""}>
-              {/* Левая часть */}
               <div className="header-nav__items">
-                <a href="/" onClick={closeMenu}>
-                  Accueil
-                </a>
-                <a
+                <Link href={`/${locale}`} onClick={closeMenu}>
+                  {t("home")}
+                </Link>
+                <Link
                   className="header-nav__item-link"
-                  href="/#how-to__order"
+                  href={`/${locale}/#how-to__order`}
                   onClick={closeMenu}
                 >
-                  Comment commander
-                </a>
+                  {t("howToOrder")}
+                </Link>
               </div>
 
-              {/* Центр — логотип десктоп */}
               <div className="header-logo__wrapper">
                 <div className="header-logo__dekstop">
                   <Link href="/">
@@ -197,24 +196,21 @@ const Header = ({ cities = [] }) => {
                 </div>
               </div>
 
-              {/* Правая часть */}
               <div className="header-nav__items header-nav__items--right">
-                {/* Выбор города */}
                 <button
                   className="header-city-btn"
                   onClick={() => setShowCityModal(true)}
                 >
                   <MapPin size={16} />
-                  <span>{city ? city.name : "Ville"}</span>
+                  <span>{city ? city.name : t("city")}</span>
                 </button>
 
-                {/* Поиск с dropdown */}
                 <div className="header-search-wrap">
                   <form className="header-search" onSubmit={handleSearch}>
                     <input
                       className="header-search__input"
                       type="text"
-                      placeholder="Rechercher..."
+                      placeholder={t("searchPlaceholder")}
                       value={query}
                       onChange={handleQueryChange}
                       onBlur={() =>
@@ -229,7 +225,6 @@ const Header = ({ cities = [] }) => {
                     </button>
                   </form>
 
-                  {/* Dropdown */}
                   {showDropdown && (
                     <div className="header-search__dropdown">
                       {searchLoading ? (
@@ -238,7 +233,7 @@ const Header = ({ cities = [] }) => {
                         </div>
                       ) : searchResults.length === 0 ? (
                         <div className="header-search__dropdown-empty">
-                          Aucun résultat
+                          {t("noResults")}
                         </div>
                       ) : (
                         searchResults.map((seller) => (
@@ -278,11 +273,10 @@ const Header = ({ cities = [] }) => {
                   )}
                 </div>
 
-                {/* Иконка входа десктоп */}
                 <button
                   className={`header-user-btn header-user-btn--desktop ${clientName ? "header-user-btn--active" : ""}`}
                   onClick={handleLoginClick}
-                  title={clientName ? clientName : "Se connecter"}
+                  title={clientName ? clientName : t("connect")}
                 >
                   {clientName ? (
                     <CircleUserRound size={28} strokeWidth={1.5} />
@@ -298,7 +292,6 @@ const Header = ({ cities = [] }) => {
         {isMenuOpen && <div className="menu-overlay" onClick={closeMenu}></div>}
       </header>
 
-      {/* ── Модалка города ── */}
       {showCityModal && (
         <CityModal
           cities={cities}

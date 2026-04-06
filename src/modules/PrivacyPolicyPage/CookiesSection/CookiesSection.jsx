@@ -1,92 +1,66 @@
 import "./CookiesSection.scss";
+import { useTranslations } from "next-intl";
 
 const CookiesSection = () => {
+  const t = useTranslations("privacy.cookies");
+
   return (
     <section className="cg-cookies">
       <div className="container">
         <div className="cg-cookies__inner">
-          <h2 className="cg-cookies__title">Cookies et stockage local</h2>
+          <h2 className="cg-cookies__title">{t("title")}</h2>
+          <p className="cg-cookies__intro">{t("intro")}</p>
 
-          <p className="cg-cookies__intro">
-            Piruza Store utilise des cookies et le stockage local pour assurer
-            le bon fonctionnement de la plateforme. Conformément à la directive
-            ePrivacy et aux recommandations de la CNIL, nous vous informons de
-            leur utilisation.
-          </p>
-
-          {/* Cookies essentiels */}
           <div className="cg-cookies__category">
             <div className="cg-cookies__category-header">
               <span className="cg-cookies__category-icon">🔐</span>
               <div>
-                <h3>Cookies essentiels</h3>
+                <h3>{t("essentialTitle")}</h3>
                 <span className="cg-cookies__category-badge cg-cookies__category-badge--required">
-                  Obligatoires
+                  {t("essentialBadge")}
                 </span>
               </div>
             </div>
-            <p className="cg-cookies__category-desc">
-              Ces cookies sont indispensables au bon fonctionnement de la
-              plateforme. Ils permettent de maintenir votre session active et
-              sécurisée. Ils ne peuvent pas être désactivés.
-            </p>
+            <p className="cg-cookies__category-desc">{t("essentialDesc")}</p>
           </div>
 
-          {/* Stockage local */}
           <div className="cg-cookies__category">
             <div className="cg-cookies__category-header">
               <span className="cg-cookies__category-icon">💾</span>
               <div>
-                <h3>Stockage local</h3>
+                <h3>{t("localTitle")}</h3>
                 <span className="cg-cookies__category-badge cg-cookies__category-badge--required">
-                  Fonctionnel
+                  {t("localBadge")}
                 </span>
               </div>
             </div>
-            <p className="cg-cookies__category-desc">
-              Nous utilisons le stockage local de votre navigateur pour
-              mémoriser vos préférences, notamment la ville que vous avez
-              sélectionnée. Ces données restent sur votre appareil et ne sont
-              pas transmises à nos serveurs.
-            </p>
+            <p className="cg-cookies__category-desc">{t("localDesc")}</p>
           </div>
 
-          {/* Cookies tiers */}
           <div className="cg-cookies__category">
             <div className="cg-cookies__category-header">
               <span className="cg-cookies__category-icon">🔗</span>
               <div>
-                <h3>Cookies tiers</h3>
+                <h3>{t("thirdTitle")}</h3>
                 <span className="cg-cookies__category-badge cg-cookies__category-badge--third">
-                  Services externes
+                  {t("thirdBadge")}
                 </span>
               </div>
             </div>
-            <p className="cg-cookies__category-desc">
-              Lors de la connexion via Google, des cookies tiers peuvent être
-              déposés par Google sur votre appareil. Ces cookies sont soumis à
-              la politique de confidentialité de Google et échappent au contrôle
-              de Piruza Store.
-            </p>
+            <p className="cg-cookies__category-desc">{t("thirdDesc")}</p>
             <a
               href="https://policies.google.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className="cg-cookies__link"
             >
-              Politique de confidentialité Google →
+              {t("googleLink")}
             </a>
           </div>
 
-          {/* Gestion */}
           <div className="cg-cookies__management">
-            <h3>Comment gérer vos cookies ?</h3>
-            <p>
-              Vous pouvez à tout moment gérer ou supprimer les cookies et
-              données de stockage local via les paramètres de votre navigateur.
-              Notez que la désactivation des cookies essentiels peut entraîner
-              des dysfonctionnements ou votre déconnexion de la plateforme.
-            </p>
+            <h3>{t("manageTitle")}</h3>
+            <p>{t("manageText")}</p>
             <div className="cg-cookies__browsers">
               <a
                 href="https://support.google.com/chrome/answer/95647"

@@ -1,10 +1,5 @@
 "use client";
 
-// ═══════════════════════════════════════════════════════
-// CabinetPage — espace personnel du client
-// src/modules/CabinetPage/CabinetPage.jsx
-// ═══════════════════════════════════════════════════════
-
 import { useState, useCallback, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import StarRating from "@/components/StarRating/StarRating";
@@ -16,17 +11,11 @@ import {
   logoutClientAction,
   updateClientCityAction,
 } from "@/app/actions/client.actions";
+import { useTranslations } from "next-intl";
 import "./CabinetPage.scss";
 
-const TABS = [
-  { key: "profile", label: "👤 Profil" },
-  { key: "favorites", label: "♥ Favoris" },
-  { key: "ratings", label: "⭐ Mes évaluations" },
-];
-
-// ── Onglet profil ───────────────────────────────────
-
 function ProfileTab({ profile, onCityChange, cities }) {
+  const t = useTranslations("cabinet");
   const [editing, setEditing] = useState(false);
   const [cityId, setCityId] = useState(profile.city?._id || profile.city || "");
   const [loading, setLoading] = useState(false);
@@ -37,8 +26,6 @@ function ProfileTab({ profile, onCityChange, cities }) {
     setLoading(true);
     try {
       await updateClientCityAction(cityId);
-
-      // Trouver la ville sélectionnée dans la liste et la sauvegarder dans localStorage
       const selectedCity = cities.find((c) => c._id === cityId);
       if (selectedCity) {
         localStorage.setItem(
@@ -50,7 +37,6 @@ function ProfileTab({ profile, onCityChange, cities }) {
           }),
         );
       }
-
       setSuccess(true);
       setEditing(false);
       onCityChange();
@@ -85,12 +71,12 @@ function ProfileTab({ profile, onCityChange, cities }) {
 
       <div className="cabinet-profile__fields">
         <div className="cabinet-profile__field">
-          <span className="cabinet-profile__label">Email</span>
+          <span className="cabinet-profile__label">{t("profileEmail")}</span>
           <span className="cabinet-profile__value">{profile.email}</span>
         </div>
 
         <div className="cabinet-profile__field">
-          <span className="cabinet-profile__label">Ville</span>
+          <span className="cabinet-profile__label">{t("profileCity")}</span>
           {editing ? (
             <div className="cabinet-profile__city-edit">
               <select
@@ -98,7 +84,7 @@ function ProfileTab({ profile, onCityChange, cities }) {
                 onChange={(e) => setCityId(e.target.value)}
                 className="cabinet-profile__select"
               >
-                <option value="">— Choisissez une ville —</option>
+                <option value="">{t("profileCityPlaceholder")}</option>
                 {cities.map((c) => (
                   <option key={c._id} value={c._id}>
                     {c.name}
@@ -110,13 +96,13 @@ function ProfileTab({ profile, onCityChange, cities }) {
                 onClick={handleSave}
                 disabled={loading}
               >
-                {loading ? "..." : "Enregistrer"}
+                {loading ? t("profileLoading") : t("profileSave")}
               </button>
               <button
                 className="cabinet-btn cabinet-btn--ghost"
                 onClick={() => setEditing(false)}
               >
-                Annuler
+                {t("profileCancel")}
               </button>
             </div>
           ) : (
@@ -128,14 +114,16 @@ function ProfileTab({ profile, onCityChange, cities }) {
                 className="cabinet-btn cabinet-btn--ghost cabinet-btn--sm"
                 onClick={() => setEditing(true)}
               >
-                ✏️ Modifier
+                {t("profileEdit")}
               </button>
             </div>
           )}
         </div>
 
         <div className="cabinet-profile__field">
-          <span className="cabinet-profile__label">Inscrit le</span>
+          <span className="cabinet-profile__label">
+            {t("profileCreatedAt")}
+          </span>
           <span className="cabinet-profile__value cabinet-profile__value--muted">
             {new Date(profile.createdAt).toLocaleDateString("fr-FR", {
               day: "2-digit",
@@ -147,20 +135,20 @@ function ProfileTab({ profile, onCityChange, cities }) {
       </div>
 
       {success && (
-        <div className="cabinet-profile__success">✅ Ville mise à jour</div>
+        <div className="cabinet-profile__success">{t("profileSuccess")}</div>
       )}
     </div>
   );
 }
 
-// ── Onglet favoris ─────────────────────────────────
-
 function FavoritesTab({ favorites, pagination, onRemove, onPage }) {
+  const t = useTranslations("cabinet");
+
   if (!favorites?.length) {
     return (
       <div className="cabinet-empty">
         <span className="cabinet-empty__icon">♥</span>
-        <p>Vous n'avez pas encore de vendeurs favoris</p>
+        <p>{t("favEmpty")}</p>
       </div>
     );
   }
@@ -181,14 +169,14 @@ function FavoritesTab({ favorites, pagination, onRemove, onPage }) {
   );
 }
 
-// ── Onglet évaluations ────────────────────────────────────
-
 function RatingsTab({ ratings, pagination, onPage }) {
+  const t = useTranslations("cabinet");
+
   if (!ratings?.length) {
     return (
       <div className="cabinet-empty">
         <span className="cabinet-empty__icon">⭐</span>
-        <p>Vous n'avez encore évalué aucun vendeur</p>
+        <p>{t("ratEmpty")}</p>
       </div>
     );
   }
@@ -238,8 +226,6 @@ function RatingsTab({ ratings, pagination, onPage }) {
   );
 }
 
-// ── Composant principal ─────────────────────────────────
-
 export default function CabinetPage({
   profile,
   favorites = [],
@@ -251,8 +237,15 @@ export default function CabinetPage({
   initialFavPage = 1,
   initialRatPage = 1,
 }) {
+  const t = useTranslations("cabinet");
   const router = useRouter();
   const pathname = usePathname();
+
+  const TABS = [
+    { key: "profile", label: t("tabProfile") },
+    { key: "favorites", label: t("tabFavorites") },
+    { key: "ratings", label: t("tabRatings") },
+  ];
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [favsList, setFavsList] = useState(favorites);
@@ -299,23 +292,21 @@ export default function CabinetPage({
   return (
     <div className="cabinet">
       <main className="cabinet-main">
-        {/* Statistiques */}
         <div className="cabinet-stats">
           <div className="cabinet-stat">
             <span className="cabinet-stat__num">
               {favPagination?.total ?? favsList.length}
             </span>
-            <span className="cabinet-stat__label">Favoris</span>
+            <span className="cabinet-stat__label">{t("statFavorites")}</span>
           </div>
           <div className="cabinet-stat">
             <span className="cabinet-stat__num">
               {ratPagination?.total ?? ratings.length}
             </span>
-            <span className="cabinet-stat__label">Évaluations</span>
+            <span className="cabinet-stat__label">{t("statRatings")}</span>
           </div>
         </div>
 
-        {/* Onglets */}
         <div className="cabinet-tabs">
           {TABS.map((tab) => (
             <button
@@ -328,17 +319,15 @@ export default function CabinetPage({
           ))}
         </div>
 
-        {/* Bouton de déconnexion */}
         <div className="cabinet-logout">
           <button
             className="cabinet-btn cabinet-btn--ghost"
             onClick={handleLogout}
           >
-            🚪 Se déconnecter
+            {t("logout")}
           </button>
         </div>
 
-        {/* Contenu de l'onglet */}
         <div className="cabinet-content">
           {activeTab === "profile" && (
             <ProfileTab

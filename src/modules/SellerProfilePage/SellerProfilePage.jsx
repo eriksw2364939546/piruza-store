@@ -1,10 +1,5 @@
 "use client";
 
-// ═══════════════════════════════════════════════════════
-// SellerProfilePage — публичная страница продавца
-// src/modules/SellerProfilePage/SellerProfilePage.jsx
-// ═══════════════════════════════════════════════════════
-
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -23,9 +18,8 @@ import { getImageUrl } from "@/lib/utils";
 import { validatePhone } from "@/lib/validation/orderForm.fr.schema";
 import PublicProductCard from "@/components/PublicProductCard/PublicProductCard";
 import useCart from "@/hooks/useCart";
+import { useTranslations } from "next-intl";
 import "./SellerProfilePage.scss";
-
-// ── Форма заказа WhatsApp ─────────────────────────────
 
 const OrderForm = ({
   seller,
@@ -36,19 +30,18 @@ const OrderForm = ({
   onRemove,
   onClear,
 }) => {
+  const t = useTranslations("sellerProfile");
   const [clientPhone, setClientPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
-  // products уже отфильтрован через getCartItems
   const cartItems = products;
-
   const total = cartItems.reduce((sum, p) => {
     return sum + (p?.price || 0) * (cart[p._id] || p.quantity || 0);
   }, 0);
 
   const handleSend = () => {
     if (!cartItems.length) {
-      alert("Choisissez au moins un produit");
+      alert(t("chooseProduct"));
       return;
     }
     const err = validatePhone(clientPhone);
@@ -85,7 +78,9 @@ const OrderForm = ({
     <div className="order-form__overlay" onClick={onClose}>
       <div className="order-form" onClick={(e) => e.stopPropagation()}>
         <div className="order-form__head">
-          <h3 className="order-form__title">Commander chez {seller.name}</h3>
+          <h3 className="order-form__title">
+            {t("orderTitle", { name: seller.name })}
+          </h3>
           <button className="order-form__close" onClick={onClose}>
             ✕
           </button>
@@ -93,7 +88,7 @@ const OrderForm = ({
 
         <div className="order-form__products">
           {cartItems.length === 0 ? (
-            <p className="order-form__empty">Votre panier est vide</p>
+            <p className="order-form__empty">{t("cartEmpty")}</p>
           ) : (
             cartItems.map((product) => (
               <div key={product._id} className="order-form__product">
@@ -136,7 +131,7 @@ const OrderForm = ({
 
         {total > 0 && (
           <div className="order-form__total">
-            Total: <strong>{total.toLocaleString("fr-FR")} €</strong>
+            {t("total")} <strong>{total.toLocaleString("fr-FR")} €</strong>
           </div>
         )}
 
@@ -162,20 +157,16 @@ const OrderForm = ({
           onClick={handleSend}
           disabled={!cartItems.length}
         >
-          <MessageCircle size={18} /> Envoyer sur WhatsApp
+          <MessageCircle size={18} /> {t("sendWhatsapp")}
         </button>
         <p className="order-form__privacy">
-          En envoyant, vous acceptez notre{" "}
-          <Link href="/politique-de-confidentialite">
-            politique de confidentialité
-          </Link>
+          {t("privacy")}{" "}
+          <Link href="/politique-de-confidentialite">{t("privacyLink")}</Link>
         </p>
       </div>
     </div>
   );
 };
-
-// ── Главный компонент ─────────────────────────────────
 
 export default function SellerProfilePage({
   seller,
@@ -185,6 +176,7 @@ export default function SellerProfilePage({
   productsTotalAll = null,
   initialFilters = {},
 }) {
+  const t = useTranslations("sellerProfile");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -217,9 +209,7 @@ export default function SellerProfilePage({
 
     clientApi
       .get(`/ratings/seller/${seller._id}/my`)
-      .then((json) => {
-        setMyRating(json.data?.rating || null);
-      })
+      .then((json) => setMyRating(json.data?.rating || null))
       .catch(() => {});
   }, [seller._id]);
 
@@ -230,6 +220,34 @@ export default function SellerProfilePage({
       window.scrollTo({ top: parseInt(saved), behavior: "instant" });
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    const el = sidebarListRef.current;
+    if (!el) return;
+    let startX = 0,
+      startY = 0,
+      isHorizontal = false;
+    const onTouchStart = (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      isHorizontal = false;
+    };
+    const onTouchMove = (e) => {
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      if (dx > dy) isHorizontal = true;
+      if (isHorizontal) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+    };
+  }, []);
 
   const pushUrl = useCallback(
     (newQuery, newCategory, newPage = 1, saveScroll = true) => {
@@ -243,45 +261,6 @@ export default function SellerProfilePage({
     },
     [router, pathname],
   );
-  //на список и заблокируй вертикальный скролл
-  useEffect(() => {
-    const el = sidebarListRef.current;
-    if (!el) return;
-
-    let startX = 0;
-    let startY = 0;
-    let isHorizontal = false;
-
-    const onTouchStart = (e) => {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      isHorizontal = false;
-    };
-
-    const onTouchMove = (e) => {
-      const dx = Math.abs(e.touches[0].clientX - startX);
-      const dy = Math.abs(e.touches[0].clientY - startY);
-
-      // определяем направление по первому движению
-      if (dx > dy) {
-        isHorizontal = true;
-      }
-
-      // если горизонтальный скролл — блокируем вертикальный скролл страницы
-      if (isHorizontal) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-    };
-
-    el.addEventListener("touchstart", onTouchStart, { passive: true });
-    el.addEventListener("touchmove", onTouchMove, { passive: false }); // passive: false — чтобы preventDefault работал
-
-    return () => {
-      el.removeEventListener("touchstart", onTouchStart);
-      el.removeEventListener("touchmove", onTouchMove);
-    };
-  }, []);
 
   const handleQueryChange = (e) => {
     const val = e.target.value;
@@ -294,7 +273,6 @@ export default function SellerProfilePage({
   };
 
   const handleCategory = (categoryId) => pushUrl(query, categoryId);
-
   const handlePage = (newPage) => {
     pushUrl(query, initialFilters.category, newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -331,7 +309,6 @@ export default function SellerProfilePage({
 
   return (
     <div className="seller-profile">
-      {/* ── Обложка внутри container ── */}
       <div className="seller-profile__cover-wrap">
         <div className="container">
           <div className="seller-profile__cover">
@@ -342,8 +319,6 @@ export default function SellerProfilePage({
                 <div className="seller-profile__cover-empty" />
               )}
             </div>
-
-            {/* Лого — левый нижний угол */}
             <div className="seller-profile__logo-wrap">
               {seller.logo ? (
                 <img
@@ -357,8 +332,6 @@ export default function SellerProfilePage({
                 </div>
               )}
             </div>
-
-            {/* Рейтинг — правый верхний угол */}
             {seller.averageRating > 0 && (
               <div className="seller-profile__cover-rating">
                 <StarRating value={seller.averageRating} size={14} />
@@ -371,44 +344,35 @@ export default function SellerProfilePage({
         </div>
       </div>
 
-      {/* ── Контент ── */}
       <div className="seller-profile__body">
         <div className="container">
-          {/* Кнопка назад */}
           <button
             className="seller-profile__back"
             onClick={() => router.back()}
           >
-            <ArrowLeft size={16} /> Retour
+            <ArrowLeft size={16} /> {t("back")}
           </button>
 
-          {/* ── Инфо — двухколоночный ── */}
           <div className="seller-profile__info">
-            {/* Левая колонка */}
             <div className="seller-profile__info-left">
               <div className="seller-profile__title-row">
                 <h1 className="seller-profile__name">{seller.name}</h1>
                 <p className="seller-profile__type">{seller.businessType}</p>
               </div>
-
               {seller.address && (
                 <p className="seller-profile__address">
                   <MapPin size={14} /> {seller.address}
                 </p>
               )}
-
               {seller.description && (
                 <p className="seller-profile__desc">{seller.description}</p>
               )}
-
               {seller.legalInfo && (
                 <p className="seller-profile__legal">{seller.legalInfo}</p>
               )}
             </div>
 
-            {/* Правая колонка */}
             <div className="seller-profile__info-right">
-              {/* Контакты */}
               {seller.phone && (
                 <a
                   href={`tel:${seller.phone}`}
@@ -417,19 +381,15 @@ export default function SellerProfilePage({
                   <Phone size={16} /> {seller.phone}
                 </a>
               )}
-
-              {/* Оценить продавца */}
               <div className="seller-profile__rate">
                 <div className="seller-profile__rate-head">
                   <p className="seller-profile__rate-label">
-                    {myRating ? "Votre note" : "Noter ce vendeur"}
+                    {myRating ? t("myRating") : t("rateLabel")}
                   </p>
                   <button
                     className={`seller-profile__fav ${isFav ? "seller-profile__fav--active" : ""}`}
                     onClick={handleToggleFav}
-                    title={
-                      isFav ? "Retirer des favoris" : "Ajouter aux favoris"
-                    }
+                    title={isFav ? t("removeFav") : t("addFav")}
                   >
                     <Heart size={18} fill={isFav ? "currentColor" : "none"} />
                   </button>
@@ -450,19 +410,20 @@ export default function SellerProfilePage({
                     className="seller-profile__rate-delete"
                     onClick={() => handleRate(null)}
                   >
-                    Supprimer ma note
+                    {t("deleteRating")}
                   </button>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ── Товары ── */}
           <div className="seller-profile__products">
             <div className="seller-profile__products-layout">
               {categories.length > 0 && (
                 <aside className="seller-profile__sidebar">
-                  <p className="seller-profile__sidebar-title">Catégories</p>
+                  <p className="seller-profile__sidebar-title">
+                    {t("categories")}
+                  </p>
                   <ul
                     className="seller-profile__sidebar-list"
                     ref={sidebarListRef}
@@ -472,7 +433,7 @@ export default function SellerProfilePage({
                         className={`seller-profile__sidebar-btn ${!initialFilters.category ? "seller-profile__sidebar-btn--active" : ""}`}
                         onClick={() => handleCategory("")}
                       >
-                        Tous{" "}
+                        {t("all")}{" "}
                         <span className="seller-profile__sidebar-count">
                           {productsTotalAll ?? total}
                         </span>
@@ -498,7 +459,7 @@ export default function SellerProfilePage({
                   <input
                     className="seller-profile__search"
                     type="text"
-                    placeholder="Rechercher un produit..."
+                    placeholder={t("searchPlaceholder")}
                     value={query}
                     onChange={handleQueryChange}
                   />
@@ -506,7 +467,7 @@ export default function SellerProfilePage({
 
                 {products.length === 0 ? (
                   <div className="seller-profile__empty">
-                    <p>Aucun produit trouvé</p>
+                    <p>{t("emptyProducts")}</p>
                   </div>
                 ) : (
                   <div className="seller-profile__products-grid">
@@ -534,13 +495,12 @@ export default function SellerProfilePage({
         </div>
       </div>
 
-      {/* ── Панель корзины ── */}
       {seller.whatsapp && totalItems > 0 && (
         <div className="cart-bar" onClick={() => setOrderOpen(true)}>
           <div className="cart-bar__left">
             <span className="cart-bar__count">{totalItems}</span>
             <span className="cart-bar__label">
-              article{totalItems > 1 ? "s" : ""} dans le panier
+              {totalItems > 1 ? t("cartLabelPlural") : t("cartLabel")}
             </span>
           </div>
           <div className="cart-bar__right">
@@ -550,7 +510,7 @@ export default function SellerProfilePage({
               </span>
             )}
             <span className="cart-bar__btn">
-              <MessageCircle size={18} /> Commander
+              <MessageCircle size={18} /> {t("order")}
             </span>
           </div>
         </div>

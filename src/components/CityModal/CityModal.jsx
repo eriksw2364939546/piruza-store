@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { MapPin, Search, X } from "lucide-react";
 import "./CityModal.scss";
+import { useTranslations } from "next-intl";
 
 const CityModal = ({ cities = [], onSelect, onClose, selectedCity = null }) => {
+  const t = useTranslations("cityModal");
   const [query, setQuery] = useState("");
 
   const filtered = cities.filter((c) =>
@@ -14,7 +16,6 @@ const CityModal = ({ cities = [], onSelect, onClose, selectedCity = null }) => {
   return (
     <div className="city-modal__overlay" onClick={onClose}>
       <div className="city-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Закрыть — только если есть onClose (не первый визит) */}
         {onClose && (
           <button className="city-modal__close" onClick={onClose}>
             <X size={20} />
@@ -25,18 +26,15 @@ const CityModal = ({ cities = [], onSelect, onClose, selectedCity = null }) => {
           <MapPin size={28} />
         </div>
 
-        <h2 className="city-modal__title">Choisissez votre ville</h2>
-        <p className="city-modal__subtitle">
-          Pour voir les vendeurs près de chez vous
-        </p>
+        <h2 className="city-modal__title">{t("title")}</h2>
+        <p className="city-modal__subtitle">{t("subtitle")}</p>
 
-        {/* Поиск */}
         <div className="city-modal__search-wrap">
           <Search size={16} className="city-modal__search-icon" />
           <input
             className="city-modal__search"
             type="text"
-            placeholder="Rechercher une ville..."
+            placeholder={t("searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
@@ -51,18 +49,16 @@ const CityModal = ({ cities = [], onSelect, onClose, selectedCity = null }) => {
           )}
         </div>
 
-        {/* Текущий город */}
         {selectedCity && !query && (
           <div className="city-modal__current">
             <MapPin size={13} />
-            Ville actuelle : <strong>{selectedCity.name}</strong>
+            {t("currentCity")} <strong>{selectedCity.name}</strong>
           </div>
         )}
 
-        {/* Результаты */}
         <div className="city-modal__list">
           {filtered.length === 0 ? (
-            <p className="city-modal__empty">Aucune ville trouvée</p>
+            <p className="city-modal__empty">{t("noCity")}</p>
           ) : (
             filtered.map((city) => (
               <button

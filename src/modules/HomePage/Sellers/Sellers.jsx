@@ -5,8 +5,7 @@ import { useMemo } from "react";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import SellerPublicCard from "@/components/SellerPublicCard/SellerPublicCard";
-
-// ── Скелетон ─────────────────────────────────────────
+import { useTranslations } from "next-intl";
 
 const SkeletonCard = () => (
   <div className="seller-card seller-card--skeleton">
@@ -18,13 +17,12 @@ const SkeletonCard = () => (
   </div>
 );
 
-// ── Секция ────────────────────────────────────────────
+const SellersSection = ({ eyebrow, titleKey, sellers, loading, allHref }) => {
+  const t = useTranslations("sellers");
 
-const SellersSection = ({ eyebrow, title, sellers, loading, allHref }) => {
   const handleSeeAll = () => {
-    // Сохраняем текущий скролл и referrer в момент клика
     sessionStorage.setItem("home_scroll", window.scrollY.toString());
-    sessionStorage.setItem("sellers_referrer", "/");
+    sessionStorage.setItem("sellers_referrer", window.location.pathname);
   };
 
   return (
@@ -32,17 +30,18 @@ const SellersSection = ({ eyebrow, title, sellers, loading, allHref }) => {
       <div className="sellers__head">
         <div>
           <span className="sellers__eyebrow">{eyebrow}</span>
-          <h2
-            className="sellers__title"
-            dangerouslySetInnerHTML={{ __html: title }}
-          />
+          <h2 className="sellers__title">
+            {t.rich(titleKey, {
+              em: (chunks) => <em key="em">{chunks}</em>,
+            })}
+          </h2>
         </div>
         <Link
           href={allHref}
           className="sellers__see-all"
           onClick={handleSeeAll}
         >
-          Voir tous <ArrowRight size={16} />
+          {t("seeAll")} <ArrowRight size={16} />
         </Link>
       </div>
 
@@ -50,7 +49,7 @@ const SellersSection = ({ eyebrow, title, sellers, loading, allHref }) => {
         {loading ? (
           [1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)
         ) : sellers.length === 0 ? (
-          <p className="sellers__empty">Aucun vendeur disponible.</p>
+          <p className="sellers__empty">{t("empty")}</p>
         ) : (
           sellers.map((s) => <SellerPublicCard key={s._id} seller={s} />)
         )}
@@ -59,9 +58,8 @@ const SellersSection = ({ eyebrow, title, sellers, loading, allHref }) => {
   );
 };
 
-// ── Главный компонент ─────────────────────────────────
-
 const Sellers = ({ sellers = [], city }) => {
+  const t = useTranslations("sellers");
   const citySlug = city?.slug || null;
   const cityName = city?.name || "";
   const loading = !city;
@@ -72,11 +70,9 @@ const Sellers = ({ sellers = [], city }) => {
   }, [sellers, citySlug]);
 
   const popular = useMemo(() => {
-    const sorted = [...byCitySlug]
+    return [...byCitySlug]
       .sort((a, b) => (b.viewsCount || 0) - (a.viewsCount || 0))
       .slice(0, 8);
-
-    return sorted;
   }, [byCitySlug]);
 
   const local = useMemo(() => {
@@ -87,8 +83,8 @@ const Sellers = ({ sellers = [], city }) => {
     <section className="sellers">
       <div className="container">
         <SellersSection
-          eyebrow="Les plus visités"
-          title="Populaires"
+          eyebrow={t("popularEyebrow")}
+          titleKey="popularTitle"
           sellers={popular}
           loading={loading}
           allHref={
@@ -99,8 +95,12 @@ const Sellers = ({ sellers = [], city }) => {
         />
 
         <SellersSection
-          eyebrow={cityName ? `À ${cityName}` : "Près de vous"}
-          title={`Vendeurs <em>locaux</em>`}
+          eyebrow={
+            cityName
+              ? t("localEyebrow", { city: cityName })
+              : t("localEyebrowDefault")
+          }
+          titleKey="localTitle"
           sellers={local}
           loading={loading}
           allHref={

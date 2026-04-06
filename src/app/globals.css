@@ -23,10 +23,14 @@ body {
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
   scroll-padding-top: 50px;
 }
 
+/* плавный скролл только для якорных ссылок */
+html:focus-within {
+  scroll-behavior: smooth;
+}
 
 * {
   box-sizing: border-box;

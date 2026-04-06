@@ -2,8 +2,10 @@
 
 import "./Hero.scss";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const Hero = ({ categories = [] }) => {
+  const t = useTranslations("hero");
   const router = useRouter();
 
   const handleCategory = (slug) => {
@@ -16,24 +18,19 @@ const Hero = ({ categories = [] }) => {
 
       <div className="container">
         <div className="hero__content">
-          {/* Заголовок + описание */}
           <div className="hero__text">
-            <span className="hero__eyebrow">Bienvenue sur Piruza Store</span>
+            <span className="hero__eyebrow">{t("eyebrow")}</span>
             <h1 className="hero__title">
-              Le marché local
+              {t("title")}
               <br />
-              <em>de votre ville</em>
+              <em>{t("titleEm")}</em>
             </h1>
-            <p className="hero__subtitle">
-              Découvrez des artisans et vendeurs locaux authentiques — produits
-              faits maison, commande directe via WhatsApp.
-            </p>
+            <p className="hero__subtitle">{t("subtitle")}</p>
           </div>
 
-          {/* Категории */}
           {categories.length > 0 && (
             <div className="hero__categories">
-              <p className="hero__categories-label">Catégories</p>
+              <p className="hero__categories-label">{t("categories")}</p>
               <div className="hero__categories-list">
                 {categories.map((cat) => (
                   <button

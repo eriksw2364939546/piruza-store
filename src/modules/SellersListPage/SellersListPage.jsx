@@ -1,10 +1,5 @@
 "use client";
 
-// ═══════════════════════════════════════════════════════
-// SellersListPage — публичный список продавцов
-// src/modules/SellersListPage/SellersListPage.jsx
-// ═══════════════════════════════════════════════════════
-
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
@@ -12,6 +7,7 @@ import { clientApi } from "@/lib/clientApi";
 import SellerPublicCard from "@/components/SellerPublicCard/SellerPublicCard";
 import CityModal from "@/components/CityModal/CityModal";
 import Pagination from "@/components/Pagination/Pagination";
+import { useTranslations } from "next-intl";
 import "./SellersListPage.scss";
 
 const SellersListPage = ({
@@ -20,6 +16,7 @@ const SellersListPage = ({
   categories = [],
   initialFilters = {},
 }) => {
+  const t = useTranslations("sellersList");
   const router = useRouter();
   const pathname = usePathname();
   const timerRef = useRef(null);
@@ -30,7 +27,8 @@ const SellersListPage = ({
   const [cities, setCities] = useState([]);
 
   const pageTitle =
-    initialFilters.sort === "views" ? "Les plus visités" : "Vendeurs locaux";
+    initialFilters.sort === "views" ? t("titleViews") : t("titleLocal");
+  const city = initialFilters.city;
 
   const injectCity = useCallback(
     (citySlug) => {
@@ -40,7 +38,6 @@ const SellersListPage = ({
     },
     [router, pathname],
   );
-  const city = initialFilters.city;
 
   useEffect(() => {
     if (city) return;
@@ -49,9 +46,7 @@ const SellersListPage = ({
       const saved = localStorage.getItem("piruza_city");
       if (saved) {
         const parsedCity = JSON.parse(saved);
-        if (parsedCity?.slug) {
-          injectCity(parsedCity.slug);
-        }
+        if (parsedCity?.slug) injectCity(parsedCity.slug);
       } else {
         clientApi
           .get("/cities/active?limit=100")
@@ -90,9 +85,7 @@ const SellersListPage = ({
     const val = e.target.value;
     setQuery(val);
     clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      pushUrl(val, category);
-    }, 400);
+    timerRef.current = setTimeout(() => pushUrl(val, category), 400);
   };
 
   const handleCategoryChange = (val) => {
@@ -121,11 +114,11 @@ const SellersListPage = ({
               router.push(ref);
             }}
           >
-            ← Retour
+            {t("back")}
           </button>
           <h1 className="sellers-list-page__title">{pageTitle}</h1>
           <p className="sellers-list-page__count">
-            {total} vendeur{total !== 1 ? "s" : ""}
+            {total} {total !== 1 ? t("vendeurs") : t("vendeur")}
           </p>
         </div>
 
@@ -136,7 +129,7 @@ const SellersListPage = ({
             <input
               className="sellers-list-page__search"
               type="text"
-              placeholder="Rechercher un vendeur..."
+              placeholder={t("searchPlaceholder")}
               value={query}
               onChange={handleQueryChange}
             />
@@ -147,7 +140,7 @@ const SellersListPage = ({
             value={category}
             onChange={(e) => handleCategoryChange(e.target.value)}
           >
-            <option value="">Toutes les catégories</option>
+            <option value="">{t("allCategories")}</option>
             {categories.map((cat) => (
               <option key={cat._id} value={cat.slug}>
                 {cat.name}
@@ -166,7 +159,7 @@ const SellersListPage = ({
         ) : sellers.length === 0 ? (
           <div className="sellers-list-page__empty">
             <SlidersHorizontal size={32} />
-            <p>Aucun vendeur trouvé</p>
+            <p>{t("empty")}</p>
           </div>
         ) : (
           <div className="sellers-list-page__grid">
@@ -176,7 +169,6 @@ const SellersListPage = ({
           </div>
         )}
 
-        {/* ── Пагинация ── */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
@@ -184,7 +176,6 @@ const SellersListPage = ({
         />
       </div>
 
-      {/* ── Модалка города если нет города ── */}
       {showCityModal && (
         <CityModal
           cities={cities}

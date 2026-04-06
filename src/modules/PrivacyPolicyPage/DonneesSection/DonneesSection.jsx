@@ -1,187 +1,154 @@
 import "./DonneesSection.scss";
+import { useTranslations } from "next-intl";
 
 const DonneesSection = () => {
+  const t = useTranslations("privacy.donnees");
+
   return (
     <section className="cg-donnees">
       <div className="container">
         <div className="cg-donnees__inner">
-          <h2 className="cg-donnees__title">Données collectées</h2>
+          <h2 className="cg-donnees__title">{t("title")}</h2>
+          <p className="cg-donnees__intro">{t("intro")}</p>
 
-          <p className="cg-donnees__intro">
-            Dans le cadre du fonctionnement de la plateforme Piruza Store, nous
-            collectons uniquement les données strictement nécessaires à la
-            fourniture de nos services, conformément au principe de minimisation
-            des données prévu par le RGPD.
-          </p>
-
-          {/* Clients */}
           <div className="cg-donnees__category">
             <div className="cg-donnees__category-header">
               <span className="cg-donnees__category-icon">👤</span>
-              <h3>Données des clients</h3>
+              <h3>{t("clientsTitle")}</h3>
             </div>
             <div className="cg-donnees__items">
               <div className="cg-donnees__item">
-                <h4>Via la connexion Google</h4>
+                <h4>{t("clientsGoogleTitle")}</h4>
                 <ul>
-                  <li>Nom et prénom</li>
-                  <li>Adresse email</li>
-                  <li>Photo de profil</li>
-                  <li>Identifiant unique de connexion</li>
+                  <li>{t("clientsGoogle1")}</li>
+                  <li>{t("clientsGoogle2")}</li>
+                  <li>{t("clientsGoogle3")}</li>
+                  <li>{t("clientsGoogle4")}</li>
                 </ul>
               </div>
               <div className="cg-donnees__item">
-                <h4>Via l'utilisation de la plateforme</h4>
+                <h4>{t("clientsPlatformTitle")}</h4>
                 <ul>
-                  <li>Ville sélectionnée</li>
-                  <li>Liste des vendeurs ajoutés en favoris</li>
-                  <li>Évaluations attribuées aux vendeurs (note 1 à 5)</li>
-                  <li>Date d'inscription et dernière connexion</li>
+                  <li>{t("clientsPlatform1")}</li>
+                  <li>{t("clientsPlatform2")}</li>
+                  <li>{t("clientsPlatform3")}</li>
+                  <li>{t("clientsPlatform4")}</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Vendeurs */}
           <div className="cg-donnees__category">
             <div className="cg-donnees__category-header">
               <span className="cg-donnees__category-icon">🏪</span>
-              <h3>Données des vendeurs</h3>
+              <h3>{t("sellersTitle")}</h3>
             </div>
             <div className="cg-donnees__items">
               <div className="cg-donnees__item">
-                <h4>Informations publiques (affichées sur la plateforme)</h4>
+                <h4>{t("sellersPublicTitle")}</h4>
                 <ul>
-                  <li>Nom du commerce</li>
-                  <li>Description de l'activité</li>
-                  <li>Ville et adresse</li>
-                  <li>Numéro de téléphone professionnel</li>
-                  <li>Lien de contact WhatsApp professionnel</li>
-                  <li>Logo et photo de couverture</li>
-                  <li>Catégories et produits proposés</li>
+                  <li>{t("sellersPublic1")}</li>
+                  <li>{t("sellersPublic2")}</li>
+                  <li>{t("sellersPublic3")}</li>
+                  <li>{t("sellersPublic4")}</li>
+                  <li>{t("sellersPublic5")}</li>
+                  <li>{t("sellersPublic6")}</li>
+                  <li>{t("sellersPublic7")}</li>
                 </ul>
               </div>
               <div className="cg-donnees__item">
-                <h4>Informations de gestion (non publiques)</h4>
+                <h4>{t("sellersPrivateTitle")}</h4>
                 <ul>
-                  <li>Dates d'activation et d'expiration de l'abonnement</li>
-                  <li>Statut du compte</li>
-                  <li>Historique des évaluations reçues</li>
+                  <li>{t("sellersPrivate1")}</li>
+                  <li>{t("sellersPrivate2")}</li>
+                  <li>{t("sellersPrivate3")}</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Managers/Admins */}
           <div className="cg-donnees__category">
             <div className="cg-donnees__category-header">
               <span className="cg-donnees__category-icon">🛠️</span>
-              <h3>Données des administrateurs et managers</h3>
+              <h3>{t("adminsTitle")}</h3>
             </div>
             <div className="cg-donnees__items">
               <div className="cg-donnees__item">
-                <h4>Données stockées de façon sécurisée</h4>
+                <h4>{t("adminsSecureTitle")}</h4>
                 <ul>
-                  <li>Nom et prénom</li>
-                  <li>Adresse email professionnelle</li>
-                  <li>
-                    Mot de passe (stocké de façon sécurisée, jamais en clair)
-                  </li>
-                  <li>Rôle dans la plateforme</li>
+                  <li>{t("admins1")}</li>
+                  <li>{t("admins2")}</li>
+                  <li>{t("admins3")}</li>
+                  <li>{t("admins4")}</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Techniques */}
           <div className="cg-donnees__category">
             <div className="cg-donnees__category-header">
               <span className="cg-donnees__category-icon">⚙️</span>
-              <h3>Données techniques</h3>
+              <h3>{t("techTitle")}</h3>
             </div>
             <div className="cg-donnees__items">
               <div className="cg-donnees__item">
-                <h4>Collectées automatiquement</h4>
+                <h4>{t("techAutoTitle")}</h4>
                 <ul>
-                  <li>Adresse IP (pour la sécurité de la plateforme)</li>
-                  <li>Type de navigateur et système d'exploitation</li>
-                  <li>Pages consultées et durée de visite</li>
-                  <li>Token de session sécurisé</li>
-                  <li>Ville choisie (stockée localement sur votre appareil)</li>
+                  <li>{t("tech1")}</li>
+                  <li>{t("tech2")}</li>
+                  <li>{t("tech3")}</li>
+                  <li>{t("tech4")}</li>
+                  <li>{t("tech5")}</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          {/* Tiers */}
           <div className="cg-donnees__category">
             <div className="cg-donnees__category-header">
               <span className="cg-donnees__category-icon">🔗</span>
-              <h3>Données transmises à des tiers</h3>
+              <h3>{t("tiersTitle")}</h3>
             </div>
             <div className="cg-donnees__tiers">
               <div className="cg-donnees__tier-item">
                 <div className="cg-donnees__tier-header">
-                  <h4>Google LLC</h4>
+                  <h4>{t("googleTitle")}</h4>
                   <span className="cg-donnees__tier-role">
-                    Authentification
+                    {t("googleRole")}
                   </span>
                 </div>
-                <p>
-                  Lors de la connexion via Google, vos données
-                  d'authentification sont traitées par Google conformément à
-                  leur politique de confidentialité. Piruza Store ne stocke pas
-                  votre mot de passe Google.
-                </p>
+                <p>{t("googleText")}</p>
                 <a
                   href="https://policies.google.com/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="cg-donnees__tier-link"
                 >
-                  Politique de confidentialité Google →
+                  {t("googleLink")}
                 </a>
               </div>
-
               <div className="cg-donnees__tier-item">
                 <div className="cg-donnees__tier-header">
-                  <h4>Service d'envoi d'emails</h4>
-                  <span className="cg-donnees__tier-role">Notifications</span>
-                </div>
-                <p>
-                  Les adresses email des managers et administrateurs sont
-                  transmises à notre prestataire d'envoi d'emails uniquement
-                  pour l'envoi de notifications liées à la plateforme
-                  (activation, expiration, demandes). Ce prestataire agit en
-                  tant que sous-traitant au sens du RGPD.
-                </p>
-              </div>
-
-              <div className="cg-donnees__tier-item">
-                <div className="cg-donnees__tier-header">
-                  <h4>Hébergeur (Union Européenne)</h4>
-                  <span className="cg-donnees__tier-role">Hébergement</span>
-                </div>
-                <p>
-                  Notre infrastructure est hébergée sur des serveurs situés au
-                  sein de l'Union Européenne, garantissant la conformité au RGPD
-                  sans transfert de données hors de l'UE. Notre hébergeur agit
-                  en tant que sous-traitant au sens du RGPD.
-                </p>
-              </div>
-
-              <div className="cg-donnees__tier-item">
-                <div className="cg-donnees__tier-header">
-                  <h4>Service de base de données</h4>
+                  <h4>{t("emailTitle")}</h4>
                   <span className="cg-donnees__tier-role">
-                    Stockage des données
+                    {t("emailRole")}
                   </span>
                 </div>
-                <p>
-                  Les données de la plateforme sont stockées sur un service de
-                  base de données sécurisé. Les données sensibles sont chiffrées
-                  avant leur stockage.
-                </p>
+                <p>{t("emailText")}</p>
+              </div>
+              <div className="cg-donnees__tier-item">
+                <div className="cg-donnees__tier-header">
+                  <h4>{t("hostTitle")}</h4>
+                  <span className="cg-donnees__tier-role">{t("hostRole")}</span>
+                </div>
+                <p>{t("hostText")}</p>
+              </div>
+              <div className="cg-donnees__tier-item">
+                <div className="cg-donnees__tier-header">
+                  <h4>{t("dbTitle")}</h4>
+                  <span className="cg-donnees__tier-role">{t("dbRole")}</span>
+                </div>
+                <p>{t("dbText")}</p>
               </div>
             </div>
           </div>

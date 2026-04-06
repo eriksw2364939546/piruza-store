@@ -18,7 +18,10 @@ const HomePage = ({ categories = [], cities = [], sellers = [] }) => {
   useEffect(() => {
     const savedScroll = sessionStorage.getItem("home_scroll");
     const referrer = sessionStorage.getItem("sellers_referrer");
-    if (savedScroll && referrer === "/") {
+    console.log("savedScroll:", savedScroll);
+    console.log("referrer:", referrer);
+    console.log("pathname:", pathname);
+    if (savedScroll && referrer === pathname) {
       sessionStorage.removeItem("sellers_referrer");
       window.scrollTo({ top: parseInt(savedScroll), behavior: "instant" });
     }

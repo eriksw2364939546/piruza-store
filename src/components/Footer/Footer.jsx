@@ -1,14 +1,18 @@
 "use client";
 import "./Footer.scss";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const Footer = () => {
+  const { locale } = useParams();
+  const t = useTranslations("footer");
   const [currentYear, setCurrentYear] = useState("2026");
+
   useEffect(() => {
-    const year = new Date().getFullYear();
-    setCurrentYear(year);
+    setCurrentYear(new Date().getFullYear());
   }, []);
 
   return (
@@ -24,9 +28,7 @@ const Footer = () => {
                 height={90}
                 alt="Logo"
               />
-              <p className="footer__logo-bottom__descr">
-                Les saveurs d'ailleurs, <br /> retrouvées ici
-              </p>
+              <p className="footer__logo-bottom__descr">{t("logoDescr")}</p>
             </div>
             <div className="footer__logo-bottom__descr-heart">
               <Image
@@ -35,25 +37,23 @@ const Footer = () => {
                 height={45}
                 alt="Heart icon"
               />
-              <p>
-                Fait avec amour, <br /> comme à la maison
-              </p>
+              <p>{t("heartDescr")}</p>
             </div>
           </div>
 
           {/* ── Колонка 2 — Navigation ── */}
           <div className="footer-item">
-            <h3>Navigation</h3>
+            <h3>{t("nav")}</h3>
             <div className="footer-item__info">
-              <Link href="/#header">Accueil</Link>
-              <Link href="/sellers">Vendeurs</Link>
-              <Link href="/#how-to__order">Comment commander</Link>
+              <Link href="/#header">{t("home")}</Link>
+              <Link href="/sellers">{t("sellers")}</Link>
+              <Link href={`/${locale}/#how-to__order`}>{t("howToOrder")}</Link>
             </div>
           </div>
 
           {/* ── Колонка 3 — Contacts ── */}
           <div className="footer-item">
-            <h3>Contacts</h3>
+            <h3>{t("contacts")}</h3>
             <div className="footer-item__info-content">
               <a
                 href="https://erik-yeghiazaryan.site/"
@@ -61,7 +61,7 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Contactez le développeur
+                {t("contactDev")}
               </a>
               <div className="footer-item__messenger">
                 <a
@@ -98,24 +98,21 @@ const Footer = () => {
 
           {/* ── Колонка 4 — Pages utilitaires ── */}
           <div className="footer-item">
-            <h3>Pages utilitaires</h3>
+            <h3>{t("utilPages")}</h3>
             <div className="footer-item__info">
-              <Link href="/politique-de-confidentialite">
-                Politique de confidentialité
-              </Link>
-              <Link href="/conditions-generales">Conditions générales</Link>
-              <Link href="/a-propos">À propos</Link>
+              <Link href="/politique-de-confidentialite">{t("privacy")}</Link>
+              <Link href="/conditions-generales">{t("terms")}</Link>
+              <Link href="/a-propos">{t("about")}</Link>
             </div>
           </div>
         </div>
 
         {/* ── Footer bottom ── */}
         <div className="footer-bottom">
-          <p>© {currentYear} Piruza Store. Tous droits réservés.</p>
-          <p className="footer-bottom__note">
-            Plateforme de mise en relation — pas de livraison, pas de paiement
-            en ligne
+          <p>
+            © {currentYear} Piruza Store. {t("rights")}
           </p>
+          <p className="footer-bottom__note">{t("note")}</p>
         </div>
       </div>
     </footer>
