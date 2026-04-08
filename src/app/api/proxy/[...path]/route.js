@@ -11,6 +11,7 @@ async function handler(request, { params }) {
 
     const cookieStore = await cookies();
     const clientToken = cookieStore.get('client_token')?.value;
+    const adminToken = cookieStore.get('admin_token')?.value;
 
     const headers = {
         'Content-Type': 'application/json',
@@ -18,6 +19,9 @@ async function handler(request, { params }) {
 
     if (clientToken) {
         headers['Cookie'] = `client_token=${clientToken}`;
+    }
+    if (adminToken) {
+        headers['Authorization'] = `Bearer ${adminToken}`;
     }
 
     const options = {

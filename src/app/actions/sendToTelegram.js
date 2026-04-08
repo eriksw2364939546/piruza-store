@@ -1,6 +1,6 @@
 "use server";
 
-export async function sendToTelegram(formData, flavors, totalPrice) {
+export async function sendToTelegram(formData) {
     const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN;
     const TG_CHAT_ID = process.env.TG_CHAT_ID;
 
@@ -15,27 +15,15 @@ export async function sendToTelegram(formData, flavors, totalPrice) {
     const TG_URL = `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`;
 
     try {
-        // Формируем сообщение с учетом станции метро
-        const flavorsList = flavors
-            .map(
-                (item) =>
-                    `   • ${item.flavor.split(" - ")[0]} - ${item.quantity} шт. (${(item.quantity * 2.5).toFixed(2)}€)`
-            )
-            .join("\n");
-
         const message = `
-🆕 <b>Новый заказ!</b>
+🏪 <b>Новая заявка продавца!</b>
 
 👤 <b>Имя:</b> ${formData.name || 'Не указано'}
 📞 <b>Телефон:</b> ${formData.phone || 'Не указано'}
-📍 <b>Станция метро:</b> ${formData.metroStation || 'Не указано'}
+📍 <b>Город:</b> ${formData.city || 'Не указано'}
+💬 <b>Сообщение:</b> ${formData.message || 'Не указано'}
 
-🍇 <b>Заказ:</b>
-${flavorsList || 'Нет товаров'}
-
-💰 <b>Общая сумма:</b> ${totalPrice || 0}€
-
-⏰ <b>Время заказа:</b> ${new Date().toLocaleString("fr-FR", {
+⏰ <b>Время:</b> ${new Date().toLocaleString("fr-FR", {
             timeZone: "Europe/Paris",
             day: "2-digit",
             month: "2-digit",
@@ -44,13 +32,6 @@ ${flavorsList || 'Нет товаров'}
             minute: "2-digit",
         })}
         `.trim();
-
-        console.log("Sending to Telegram:", {
-            hasToken: !!TG_BOT_TOKEN,
-            hasChatId: !!TG_CHAT_ID,
-            name: formData.name,
-            station: formData.metroStation
-        });
 
         const response = await fetch(TG_URL, {
             method: "POST",
@@ -74,16 +55,10 @@ ${flavorsList || 'Нет товаров'}
         return {
             success: true,
             data: responseData,
-            message: "Order sent successfully"
+            message: "Lead sent successfully"
         };
     } catch (error) {
-        console.error("Telegram Catch Error:", {
-            error: error.message,
-            stack: error.stack,
-            station: formData?.metroStation,
-            name: formData?.name,
-            time: new Date().toISOString()
-        });
+        console.error("Telegram Catch Error:", error.message);
         return {
             success: false,
             error: error.message || "Failed to send message to Telegram"

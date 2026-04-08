@@ -80,6 +80,33 @@ export default async function LocaleLayout({ children, params }) {
     return (
         <NextIntlClientProvider locale={locale} messages={messages}>
             <Header cities={cities} />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        "name": "Piruza Store",
+                        "url": "https://piruzastore.online",
+                        "description": locale === 'ru'
+                            ? 'Местный рынок вашего города — домашние продукты, заказ через WhatsApp'
+                            : 'Le marché local de votre ville — produits faits maison, commande via WhatsApp',
+                        "areaServed": {
+                            "@type": "Country",
+                            "name": "France"
+                        },
+                        "inLanguage": locale === 'ru' ? 'ru' : 'fr',
+                        "potentialAction": {
+                            "@type": "SearchAction",
+                            "target": {
+                                "@type": "EntryPoint",
+                                "urlTemplate": `https://piruzastore.online/${locale}/sellers?query={search_term_string}`
+                            },
+                            "query-input": "required name=search_term_string"
+                        }
+                    })
+                }}
+            />
             <LanguageButton locale={locale} />
             {children}
             <Footer />

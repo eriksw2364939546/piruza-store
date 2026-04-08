@@ -1,7 +1,88 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import "../dashboard.shared.scss";
+
+// ─── Блок управления сайтом ───
+const SiteModeBlock = ({ siteMode }) => {
+  const [mode, setMode] = useState(siteMode);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleToggle = async () => {
+    const newMode = mode === "coming_soon" ? "live" : "coming_soon";
+    setLoading(true);
+    try {
+      console.log("🔄 Отправляем запрос:", newMode);
+      const res = await fetch("/api/proxy/settings/site-mode", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: newMode }),
+        credentials: "include",
+      });
+      console.log("📡 Статус ответа:", res.status);
+      const json = await res.json();
+      console.log("📦 Ответ:", json);
+      if (res.ok) {
+        document.cookie = `site_mode=${newMode};path=/;max-age=31536000`;
+        console.log("🍪 Cookie установлен:", document.cookie);
+        setMode(newMode);
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("❌ Ошибка:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isLive = mode === "live";
+
+  return (
+    <div className="dashboard__block" style={{ marginBottom: 32 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 12,
+        }}
+      >
+        <div>
+          <p className="dashboard__block-title" style={{ marginBottom: 4 }}>
+            🌐 Режим сайта
+          </p>
+          <p style={{ fontSize: 13, color: "#999", margin: 0 }}>
+            {isLive
+              ? "Сайт работает в обычном режиме"
+              : 'Отображается страница "Скоро открытие" для посетителей'}
+          </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span
+            className={`dashboard__badge dashboard__badge--${isLive ? "active" : "pending"}`}
+          >
+            {isLive ? "🟢 Работает" : "🟡 Coming Soon"}
+          </span>
+          <button
+            className={`sellers-btn sellers-btn--${isLive ? "warning" : "success"}`}
+            onClick={handleToggle}
+            disabled={loading}
+          >
+            {loading
+              ? "..."
+              : isLive
+                ? "⏸ Включить Welcome"
+                : "🚀 Запустить сайт"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // ─── Карточка статистики ───
 const StatCard = ({ label, value, hint, accent }) => (
@@ -47,11 +128,19 @@ const SellerItem = ({ seller }) => (
 );
 
 // ─── Главный компонент ───
-const OwnerDashboard = ({ overview, managers, sellersByStatus, userStats }) => {
+const OwnerDashboard = ({
+  overview,
+  managers,
+  sellersByStatus,
+  userStats,
+  siteMode,
+}) => {
   const { sellers, requests } = overview;
 
   return (
     <div>
+      {/* ── Режим сайта ── */}
+      <SiteModeBlock siteMode={siteMode} />
       {/* ── Продавцы ── */}
       <p className="dashboard__section-title">Продавцы в системе</p>
       <div className="dashboard__stats-grid dashboard__stats-grid--4">

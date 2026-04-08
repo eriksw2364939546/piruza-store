@@ -11,13 +11,18 @@ const ptSerif = PT_Serif({
 });
 
 export const metadata = {
-  title: "Piruza Store",
-  description: "Piruza Store",
+  metadataBase: new URL('https://piruzastore.online'),
+  title: 'Piruza Store',
+  description: 'Piruza Store',
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function RootLayout({ children }) {
   return (
-    <html lang="ru" data-scroll-behavior="smooth">
+    <html lang="fr" data-scroll-behavior="smooth">
       <body className={ptSerif.variable}>
         {children}
         <ToastProvider />
