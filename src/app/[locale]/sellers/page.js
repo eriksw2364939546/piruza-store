@@ -84,7 +84,7 @@ export default async function Page({ params, searchParams }) {
     const [categoriesRes, sellersRes] = await Promise.allSettled([
         CategoryService.getGlobalCategories(1, 100),
         city
-            ? SellerService.getPublicSellers({ city, category, query, sort, page, limit: 4 })
+            ? SellerService.getPublicSellers({ city, category, query, sort, page, limit: 20 })
             : Promise.resolve({ data: [], pagination: null }),
     ]);
 
